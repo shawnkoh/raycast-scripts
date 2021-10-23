@@ -3,7 +3,7 @@
 # Required parameters:
 # @raycast.schemaVersion 1
 # @raycast.title Open daily note
-# @raycast.mode inline
+# @raycast.mode silent
 # @raycast.refreshTime 1h
 
 # Optional parameters:
