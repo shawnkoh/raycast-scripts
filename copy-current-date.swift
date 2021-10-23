@@ -3,7 +3,7 @@
 // Required parameters:
 // @raycast.schemaVersion 1
 // @raycast.title Copy Current Date
-// @raycast.mode inline
+// @raycast.mode silent
 // @raycast.refreshTime 1d
 
 // Optional parameters:
