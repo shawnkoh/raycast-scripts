@@ -19,10 +19,11 @@ import re
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-tag_regex = r"\s?#[\w\/-]+\s*\s?"
+tag_regex = r"\s?<!--\s*(#[\w\/-]+)\s*-->\s?"
 bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
 progress = 0
+count = len(urls)
 
 for url in urls:
     progress += 1
@@ -30,16 +31,16 @@ for url in urls:
     md_text = ""
     new_text = ""
     with open(url, "r") as file:
+        print(f"{file.name} ({progress}/{count})")
         md_text = file.read()
-        print(f"{file.name} ({progress}/{len(urls)})")
-        tags = re.findall(tag_regex, md_text)
-        if not tags:
+        searched_tags = re.findall(tag_regex, md_text)
+        if not searched_tags:
             continue
 
         # Strip all tags and their adjacent whitespaces
         new_text = re.sub(tag_regex, "", md_text)
-        for tag in tags:
-            tags.append(tag.strip())
+        for tag in searched_tags:
+            tags.append(tag)
 
     # Remove duplicate tags while preserving order
     tags = dict.fromkeys(tags)
