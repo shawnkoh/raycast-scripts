@@ -3,7 +3,7 @@
 # Required parameters:
 # @raycast.schemaVersion 1
 # @raycast.title Cleanup tags
-# @raycast.mode silent
+# @raycast.mode fullOutput
 # @raycast.refreshTime 1h
 
 # Optional parameters:
@@ -19,24 +19,27 @@ import re
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-html_tag_regex = r"<!--\s*#[\w\/-]+\s*-->\s?"
+tag_regex = r"\s?#[\w\/-]+\s*\s?"
 bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
+progress = 0
+
 for url in urls:
+    progress += 1
     tags = []
     md_text = ""
     new_text = ""
     with open(url, "r") as file:
         md_text = file.read()
-        html_tags = re.findall(html_tag_regex, md_text)
-        if not html_tags:
+        print(f"{file.name} ({progress}/{len(urls)})")
+        tags = re.findall(tag_regex, md_text)
+        if not tags:
             continue
 
-        # Strip all html tags and their adjacent whitespaces
-        new_text = re.sub(html_tag_regex, "", md_text)
-
-        for html_tag in html_tags:
-            tags.append(html_tag.strip())
+        # Strip all tags and their adjacent whitespaces
+        new_text = re.sub(tag_regex, "", md_text)
+        for tag in tags:
+            tags.append(tag.strip())
 
     # Remove duplicate tags while preserving order
     tags = dict.fromkeys(tags)
