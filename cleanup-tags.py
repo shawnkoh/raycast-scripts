@@ -19,12 +19,13 @@ import re
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-html_tag_regex = r"<!--\s*#[\w\/|-]+\s*-->\s?"
+html_tag_regex = r"<!--\s*#[\w\/-]+\s*-->\s?"
 bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
 for url in urls:
     tags = []
     md_text = ""
+    new_text = ""
     with open(url, "r") as file:
         md_text = file.read()
         html_tags = re.findall(html_tag_regex, md_text)
@@ -32,7 +33,7 @@ for url in urls:
             continue
 
         # Strip all html tags and their adjacent whitespaces
-        md_text = re.sub(html_tag_regex, "", md_text)
+        new_text = re.sub(html_tag_regex, "", md_text)
 
         for html_tag in html_tags:
             tags.append(html_tag.strip())
@@ -44,7 +45,10 @@ for url in urls:
     for tag in tags:
         tag_block += f"{tag}\n"
 
-    md_text = re.sub(bear_id_regex, rf"{tag_block}\n\1\n", md_text)
+    new_text = re.sub(bear_id_regex, rf"{tag_block}\n\1\n", new_text)
+
+    if new_text == md_text:
+        continue
     
     with open(url, "w") as file:
-        file.write(md_text)
+        file.write(new_text)
