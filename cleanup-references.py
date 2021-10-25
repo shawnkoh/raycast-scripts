@@ -20,18 +20,18 @@ from os import replace
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-regex = r"(?i)(\s*-*\s*)*#+\s+References*\s*"
+regex = r"(?i)\s*-*\s*#+\s+References*\s*"
 replacement = "\n\n---\n\n## References\n"
 
 for url in urls:
-    tags = []
     md_text = ""
     with open(url, "r") as file:
         md_text = file.read()
-        if re.match(regex, md_text) != replacement:
+        match = re.search(regex, md_text)
+        if not match:
             continue
 
         md_text = re.sub(regex, replacement, md_text)
-    
+
     with open(url, "w") as file:
         file.write(md_text)
