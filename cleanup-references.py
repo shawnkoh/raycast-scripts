@@ -28,7 +28,6 @@ for url in urls:
     md_text = ""
     with open(url, "r") as file:
         md_text = file.read()
-        re.sub(regex, md_text, "---\n## References\n")
         if re.match(regex, md_text) != replacement:
             continue
 
