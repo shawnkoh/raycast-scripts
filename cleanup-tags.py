@@ -19,7 +19,7 @@ import re
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-html_tag_regex = r"<!--\s*#[\w\/|]+\s*-->\s?"
+html_tag_regex = r"<!--\s*#[\w\/|-]+\s*-->\s?"
 bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
 for url in urls:
