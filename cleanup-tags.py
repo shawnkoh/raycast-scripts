@@ -19,7 +19,8 @@ import re
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-tag_regex = r"\s?<!--\s*(#[\w\/-]+)\s*-->\s?"
+tag_regex = r"\s?(#[\w\/-]+)\s?"
+# html_tag_regex = r"\s?<!--\s*(#[\w\/-]+)\s*-->\s?"
 bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
 progress = 0
