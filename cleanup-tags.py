@@ -23,16 +23,11 @@ tag_regex = r"\s?(#[\w\/-]+)\s?"
 # html_tag_regex = r"\s?<!--\s*(#[\w\/-]+)\s*-->\s?"
 bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
-progress = 0
-count = len(urls)
-
 for url in urls:
-    progress += 1
     tags = []
     md_text = ""
     new_text = ""
     with open(url, "r") as file:
-        print(f"{file.name} ({progress}/{count})")
         md_text = file.read()
         searched_tags = re.findall(tag_regex, md_text)
         if not searched_tags:

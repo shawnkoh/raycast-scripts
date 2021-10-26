@@ -22,7 +22,7 @@ urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 regex = r"(?i)#(.+)"
 
-titles = {}
+dictionary = {}
 
 for url in urls:
     with open(url, "r") as file:
@@ -30,15 +30,18 @@ for url in urls:
         match = re.search(regex, md_text)
         if not match:
             continue
-        title = match.group(1).lower().strip()
-        count = titles.get(title)
-        if count:
-            titles[title] = count + 1
+        title = match.group(1)
+        key = title.lower().strip()
+        titles = dictionary.get(key)
+        if titles:
+            dictionary[key] = titles + [title]
         else:
-            titles[title] = 1
+            dictionary[key] = [title]
 
 
-for title in titles:
-    count = titles.get(title)
+for key in dictionary:
+    titles = dictionary.get(key)
+    count = len(titles)
     if count > 1:
-        print(title)
+        print(key)
+        # TODO: Open bear notes?
