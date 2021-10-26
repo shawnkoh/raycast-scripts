@@ -25,13 +25,17 @@ replacement = "\n\n---\n\n## References\n"
 
 for url in urls:
     md_text = ""
+    new_text = ""
     with open(url, "r") as file:
         md_text = file.read()
         match = re.search(regex, md_text)
         if not match:
             continue
 
-        md_text = re.sub(regex, replacement, md_text)
+        new_text = re.sub(regex, replacement, md_text)
+
+    if md_text == new_text:
+        continue
 
     with open(url, "w") as file:
-        file.write(md_text)
+        file.write(new_text)
