@@ -15,7 +15,20 @@
 # @raycast.authorURL https://github.com/shawnkoh
 
 import glob
+import os
 import re
+import sys
+
+import anki.storage
+
+PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
+cpath = os.path.join(PROFILE_HOME, "collection.anki2")
+
+collection = anki.storage.Collection(cpath, log=True)
+
+for cid in collection.find_notes(""):
+    note = collection.get_note(cid)
+    print(note.fields[0])
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
