@@ -24,18 +24,8 @@ questions = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
-        # print(url)
         matches = re.findall(qa_regex, md_text)
-        if len(matches) > 0:
-            print(url)
         for match in matches:
-            print(match)
-            # print(matches[1])
-        # while True:
-        #     match = re.search(qa_regex, md_text)
-        #     if not match:
-        #         break
-        #     print(match.group(1))
-        #     print(match.group(2))
-        #     questions[match.group(1)] = match.group(2)
-        #     md_text = re.sub(qa_regex, "", md_text)
+            question = match[0]
+            answer = match[1]
+            # TODO: Save to Anki
