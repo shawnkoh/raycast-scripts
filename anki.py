@@ -19,22 +19,23 @@ import re
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-qa_regex = r"Q:(?![\S\s]*Q:)(.+\n?)+(?:[\s\S]*?)A:(.+\n?)+"
+qa_regex = r"Q:((?:(?!A:).+\n)+)(?:[\S\s]*?)(?:A:((?:(?!Q:).+\n)+))?"
 questions = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
-        print(url)
-        while True:
-            print("searching")
-            match = re.search(qa_regex, md_text)
-            print("serached")
-            if not match:
-                print("broke")
-                break
-            print(match.group(1))
-            print(match.group(2))
-            questions[match.group(1)] = match.group(2)
-            print("subbing")
-            md_text = re.sub(qa_regex, "", md_text)
-            print("subbed")
+        # print(url)
+        matches = re.findall(qa_regex, md_text)
+        if len(matches) > 0:
+            print(url)
+        for match in matches:
+            print(match)
+            # print(matches[1])
+        # while True:
+        #     match = re.search(qa_regex, md_text)
+        #     if not match:
+        #         break
+        #     print(match.group(1))
+        #     print(match.group(2))
+        #     questions[match.group(1)] = match.group(2)
+        #     md_text = re.sub(qa_regex, "", md_text)
