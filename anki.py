@@ -19,6 +19,7 @@ import os
 import re
 import sys
 
+import anki
 import anki.storage
 
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
