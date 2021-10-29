@@ -1,11 +1,20 @@
 import re
 
-from hypothesis import given
-from hypothesis.strategies import text
-from hypothesis.strategies._internal.core import from_regex
 from markdown import Markdown
 
-markdown_to_html_parser = Markdown()
+_markdown_to_html_parser = Markdown()
+
+def md_to_basic_questions(source):
+    qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
+    questions = dict()
+    matches = re.findall(qa_regex, source)
+    for match in matches:
+        question = match[0].strip()
+        question = polar_to_commonmark(question)
+        answer = match[1].strip()
+        answer = polar_to_commonmark(answer)
+        questions[question] = answer
+    return questions
 
 def polar_to_commonmark(source):
     source = _replace_polar_bold(source)
@@ -20,7 +29,7 @@ def polar_to_commonmark(source):
     return source
 
 def markdown_to_html(source):
-    return markdown_to_html_parser.reset().convert(source)
+    return _markdown_to_html_parser.reset().convert(source)
 
 def _replace_polar_bold(source):
     # *text* to **text**

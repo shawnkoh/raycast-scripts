@@ -20,7 +20,6 @@ import pprint
 import re
 
 from anki.storage import _Collection
-from markdown import Markdown
 
 import md_parser
 
@@ -54,19 +53,11 @@ urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
 md_basic_questions = dict()
 md_cloze_questions = dict()
-print(urls)
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
-        basic_matches = re.findall(qa_regex, md_text)
-        for match in basic_matches:
-            question = match[0].strip()
-            print(question)
-            question = md_parser.polar_to_commonmark(question)
-            print(question)
-            answer = match[1].strip()
-            answer = md_parser.polar_to_commonmark(answer)
-            md_basic_questions[question] = answer
+        basic_questions = md_parser.md_to_basic_questions(md_text)
+        md_basic_questions = md_basic_questions | basic_questions
 
 stats_created = 0
 stats_updated = 0
@@ -75,7 +66,8 @@ stats_unchanged = 0
 
 for question, answer in md_basic_questions.items():
     html_question = md_parser.markdown_to_html(question)
-    pp.pprint(html_question)
+    print(html_question)
+    # pp.pprint(html_question)
 
 notes_to_remove = []
 # update and delete existing anki notes
