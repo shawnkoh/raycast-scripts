@@ -6,6 +6,7 @@ from anki.storage import _Collection
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
 DECK_ID = 1631681814019
 BASIC_MODEL_ID = 1635365642288
+CLOZE_MODEL_ID = 1635539433589
 
 collection_path = os.path.join(PROFILE_HOME, "collection.anki2")
 
@@ -24,3 +25,10 @@ if not basic_notetype:
     exit()
 
 basic_search_string = f"\"note:{basic_notetype['name']}\""
+
+cloze_notetype = collection.models.get(CLOZE_MODEL_ID)
+if not cloze_notetype:
+    print("cloze notetype not found")
+    exit()
+
+cloze_search_string = f"\"note:{cloze_notetype['name']}\""
