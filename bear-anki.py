@@ -20,6 +20,9 @@ import pprint
 import re
 
 from anki.storage import _Collection
+from markdown import Markdown
+
+import md_parser
 
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
 DECK_ID = 1631681814019
@@ -48,7 +51,7 @@ collection.decks.save(deck)
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-qa_regex = r"Q:((?:(?!A:).+\n)+)(?:[\S\s]*?)(?:A:((?:(?!Q:).+\n)+))?"
+qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
 md_basic_questions = dict()
 md_cloze_questions = dict()
 for url in urls:
@@ -56,29 +59,51 @@ for url in urls:
         md_text = file.read()
         basic_matches = re.findall(qa_regex, md_text)
         for match in basic_matches:
-            question = match[0]
-            answer = match[1]
+            question = match[0].strip()
+            question = md_parser.polar_to_commonmark(question)
+            answer = match[1].strip()
+            answer = md_parser.polar_to_commonmark(answer)
             md_basic_questions[question] = answer
+
+stats_created = 0
+stats_updated = 0
+stats_deleted = 0
+stats_unchanged = 0
+
+for question, answer in md_basic_questions.items():
+    html_question = md_parser.markdown_to_html(question)
+    pp.pprint(html_question)
 
 notes_to_remove = []
 # update and delete existing anki notes
-for note_id in collection.find_notes(f"nid:{notetype['id']}"):
+search_string = f"\"note:{notetype['name']}\""
+# anki_basic_note_ids = collection.find_notes(search_string)
+# print(len(anki_basic_note_ids))
+# for note_id in anki_basic_note_ids:
+#     note = collection.get_note(note_id)
+#     pp.pprint(note.fields)
+exit()
+for note_id in anki_basic_note_ids:
     note = collection.get_note(note_id)
     question = note.fields[0]
     answer = note.fields[1]
-
     md_qa_answer = md_basic_questions.get(question)
     if md_qa_answer:
+        pp.pprint(answer)
+        pp.pprint(md_qa_answer)
         if answer != md_qa_answer:
             note.fields[1] = md_qa_answer
             collection.update_note(note)
+            stats_updated += 1
+        else:
+            stats_unchanged += 1
     else:
-        # question was deleted from markdown
         notes_to_remove.append(note_id)
     
     md_basic_questions.pop(question)
 
 collection.remove_notes(notes_to_remove)
+stats_deleted += len(notes_to_remove)
 
 # save new notes
 for question, answer in md_basic_questions.items():
@@ -86,5 +111,8 @@ for question, answer in md_basic_questions.items():
     note.fields[0] = question
     note.fields[1] = answer
     collection.add_note(note, DECK_ID)
+    stats_created += 1
 
 collection.save()
+
+print(f"statistics\ncreated:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}")
