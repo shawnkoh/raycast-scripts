@@ -80,10 +80,10 @@ def basic_to_note(question, answer):
     note.fields[1] = md_to_field(answer)
     return note
 
-
 notes_to_remove = []
 
 search_string = f"\"note:{notetype['name']}\""
+
 anki_basic_note_ids = collection.find_notes(search_string)
 
 # update and delete existing anki notes
@@ -99,13 +99,16 @@ for note_id in anki_basic_note_ids:
         continue
 
     # Delete if anki's question is not found in import
-    import_answer_md = import_basics.get(anki_question_md)
-    if not import_answer_md:
+    if anki_question_md not in import_basics:
         notes_to_remove.append(note_id)
         continue
 
     # At this point, they are the same
     import_question_md = anki_question_md
+    import_answer_md = import_basics.get(import_question_md)
+
+    # pop from list because its going to be processed
+    import_basics.pop(import_question_md)
 
     # Ignore if anki's answer is the same as markdown
     anki_answer_md = field_to_source(anki_answer_field)
@@ -117,9 +120,6 @@ for note_id in anki_basic_note_ids:
     note.fields[1] = md_to_field(import_answer_md)
     collection.update_note(note)
     stats_updated += 1
-
-    # Updated. Remove from import list
-    import_basics.pop(import_question_md)
 
 # save new questions
 for import_question_md, import_answer_md in import_basics.items():
