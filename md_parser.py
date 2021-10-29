@@ -34,10 +34,13 @@ def md_to_clozes(source) -> OrderedDict:
     ordered_dict = OrderedDict()
     for paragraph in paragraphs:
         _cloze_replacer_count = 0
+        stripped_paragraph = regex.sub(_cloze_regex, r"\1", paragraph)
         clozed_paragraph = regex.sub(_cloze_regex, _cloze_replace, paragraph)
         if paragraph == clozed_paragraph:
             continue
-        ordered_dict[paragraph] = clozed_paragraph
+        stripped_paragraph = polar_parser.polar_to_commonmark(stripped_paragraph)
+        clozed_paragraph = polar_parser.polar_to_commonmark(clozed_paragraph)
+        ordered_dict[stripped_paragraph] = clozed_paragraph
     return ordered_dict
 
 def _cloze_replace(match):
