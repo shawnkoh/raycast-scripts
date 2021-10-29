@@ -17,8 +17,8 @@
 import glob
 import os
 import pprint
-import re
 
+import bs4
 from anki.storage import _Collection
 
 import md_parser
@@ -67,6 +67,7 @@ stats_unchanged = 0
 for question, answer in md_basic_questions.items():
     html_question = md_parser.markdown_to_html(question)
     print(html_question)
+    html_answer = md_parser.markdown_to_html(answer)
     # pp.pprint(html_question)
 
 notes_to_remove = []
