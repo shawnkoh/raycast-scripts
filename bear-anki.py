@@ -23,9 +23,6 @@ import md_parser
 
 pp = pprint.PrettyPrinter(indent=4)
 
-ankify.deck["mid"] = ankify.basic_notetype["id"]
-ankify.collection.decks.save(ankify.deck)
-
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
@@ -63,10 +60,12 @@ def basic_to_note(question, answer):
 
 notes_to_remove = []
 
-anki_basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
+ankify.deck["mid"] = ankify.basic_notetype["id"]
+ankify.collection.decks.save(ankify.deck)
 
+basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
 # update and delete existing anki notes
-for note_id in anki_basic_note_ids:
+for note_id in basic_note_ids:
     note = ankify.collection.get_note(note_id)
     anki_question_field = note.fields[0]
     anki_answer_field = note.fields[1]
