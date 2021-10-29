@@ -1,6 +1,8 @@
 import base64
 import re
+from typing import OrderedDict
 
+import regex
 from bs4 import BeautifulSoup
 from markdown import Markdown
 
@@ -19,6 +21,19 @@ def md_to_basics(source):
         answer = polar_parser.polar_to_commonmark(answer)
         questions[question] = answer
     return questions
+
+def md_to_clozes(source) -> OrderedDict:
+    paragraph_regex = r"(?:.+(?:\n.)?)+"
+    cloze_regex = r"\{(?>.+?|(?R))*\}"
+    paragraphs = re.findall(paragraph_regex, source)
+    ordered_dict = OrderedDict()
+    for paragraph in paragraphs:
+        clozes = regex.findall(cloze_regex, paragraph)
+        if not clozes:
+            continue
+        ordered_dict[paragraph] = clozes
+    return ordered_dict
+
 
 def insert_data(html, attribute, data):
     html_tree = BeautifulSoup(html, 'lxml')
