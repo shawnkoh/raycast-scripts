@@ -18,7 +18,6 @@ import glob
 import os
 import pprint
 
-import bs4
 from anki.storage import _Collection
 
 import md_parser
@@ -64,50 +63,72 @@ stats_updated = 0
 stats_deleted = 0
 stats_unchanged = 0
 
-for question, answer in md_basic_questions.items():
-    html_question = md_parser.markdown_to_html(question)
-    print(html_question)
-    html_answer = md_parser.markdown_to_html(answer)
-    # pp.pprint(html_question)
+SOURCE_ATTRIBUTE = 'data-source'
+
+def field_to_source(field):
+    source = md_parser.extract_data(field, SOURCE_ATTRIBUTE)
+    return source
+
+def md_to_field(md):
+    html = md_parser.markdown_to_html(md)
+    field = md_parser.insert_data(html, SOURCE_ATTRIBUTE, md)
+    return field
+
+def basic_to_note(question, answer):
+    note = collection.new_note(notetype)
+    note.fields[0] = md_to_field(question)
+    note.fields[1] = md_to_field(answer)
+    return note
+
 
 notes_to_remove = []
-# update and delete existing anki notes
+
 search_string = f"\"note:{notetype['name']}\""
-# anki_basic_note_ids = collection.find_notes(search_string)
-# print(len(anki_basic_note_ids))
-# for note_id in anki_basic_note_ids:
-#     note = collection.get_note(note_id)
-#     pp.pprint(note.fields)
-exit()
+anki_basic_note_ids = collection.find_notes(search_string)
+
+# update and delete existing anki notes
 for note_id in anki_basic_note_ids:
     note = collection.get_note(note_id)
-    question = note.fields[0]
-    answer = note.fields[1]
-    md_qa_answer = md_basic_questions.get(question)
-    if md_qa_answer:
-        pp.pprint(answer)
-        pp.pprint(md_qa_answer)
-        if answer != md_qa_answer:
-            note.fields[1] = md_qa_answer
-            collection.update_note(note)
-            stats_updated += 1
-        else:
-            stats_unchanged += 1
-    else:
+    anki_question_field = note.fields[0]
+    anki_answer_field = note.fields[1]
+
+    # Delete if anki's question has no source
+    anki_question_md = field_to_source(anki_question_field)
+    if not anki_question_md:
         notes_to_remove.append(note_id)
-    
-    md_basic_questions.pop(question)
+        continue
+
+    # Delete if anki's question is not found in import
+    import_answer_md = md_basic_questions.get(anki_question_md)
+    if not import_answer_md:
+        notes_to_remove.append(note_id)
+        continue
+
+    # At this point, they are the same
+    import_question_md = anki_question_md
+
+    # Ignore if anki's answer is the same as markdown
+    anki_answer_md = field_to_source(anki_answer_field)
+    if import_answer_md == anki_answer_md:
+        stats_unchanged += 1
+        continue
+
+    # Update Anki's answer
+    note.fields[1] = md_to_field(import_answer_md)
+    collection.update_note(note)
+    stats_updated += 1
+
+    # Updated. Remove from import list
+    md_basic_questions.pop(import_question_md)
+
+# save new questions
+for import_question_md, import_answer_md in md_basic_questions.items():
+    note = basic_to_note(import_question_md, import_answer_md)
+    collection.add_note(note, DECK_ID)
+    stats_created += 1
 
 collection.remove_notes(notes_to_remove)
 stats_deleted += len(notes_to_remove)
-
-# save new notes
-for question, answer in md_basic_questions.items():
-    note = collection.new_note(notetype)
-    note.fields[0] = question
-    note.fields[1] = answer
-    collection.add_note(note, DECK_ID)
-    stats_created += 1
 
 collection.save()
 

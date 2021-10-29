@@ -1,5 +1,7 @@
+import base64
 import re
 
+from bs4 import BeautifulSoup
 from markdown import Markdown
 
 _markdown_to_html_parser = Markdown()
@@ -27,6 +29,26 @@ def polar_to_commonmark(source):
     # done checkbox
     # unordered lists
     return source
+
+def insert_data(html, attribute, data):
+    html_tree = BeautifulSoup(html, 'lxml')
+    body = html_tree.body
+    if not body:
+        return html
+    source_base64 = base64.b64encode(data.encode())
+    body[attribute] = source_base64
+    return str(html_tree)
+
+def extract_data(html, attribute):
+    html_tree = BeautifulSoup(html, 'lxml')
+    body = html_tree.body
+    if not body:
+        return
+    encoded_data = body[attribute]
+    if not encoded_data:
+        return
+    data = base64.b64decode(encoded_data).decode()
+    return data
 
 def markdown_to_html(source):
     return _markdown_to_html_parser.reset().convert(source)
