@@ -116,6 +116,11 @@ for note_id in anki_basic_note_ids:
         stats_unchanged += 1
         continue
 
+    # Edge case
+    if import_answer_md == "" and anki_answer_md is None:
+        stats_unchanged += 1
+        continue
+    
     # Update Anki's answer
     note.fields[1] = md_to_field(import_answer_md)
     collection.update_note(note)
