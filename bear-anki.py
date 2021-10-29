@@ -15,38 +15,16 @@
 # @raycast.authorURL https://github.com/shawnkoh
 
 import glob
-import os
 import pprint
 from typing import OrderedDict
 
-from anki.storage import _Collection
-
+import ankify
 import md_parser
-
-PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
-DECK_ID = 1631681814019
-MODEL_ID = 1635365642288
 
 pp = pprint.PrettyPrinter(indent=4)
 
-collection_path = os.path.join(PROFILE_HOME, "collection.anki2")
-
-collection = _Collection(collection_path, log=True)
-collection.decks.select(DECK_ID)
-
-if collection.decks.get_current_id() != DECK_ID:
-    print("Warning: deck id not found")
-    exit()
-
-deck = collection.decks.current()
-
-notetype = collection.models.get(MODEL_ID)
-if not notetype:
-    print("model not found")
-    exit()
-
-deck["mid"] = notetype["id"]
-collection.decks.save(deck)
+ankify.deck["mid"] = ankify.basic_notetype["id"]
+ankify.collection.decks.save(ankify.deck)
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
@@ -60,8 +38,6 @@ for url in urls:
         clozes = md_parser.md_to_clozes(md_text)
         import_basics = import_basics | basics
         import_clozes = import_clozes | clozes
-
-pp.pprint(import_clozes)
 
 stats_created = 0
 stats_updated = 0
@@ -80,20 +56,18 @@ def md_to_field(md):
     return field
 
 def basic_to_note(question, answer):
-    note = collection.new_note(notetype)
+    note = ankify.collection.new_note(ankify.basic_notetype)
     note.fields[0] = md_to_field(question)
     note.fields[1] = md_to_field(answer)
     return note
 
 notes_to_remove = []
 
-search_string = f"\"note:{notetype['name']}\""
-
-anki_basic_note_ids = collection.find_notes(search_string)
+anki_basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
 
 # update and delete existing anki notes
 for note_id in anki_basic_note_ids:
-    note = collection.get_note(note_id)
+    note = ankify.collection.get_note(note_id)
     anki_question_field = note.fields[0]
     anki_answer_field = note.fields[1]
 
@@ -128,18 +102,18 @@ for note_id in anki_basic_note_ids:
     
     # Update Anki's answer
     note.fields[1] = md_to_field(import_answer_md)
-    collection.update_note(note)
+    ankify.collection.update_note(note)
     stats_updated += 1
 
 # save new questions
 for import_question_md, import_answer_md in import_basics.items():
     note = basic_to_note(import_question_md, import_answer_md)
-    collection.add_note(note, DECK_ID)
+    ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
-collection.remove_notes(notes_to_remove)
+ankify.collection.remove_notes(notes_to_remove)
 stats_deleted += len(notes_to_remove)
 
-collection.save()
+ankify.collection.save()
 
 print(f"statistics\ncreated:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}")

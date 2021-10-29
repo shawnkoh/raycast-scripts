@@ -12,13 +12,13 @@ _markdown_to_html_parser = Markdown()
 
 _bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 _paragraph_regex = r"(?:.+(?:\n.)?)+"
+_basic_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
 _cloze_regex = r"\{((?>[^{}]|(?R))*)\}"
 _cloze_replacer_count = 0
 
 def md_to_basics(source):
-    qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
     questions = dict()
-    matches = re.findall(qa_regex, source)
+    matches = re.findall(_basic_regex, source)
     for match in matches:
         question = match[0].strip()
         question = polar_parser.polar_to_commonmark(question)
@@ -47,7 +47,6 @@ def _cloze_replace(match):
     global _cloze_replacer_count
     _cloze_replacer_count += 1
     return f"{{{{c{_cloze_replacer_count}::{match.group(1)}}}}}"
-
 
 def insert_data(html, attribute, data):
     html_tree = BeautifulSoup(html, 'lxml')
