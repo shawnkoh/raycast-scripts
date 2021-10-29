@@ -50,13 +50,13 @@ collection.decks.save(deck)
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
-md_basic_questions = dict()
-md_cloze_questions = dict()
+import_basics = dict()
+import_clozes = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
-        basic_questions = md_parser.md_to_basic_questions(md_text)
-        md_basic_questions = md_basic_questions | basic_questions
+        basics = md_parser.md_to_basics(md_text)
+        import_basics = import_basics | basics
 
 stats_created = 0
 stats_updated = 0
@@ -99,7 +99,7 @@ for note_id in anki_basic_note_ids:
         continue
 
     # Delete if anki's question is not found in import
-    import_answer_md = md_basic_questions.get(anki_question_md)
+    import_answer_md = import_basics.get(anki_question_md)
     if not import_answer_md:
         notes_to_remove.append(note_id)
         continue
@@ -119,10 +119,10 @@ for note_id in anki_basic_note_ids:
     stats_updated += 1
 
     # Updated. Remove from import list
-    md_basic_questions.pop(import_question_md)
+    import_basics.pop(import_question_md)
 
 # save new questions
-for import_question_md, import_answer_md in md_basic_questions.items():
+for import_question_md, import_answer_md in import_basics.items():
     note = basic_to_note(import_question_md, import_answer_md)
     collection.add_note(note, DECK_ID)
     stats_created += 1

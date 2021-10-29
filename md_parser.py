@@ -6,7 +6,7 @@ from markdown import Markdown
 
 _markdown_to_html_parser = Markdown()
 
-def md_to_basic_questions(source):
+def md_to_basics(source):
     qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
     questions = dict()
     matches = re.findall(qa_regex, source)
