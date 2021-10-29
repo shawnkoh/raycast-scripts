@@ -17,6 +17,7 @@
 import glob
 import os
 import pprint
+from typing import OrderedDict
 
 from anki.storage import _Collection
 
@@ -51,12 +52,16 @@ urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
 import_basics = dict()
-import_clozes = dict()
+import_clozes = OrderedDict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
         basics = md_parser.md_to_basics(md_text)
+        clozes = md_parser.md_to_clozes(md_text)
         import_basics = import_basics | basics
+        import_clozes = import_clozes | clozes
+
+pp.pprint(import_clozes)
 
 stats_created = 0
 stats_updated = 0

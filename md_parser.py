@@ -10,6 +10,11 @@ import polar_parser
 
 _markdown_to_html_parser = Markdown()
 
+_bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
+_paragraph_regex = r"(?:.+(?:\n.)?)+"
+_cloze_regex = r"\{((?>[^{}]|(?R))*)\}"
+_cloze_replacer_count = 0
+
 def md_to_basics(source):
     qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
     questions = dict()
@@ -23,16 +28,22 @@ def md_to_basics(source):
     return questions
 
 def md_to_clozes(source) -> OrderedDict:
-    paragraph_regex = r"(?:.+(?:\n.)?)+"
-    cloze_regex = r"\{(?>.+?|(?R))*\}"
-    paragraphs = re.findall(paragraph_regex, source)
+    global _cloze_replacer_count
+    source = re.sub(_bear_id_regex, "", source)
+    paragraphs = re.findall(_paragraph_regex, source)
     ordered_dict = OrderedDict()
     for paragraph in paragraphs:
-        clozes = regex.findall(cloze_regex, paragraph)
-        if not clozes:
+        _cloze_replacer_count = 0
+        clozed_paragraph = regex.sub(_cloze_regex, _cloze_replace, paragraph)
+        if paragraph == clozed_paragraph:
             continue
-        ordered_dict[paragraph] = clozes
+        ordered_dict[paragraph] = clozed_paragraph
     return ordered_dict
+
+def _cloze_replace(match):
+    global _cloze_replacer_count
+    _cloze_replacer_count += 1
+    return f"{{{{c{_cloze_replacer_count}::{match.group(1)}}}}}"
 
 
 def insert_data(html, attribute, data):
