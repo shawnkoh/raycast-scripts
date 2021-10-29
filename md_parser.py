@@ -35,13 +35,13 @@ def extract_data(html, attribute):
     body = html_tree.body
     if not body:
         return
-    # TODO: Not sure why this works, copied from apy
-    encoded_data = body[attribute].encode()
-    encoded_data = base64.b64decode(encoded_data).decode()
+    encoded_data = body[attribute]
     if not encoded_data:
         return
-    data = base64.b64decode(encoded_data).decode()
-    return data
+    # TODO: Not sure why this works, copied from apy
+    encoded_data = encoded_data.encode()
+    encoded_data = base64.b64decode(encoded_data).decode()
+    return encoded_data
 
 def markdown_to_html(source):
     return _markdown_to_html_parser.reset().convert(source)
