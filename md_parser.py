@@ -25,7 +25,8 @@ def insert_data(html, attribute, data):
     body = html_tree.body
     if not body:
         return html
-    source_base64 = base64.b64encode(data.encode())
+    # TODO: not sure why this works, copied from apy
+    source_base64 = base64.b64encode(data.encode()).decode()
     body[attribute] = source_base64
     return str(html_tree)
 
@@ -34,7 +35,9 @@ def extract_data(html, attribute):
     body = html_tree.body
     if not body:
         return
-    encoded_data = body[attribute]
+    # TODO: Not sure why this works, copied from apy
+    encoded_data = body[attribute].encode()
+    encoded_data = base64.b64decode(encoded_data).decode()
     if not encoded_data:
         return
     data = base64.b64decode(encoded_data).decode()
