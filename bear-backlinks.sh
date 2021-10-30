@@ -43,5 +43,5 @@ git push ;
 
 cd /Users/shawnkoh/repos/raycast-scripts ;
 poetry run python detect-duplicate-titles.py ;
-pgrep Anki | xargs kill ;
+kill (pgrep Anki) ;
 poetry run python bear-anki.py ;
