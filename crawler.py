@@ -15,12 +15,13 @@
 # @raycast.authorURL https://github.com/shawnkoh
 
 import glob
-import re
-from os import replace
+
+import regex
+
+import md_parser
 
 url = "/Users/shawnkoh/repos/notes/bear/G2.md"
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
-title_regex = r"#(.+)"
 # TODO: need to exclude those in the backlinks block
 backlink_regex = r"\[\[(.+)\]\]"
 tag_regex = r"#evergreen"
@@ -29,7 +30,7 @@ url_title_dictionary = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
-        match = re.search(title_regex, md_text)
+        match = regex.search(md_parser._title_regex, md_text)
         if not match:
             continue
         title = match.group(1)
@@ -42,7 +43,7 @@ def crawl(url):
     with open(url, "r") as file:
         md_text = file.read()
 
-    match = re.search(tag_regex, md_text)
+    match = regex.search(tag_regex, md_text)
     if not match:
         with open(url, "w") as file:
             md_text += "\n#evergreen\n"
@@ -55,14 +56,14 @@ def crawl(url):
         crawl(link)
 
 def get_backlinks(md_text):
-    backlinks = re.findall(backlink_regex, md_text)
+    backlinks = regex.findall(backlink_regex, md_text)
     return set(backlinks)
 
 for url in urls:
     md_text = ""
     with open(url, "r") as file:
         md_text = file.read()
-        match = re.search(regex, md_text)
+        match = regex.search(regex, md_text)
         if not match:
             continue
 

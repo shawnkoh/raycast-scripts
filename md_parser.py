@@ -10,6 +10,7 @@ import polar_parser
 _markdown_to_html_parser = Markdown()
 
 _bear_id_regex = regex.compile(r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*")
+_title_regex = regex.compile(r"^#(.+)")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
 _basic_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
 _cloze_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")

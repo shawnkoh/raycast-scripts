@@ -15,13 +15,15 @@
 # @raycast.authorURL https://github.com/shawnkoh
 
 import glob
-import re
+
+import regex
+
+import md_parser
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 tag_regex = r"\s?(#[\w\/-]+)\s?"
 # html_tag_regex = r"\s?<!--\s*(#[\w\/-]+)\s*-->\s?"
-bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 
 for url in urls:
     tags = []
@@ -29,12 +31,12 @@ for url in urls:
     new_text = ""
     with open(url, "r") as file:
         md_text = file.read()
-        searched_tags = re.findall(tag_regex, md_text)
+        searched_tags = regex.findall(tag_regex, md_text)
         if not searched_tags:
             continue
 
         # Strip all tags and their adjacent whitespaces
-        new_text = re.sub(tag_regex, "", md_text)
+        new_text = regex.sub(tag_regex, "", md_text)
         for tag in searched_tags:
             tags.append(tag)
 
@@ -45,7 +47,7 @@ for url in urls:
     for tag in tags:
         tag_block += f"{tag}\n"
 
-    new_text = re.sub(bear_id_regex, rf"{tag_block}\n\1\n", new_text)
+    new_text = regex.sub(md_parser._bear_id_regex, rf"{tag_block}\n\1\n", new_text)
 
     if new_text == md_text:
         continue
