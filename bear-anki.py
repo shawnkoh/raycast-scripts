@@ -49,15 +49,15 @@ def field_to_source(field):
     source = md_parser.extract_data(field, SOURCE_ATTRIBUTE)
     return source
 
-def md_to_field(md):
+def basic_to_field(md):
     html = md_parser.markdown_to_html(md)
     field = md_parser.insert_data(html, SOURCE_ATTRIBUTE, md)
     return field
 
 def basic_to_note(question, answer):
     note = ankify.collection.new_note(ankify.basic_notetype)
-    note.fields[0] = md_to_field(question)
-    note.fields[1] = md_to_field(answer)
+    note.fields[0] = basic_to_field(question)
+    note.fields[1] = basic_to_field(answer)
     return note
 
 def cloze_to_field(stripped_paragraph, clozed_paragraph):
@@ -107,7 +107,7 @@ for note_id in basic_note_ids:
         continue
     
     # Update Anki's answer
-    note.fields[1] = md_to_field(import_answer_md)
+    note.fields[1] = basic_to_field(import_answer_md)
     ankify.collection.update_note(note)
     stats_updated += 1
 
