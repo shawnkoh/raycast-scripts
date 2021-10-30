@@ -9,10 +9,14 @@ _markdown_to_html_parser = Markdown()
 
 _bear_id_regex = regex.compile(r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*")
 _title_regex = regex.compile(r"^#(.+)")
+_backlinks_regex = regex.compile(r"## Backlinks\n(.+(\n.)?)+")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
 _basic_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
 _cloze_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
 _cloze_replacer_count = 0
+
+def strip_backlinks(source):
+    return regex.sub(_backlinks_regex, "", source)
 
 def md_to_basics(source):
     questions = dict()

@@ -30,6 +30,7 @@ import_clozes = OrderedDict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
+        md_text = md_parser.strip_backlinks(md_text)
         basics = md_parser.md_to_basics(md_text)
         clozes = md_parser.md_to_clozes(md_text)
         import_basics = import_basics | basics
