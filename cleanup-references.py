@@ -16,7 +16,6 @@
 
 import glob
 import re
-from os import replace
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 

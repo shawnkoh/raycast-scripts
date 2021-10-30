@@ -36,3 +36,5 @@ git add -A && git commit -m "Commit imported changes to Bear" ;
 git push ;
 
 python3 /Users/shawnkoh/repos/raycast-scripts/detect-duplicate-titles.py ;
+
+poetry run python bear-anki.py ;

@@ -18,8 +18,6 @@ import glob
 import pprint
 from typing import OrderedDict
 
-import anki
-
 import ankify
 import md_parser
 
@@ -27,7 +25,6 @@ pp = pprint.PrettyPrinter(indent=4)
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-qa_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
 import_basics = dict()
 import_clozes = OrderedDict()
 for url in urls:
