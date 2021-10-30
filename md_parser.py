@@ -5,8 +5,6 @@ import regex
 from bs4 import BeautifulSoup
 from markdown import Markdown
 
-import polar_parser
-
 _markdown_to_html_parser = Markdown()
 
 _bear_id_regex = regex.compile(r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*")
@@ -20,12 +18,10 @@ def md_to_basics(source):
     questions = dict()
     for match in regex.finditer(_basic_regex, source):
         question = match[1].strip()
-        question = polar_parser.polar_to_commonmark(question)
         answer = ""
 
         if raw_answer := match[2]:
             answer = raw_answer.strip()
-            answer = polar_parser.polar_to_commonmark(answer)
 
         questions[question] = answer
     return questions
@@ -42,8 +38,6 @@ def md_to_clozes(source) -> OrderedDict:
         clozed_paragraph = regex.sub(_cloze_regex, _cloze_replace, paragraph)
         if paragraph == clozed_paragraph:
             continue
-        stripped_paragraph = polar_parser.polar_to_commonmark(stripped_paragraph)
-        clozed_paragraph = polar_parser.polar_to_commonmark(clozed_paragraph)
         ordered_dict[stripped_paragraph] = clozed_paragraph
     return ordered_dict
 
