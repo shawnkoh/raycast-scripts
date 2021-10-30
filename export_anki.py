@@ -33,7 +33,7 @@ for note_id in ankify.collection.find_notes(""):
         else:
             _export += f"{front}\n\n"
     else:
-        _export += f"Q:{front}\nA:{back}\n\n"
+        _export += f"Q: {front}\nA: {back}\n\n"
 
 with open(_export_url, "w") as file:
     file.write(_export)
