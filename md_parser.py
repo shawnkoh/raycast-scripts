@@ -1,5 +1,4 @@
 import base64
-import re
 from typing import OrderedDict
 
 import regex
@@ -10,10 +9,10 @@ import polar_parser
 
 _markdown_to_html_parser = Markdown()
 
-_bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
-_paragraph_regex = r"(?:.+(?:\n.)?)+"
-_basic_regex = r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?"
-_cloze_regex = r"\{((?>[^{}]|(?R))*)\}"
+_bear_id_regex = regex.compile(r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*")
+_paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
+_basic_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
+_cloze_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
 _cloze_replacer_count = 0
 
 def md_to_basics(source):
