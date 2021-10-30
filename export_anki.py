@@ -15,10 +15,12 @@ _export = f"# Exported from Anki on {_date}\n\n"
 _cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 _multi_line_regex = regex.compile(r"\n\n+")
 
+_note_ids_to_delete = set()
 for note_id in ankify.collection.find_notes(""):
     note = ankify.collection.get_note(note_id)
     if note.mid == ankify.CLOZE_MODEL_ID or note.mid == ankify.BASIC_MODEL_ID:
         continue
+    _note_ids_to_delete.add(note_id)
     front = unmarkd.unmark(note.fields[0])
     front = regex.sub(_multi_line_regex, "\n", front)
     back = unmarkd.unmark(note.fields[1])
@@ -40,6 +42,6 @@ print(f"exported to {_export_url}")
 
 if not _delete_notes:
     exit()
-ankify.collection.remove_notes(note_id)
+ankify.collection.remove_notes(_note_ids_to_delete)
 ankify.collection.save()
 print("deleted notes")
