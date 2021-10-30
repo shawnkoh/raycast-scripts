@@ -1,7 +1,6 @@
 import datetime
 import os
 
-import anki
 import regex
 import unmarkd
 
