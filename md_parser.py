@@ -12,13 +12,13 @@ _markdown_to_html_parser = Markdown()
 
 _bear_id_regex = r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*"
 _paragraph_regex = r"(?:.+(?:\n.)?)+"
-_basic_regex = r"Q:\s*((?:(?!A:).+(?:\n|\Z))+)(?:[\S\s]*?)(?:A:\s*((?:(?!Q:).+(?:\n|\Z))+))?"
+_basic_regex = r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?"
 _cloze_regex = r"\{((?>[^{}]|(?R))*)\}"
 _cloze_replacer_count = 0
 
 def md_to_basics(source):
     questions = dict()
-    matches = re.findall(_basic_regex, source)
+    matches = regex.findall(_basic_regex, source)
     for match in matches:
         question = match[0].strip()
         question = polar_parser.polar_to_commonmark(question)
@@ -62,6 +62,9 @@ def extract_data(html, attribute):
     html_tree = BeautifulSoup(html, 'lxml')
     body = html_tree.body
     if not body:
+        return
+    encoded_data = body.get(attribute)
+    if encoded_data is None:
         return
     encoded_data = body[attribute]
     if not encoded_data:
