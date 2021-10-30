@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/fish
 
 # Required parameters:
 # @raycast.schemaVersion 1
@@ -22,19 +22,25 @@ python3 /Users/shawnkoh/repos/Bear-Markdown-Export/bear_export_sync.py --out /Us
 git add -A && git commit -m "Commit exported changes from Bear" ;
 
 /usr/local/bin/node /Users/shawnkoh/.config/yarn/global/node_modules/@andymatuschak/note-link-janitor/dist/index.js /Users/shawnkoh/repos/notes/bear ;
+
 git add -A && git commit -m "Update backlinks" ;
 
-python3 /Users/shawnkoh/repos/raycast-scripts/cleanup-references.py ;
+cd /Users/shawnkoh/repos/raycast-scripts ;
+poetry run python cleanup-references.py ;
+cd /Users/shawnkoh/repos/notes ;
 git add -A && git commit -m "Arrange references" ;
 
-python3 /Users/shawnkoh/repos/raycast-scripts/cleanup-tags.py ;
+cd /Users/shawnkoh/repos/raycast-scripts ;
+poetry run python cleanup-tags.py ;
+cd /Users/shawnkoh/repos/notes ;
 git add -A && git commit -m "Arrange tags" ;
 
 python3 /Users/shawnkoh/repos/Bear-Markdown-Export/bear_export_sync.py --out /Users/shawnkoh/repos/notes/bear --backup /Users/shawnkoh/repos/notes/bear-backup ;
+cd /Users/shawnkoh/repos/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
 
 git push ;
 
-python3 /Users/shawnkoh/repos/raycast-scripts/detect-duplicate-titles.py ;
-
+cd /Users/shawnkoh/repos/raycast-scripts ;
+poetry run python detect-duplicate-titles.py ;
 poetry run python bear-anki.py ;
