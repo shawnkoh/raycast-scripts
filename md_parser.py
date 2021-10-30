@@ -17,12 +17,15 @@ _cloze_replacer_count = 0
 
 def md_to_basics(source):
     questions = dict()
-    matches = regex.findall(_basic_regex, source)
-    for match in matches:
-        question = match[0].strip()
+    for match in regex.finditer(_basic_regex, source):
+        question = match[1].strip()
         question = polar_parser.polar_to_commonmark(question)
-        answer = match[1].strip()
-        answer = polar_parser.polar_to_commonmark(answer)
+        answer = ""
+
+        if raw_answer := match[2]:
+            answer = raw_answer.strip()
+            answer = polar_parser.polar_to_commonmark(answer)
+
         questions[question] = answer
     return questions
 
@@ -30,7 +33,7 @@ def md_to_clozes(source) -> OrderedDict:
     global _cloze_replacer_count
     ordered_dict = OrderedDict()
     for match in regex.finditer(_paragraph_regex, source):
-        paragraph = match.group(0)
+        paragraph = match[0]
         if regex.search(_basic_regex, paragraph) or regex.search(_bear_id_regex, paragraph):
             continue
         _cloze_replacer_count = 0
