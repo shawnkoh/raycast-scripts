@@ -29,10 +29,11 @@ def md_to_basics(source):
 
 def md_to_clozes(source) -> OrderedDict:
     global _cloze_replacer_count
-    source = re.sub(_bear_id_regex, "", source)
-    paragraphs = re.findall(_paragraph_regex, source)
     ordered_dict = OrderedDict()
-    for paragraph in paragraphs:
+    for match in regex.finditer(_paragraph_regex, source):
+        paragraph = match.group(0)
+        if regex.search(_basic_regex, paragraph) or regex.search(_bear_id_regex, paragraph):
+            continue
         _cloze_replacer_count = 0
         stripped_paragraph = regex.sub(_cloze_regex, r"\1", paragraph)
         clozed_paragraph = regex.sub(_cloze_regex, _cloze_replace, paragraph)
