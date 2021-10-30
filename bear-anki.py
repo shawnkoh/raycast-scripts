@@ -18,6 +18,8 @@ import glob
 import pprint
 from typing import OrderedDict
 
+import anki
+
 import ankify
 import md_parser
 
@@ -57,6 +59,11 @@ def basic_to_note(question, answer):
     note.fields[0] = md_to_field(question)
     note.fields[1] = md_to_field(answer)
     return note
+
+def cloze_to_field(stripped_paragraph, clozed_paragraph):
+    clozed_paragraph_html = md_parser.markdown_to_html(clozed_paragraph)
+    field = md_parser.insert_data(clozed_paragraph_html, SOURCE_ATTRIBUTE, stripped_paragraph)
+    return field
 
 notes_to_remove = []
 
@@ -107,6 +114,45 @@ for note_id in basic_note_ids:
 # save new questions
 for import_question_md, import_answer_md in import_basics.items():
     note = basic_to_note(import_question_md, import_answer_md)
+    ankify.collection.add_note(note, ankify.DECK_ID)
+    stats_created += 1
+
+ankify.deck["mid"] = ankify.cloze_notetype["id"]
+ankify.collection.decks.save(ankify.deck)
+cloze_note_ids = ankify.collection.find_notes(ankify.cloze_search_string)
+
+for note_id in cloze_note_ids:
+    note = ankify.collection.get_note(note_id)
+    anki_field = note.fields[0]
+
+    # Delete if anki's question has no source
+    stripped_paragraph_md = field_to_source(anki_field)
+    if not stripped_paragraph_md:
+        notes_to_remove.append(note_id)
+        continue
+
+    # Delete if anki's question is not found in import
+    if stripped_paragraph_md not in import_clozes:
+        notes_to_remove.append(note_id)
+        continue
+
+    clozed_paragraph_md = import_clozes.get(stripped_paragraph_md)
+
+    import_clozes.pop(stripped_paragraph_md)
+
+    # Ignore if same
+    field = cloze_to_field(stripped_paragraph_md, clozed_paragraph_md)
+    if field == anki_field:
+        stats_unchanged += 1
+        continue
+
+    note.fields[0] = field
+    ankify.collection.update_note(note)
+    stats_updated += 1
+
+for stripped_paragraph, clozed_paragraph in import_clozes.items():
+    note = ankify.collection.new_note(ankify.cloze_notetype)
+    note.fields[0] = cloze_to_field(stripped_paragraph, clozed_paragraph)
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
