@@ -1,4 +1,4 @@
-import re
+import regex
 
 
 def polar_to_commonmark(source):
@@ -17,14 +17,14 @@ def _replace_polar_bold(source):
     # *text* to **text**
     bold_pattern = r"(?:\*\*)|(?:\*((?!\*)\S+?(?:[\t ]*?\S)*?)\*)"
     bold_replacement = r"**\1**"
-    source = re.sub(bold_pattern, bold_replacement, source)
+    source = regex.sub(bold_pattern, bold_replacement, source)
     return source
 
 def _replace_polar_italic(source):
     # /text/ to *text*
     italic_pattern = r"(?:\/\/)|(?:\/((?!\/)\S+?(?:[\t ]*?\S)*?)\/)"
     italic_replacement = r"*\1*"
-    source = re.sub(italic_pattern, italic_replacement, source)
+    source = regex.sub(italic_pattern, italic_replacement, source)
     return source
 
 def _replace_polar_strikethrough(source):
@@ -32,11 +32,11 @@ def _replace_polar_strikethrough(source):
     # dividers are edge cases of strikethroughs
     divider_pattern = r"(?m)^---$"
     divider_replacement = r"<!DIVIDER!>"
-    source = re.sub(divider_pattern, divider_replacement, source)
-    strikethrough_pattern = r"(?:--)|(?:-((?!-)\S+?(?:[\t ]*?\S)*?)-)"
+    source = regex.sub(divider_pattern, divider_replacement, source)
+    strikethrough_pattern = r"(?<!\S)-(?>(?<!\s).(?!\s)|(?R))*-(?!\S)"
     strikethrough_replacement = r"--\1--"
-    source = re.sub(strikethrough_pattern, strikethrough_replacement, source)
-    source = re.sub(divider_replacement, r"---", source)
+    source = regex.sub(strikethrough_pattern, strikethrough_replacement, source)
+    source = regex.sub(divider_replacement, r"---", source)
     return source
 
 def test_replace_polar_bold():
