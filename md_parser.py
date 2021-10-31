@@ -7,16 +7,44 @@ from markdown import Markdown
 
 _markdown_to_html_parser = Markdown()
 
-_bear_id_regex = regex.compile(r"\s*(<!--\s*\{BearID:.+\}\s*-->)\s*")
+_bear_id_regex = regex.compile(r"(<!--\s*\{BearID:.+\}\s*-->)")
 _title_regex = regex.compile(r"^#(.+)")
+_tag_regex = regex.compile(r"\s?(#[\w\/-]+)\s?")
 _backlinks_regex = regex.compile(r"## Backlinks\n(.+(\n.)?)+")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
 _basic_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
 _cloze_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
 _cloze_replacer_count = 0
 
+_reference_regex = regex.compile(r"(?i)\s*-*\s*#+\s+References*\s*")
+_reference_replacement = "\n\n---\n\n## References\n"
+
+def standardise_references(md: str) -> str:
+    return regex.sub(_reference_regex, _reference_replacement, md)
+
+def extract_tag_block(md: str) -> str or None:
+    tags = regex.findall(_tag_regex, md)
+    # Remove duplicate tags while preserving order
+    tags = list(dict.fromkeys(tags))
+    if not tags:
+        return None
+    return "\n".join(tags)
+
+def strip_tags(md: str) -> str:
+    """strip all tags and their adjacent whitespaces"""
+    return regex.sub(_tag_regex, "", md)
+
+def extract_backlinks(source):
+    return regex.findall(_backlinks_regex, source)
+
 def strip_backlinks(source):
     return regex.sub(_backlinks_regex, "", source)
+
+def extract_bear_id(md: str):
+    return regex.search(_bear_id_regex, md)
+
+def strip_bear_id(md: str):
+    return regex.sub(_bear_id_regex, "", md)
 
 def md_to_basics(source):
     questions = dict()

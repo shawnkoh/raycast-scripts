@@ -26,14 +26,9 @@ git add -A && git commit -m "Commit exported changes from Bear" ;
 git add -A && git commit -m "Update backlinks" ;
 
 cd /Users/shawnkoh/repos/raycast-scripts ;
-poetry run python cleanup-references.py ;
+poetry run python pretty_bear.py ;
 cd /Users/shawnkoh/repos/notes ;
-git add -A && git commit -m "Arrange references" ;
-
-cd /Users/shawnkoh/repos/raycast-scripts ;
-poetry run python cleanup-tags.py ;
-cd /Users/shawnkoh/repos/notes ;
-git add -A && git commit -m "Arrange tags" ;
+git add -A && git commit -m "Pretty Bear" ;
 
 python3 /Users/shawnkoh/repos/Bear-Markdown-Export/bear_export_sync.py --out /Users/shawnkoh/repos/notes/bear --backup /Users/shawnkoh/repos/notes/bear-backup ;
 cd /Users/shawnkoh/repos/notes ;
