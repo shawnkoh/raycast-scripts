@@ -19,91 +19,9 @@ import pprint
 
 import ankify
 import md_parser
+import prompts
 
 pp = pprint.PrettyPrinter(indent=4)
-
-SOURCE_ATTRIBUTE = 'data-source'
-
-class BasicPrompt:
-    def __init__(self, question_md: str, answer_md: str or None, source_attribute=SOURCE_ATTRIBUTE):
-        self.question_md = question_md.strip()
-        if answer_md:
-            self.answer_md = answer_md.strip()
-        else:
-            self.answer_md = None
-
-        self.source_attribute = source_attribute
-
-    @classmethod
-    def from_anki_note(cls, note, source_attribute=SOURCE_ATTRIBUTE):
-        question_field = note.fields[0]
-        if not question_field:
-            return None
-
-        question_md = md_parser.extract_data(question_field, source_attribute)
-        if not question_md:
-            question_md = md_parser.html_to_markdown(question_field)
-        if not question_md:
-            return None
-
-        answer_md = None
-        if answer_field := note.fields[1]:
-            answer_md = md_parser.extract_data(answer_field, source_attribute)
-            if not answer_md:
-                answer_md = md_parser.html_to_markdown(answer_field)
-        
-        return cls(question_md, answer_md, source_attribute)
-
-    def question_field(self):
-        html = md_parser.markdown_to_html(self.question_md)
-        field = md_parser.insert_data(html, self.source_attribute, self.question_md)
-        return field
-
-    def answer_field(self):
-        if not self.answer_md:
-            return ""
-        html = md_parser.markdown_to_html(self.answer_md)
-        field = md_parser.insert_data(html, self.source_attribute, self.answer_md)
-        return field
-
-    def to_anki_note(self):
-        note = ankify.collection.new_note(ankify.basic_notetype)
-        note.fields[0] = self.question_field()
-        note.fields[1] = self.answer_field()
-        return note
-
-class ClozePrompt:
-    def __init__(self, stripped_md: str, clozed_md: str, source_attribute=SOURCE_ATTRIBUTE):
-        self.stripped_md = stripped_md.strip()
-        self.clozed_md = clozed_md.strip()
-        self.source_attribute = source_attribute
-
-    @classmethod
-    def from_anki_note(cls, note, source_attribute=SOURCE_ATTRIBUTE):
-        field = note.fields[0]
-        if not field:
-            return None
-
-        md = md_parser.html_to_markdown(field)
-
-        stripped_md = None
-        clozed_md = md_parser.replace_anki_cloze_with_smart_cloze(md)
-
-        stripped_md = md_parser.extract_data(field, source_attribute)
-        if not stripped_md:
-            stripped_md = md_parser.strip_anki_cloze(md)
-
-        return cls(stripped_md, clozed_md, source_attribute)
-
-    def field(self):
-        html = md_parser.markdown_to_html(self.clozed_md)
-        field = md_parser.insert_data(html, self.source_attribute, self.stripped_md)
-        return field
-
-    def to_anki_note(self):
-        note = ankify.collection.new_note(ankify.basic_notetype)
-        note.fields[0] = self.field()
-        return note
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
@@ -132,7 +50,7 @@ basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
 # update and delete existing anki notes
 for note_id in basic_note_ids:
     anki_note = ankify.collection.get_note(note_id)
-    anki_basic_prompt = BasicPrompt.from_anki_note(anki_note)
+    anki_basic_prompt = prompts.BasicPrompt.from_anki_note(anki_note)
 
     question_md = anki_basic_prompt.question_md
 
@@ -141,7 +59,7 @@ for note_id in basic_note_ids:
         continue
 
     import_answer_md = import_basic_prompts.get(question_md)
-    import_basic_prompt = BasicPrompt(question_md, import_answer_md)
+    import_basic_prompt = prompts.BasicPrompt(question_md, import_answer_md)
 
     import_question_field = import_basic_prompt.question_field()
     import_answer_field = import_basic_prompt.answer_field()
@@ -166,7 +84,7 @@ for note_id in basic_note_ids:
 
 # save new questions
 for question_md, answer_md in import_basic_prompts.items():
-    note = BasicPrompt(question_md, answer_md).to_anki_note()
+    note = prompts.BasicPrompt(question_md, answer_md).to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
@@ -176,7 +94,7 @@ cloze_note_ids = ankify.collection.find_notes(ankify.cloze_search_string)
 
 for note_id in cloze_note_ids:
     anki_note = ankify.collection.get_note(note_id)
-    anki_cloze_prompt = ClozePrompt.from_anki_note(anki_note)
+    anki_cloze_prompt = ankify.ClozePrompt.from_anki_note(anki_note)
 
     stripped_md = anki_cloze_prompt.stripped_md
 
@@ -185,7 +103,7 @@ for note_id in cloze_note_ids:
         continue
 
     import_clozed_md = import_cloze_prompts.get(stripped_md)
-    import_cloze_prompt = ClozePrompt(stripped_md, import_clozed_md)
+    import_cloze_prompt = ankify.ClozePrompt(stripped_md, import_clozed_md)
 
     import_field = import_cloze_prompt.field()
 
@@ -200,7 +118,7 @@ for note_id in cloze_note_ids:
     stats_updated += 1
 
 for stripped_paragraph, clozed_paragraph in import_cloze_prompts.items():
-    note = ClozePrompt(stripped_paragraph, clozed_paragraph).to_anki_note()
+    note = ankify.ClozePrompt(stripped_paragraph, clozed_paragraph).to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
