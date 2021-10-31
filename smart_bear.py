@@ -1,11 +1,5 @@
 
 import datetime
-import os
-
-_date = datetime.date.today().strftime("%Y-%m-%d")
-# Anki changes cwd, save it here
-_export_url = f"{os.getcwd()}/anki-export-{_date}.md"
-
 import glob
 import pprint
 
@@ -15,7 +9,8 @@ import md_parser
 import prompts
 
 pp = pprint.PrettyPrinter(indent=4)
-
+_date = datetime.date.today().strftime("%Y-%m-%d")
+_export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/export-{_date}.md"
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 import_basic_prompts = dict()
