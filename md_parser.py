@@ -1,5 +1,4 @@
 import base64
-from typing import OrderedDict
 
 import regex
 from bs4 import BeautifulSoup
@@ -58,9 +57,9 @@ def md_to_basics(source):
         questions[question] = answer
     return questions
 
-def md_to_clozes(source) -> OrderedDict:
+def md_to_clozes(source) -> dict:
     global _cloze_replacer_count
-    ordered_dict = OrderedDict()
+    result = dict()
     for match in regex.finditer(_paragraph_regex, source):
         paragraph = match[0]
         if regex.search(_basic_regex, paragraph) or regex.search(_bear_id_regex, paragraph):
@@ -70,8 +69,8 @@ def md_to_clozes(source) -> OrderedDict:
         clozed_paragraph = regex.sub(_cloze_regex, _cloze_replace, paragraph)
         if paragraph == clozed_paragraph:
             continue
-        ordered_dict[stripped_paragraph] = clozed_paragraph
-    return ordered_dict
+        result[stripped_paragraph] = clozed_paragraph
+    return result
 
 def _cloze_replace(match):
     global _cloze_replacer_count
