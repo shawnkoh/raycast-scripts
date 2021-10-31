@@ -43,19 +43,19 @@ def prettify(md: str) -> str:
         md += "\n\n---\n\n"
 
     if references:
-        md = regex.sub(_eof_whitespace_regex, md)
+        md = regex.sub(_eof_whitespace_regex, "", md)
         md += f"\n\n{references}\n"
     
     for backlink_block in backlink_blocks:
-        md = regex.sub(_eof_whitespace_regex, md)
+        md = regex.sub(_eof_whitespace_regex, "", md)
         md += f"\n\n{backlink_block}\n"
 
     if tag_block:
-        md = regex.sub(_eof_whitespace_regex, md)
+        md = regex.sub(_eof_whitespace_regex, "", md)
         md += f"\n\n{tag_block}\n\n"
 
     if bear_id:
-        md = regex.sub(_eof_whitespace_regex, md)
+        md = regex.sub(_eof_whitespace_regex, "", md)
         md += f"\n\n{bear_id}"
 
     return md
