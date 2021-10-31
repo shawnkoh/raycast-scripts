@@ -1,6 +1,7 @@
 import base64
 
 import regex
+import unmarkd
 from bs4 import BeautifulSoup
 from markdown import Markdown
 
@@ -105,3 +106,6 @@ def extract_data(html, attribute):
 
 def markdown_to_html(source):
     return _markdown_to_html_parser.reset().convert(source)
+
+def html_to_markdown(html):
+    return unmarkd.unmark(html)

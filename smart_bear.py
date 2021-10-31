@@ -40,17 +40,19 @@ class BasicPrompt:
         if not question_field:
             return None
 
-        answer_field = note.fields[1]
-
         question_md = md_parser.extract_data(question_field, source_attribute)
+        if not question_md:
+            question_md = md_parser.markdown_to_html(question_field)
         if not question_md:
             return None
 
         answer_md = None
-        if answer_field:
+        if answer_field := note.fields[1]:
             answer_md = md_parser.extract_data(answer_field, source_attribute)
+            if not answer_md:
+                answer_md = md_parser.markdown_to_html(answer_field)
         
-        return cls(question_field, answer_field, source_attribute)
+        return cls(question_md, answer_md, source_attribute)
 
     def question_field(self):
         html = md_parser.markdown_to_html(self.question_md)
