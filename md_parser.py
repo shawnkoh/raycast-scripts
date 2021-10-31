@@ -10,7 +10,7 @@ _markdown_to_html_parser = Markdown()
 _bear_id_regex = regex.compile(r"(<!--\s*\{BearID:.+\}\s*-->)")
 _title_regex = regex.compile(r"^#(.+)")
 _tag_regex = regex.compile(r"\s?(#[\w\/-]+)\s?")
-_backlinks_regex = regex.compile(r"## Backlinks\n(.+(\n.)?)+")
+_backlinks_regex = regex.compile(r"## Backlinks\n(?:.+(?:\n.)?)+")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
 _basic_prompt_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
 _cloze_prompt_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
@@ -23,8 +23,9 @@ _reference_regex = regex.compile(r"(?m)^## References\n(.+(\n.)?)*")
 def strip_references(md: str) -> str:
     return regex.sub(_reference_regex, "", md)
 
-def extract_references(md: str) -> str:
-    return regex.search(_reference_regex, md)
+def extract_references(md: str) -> str or None:
+    if match := regex.search(_reference_regex, md):
+        return match[0]
 
 def extract_tag_block(md: str) -> str or None:
     tags = regex.findall(_tag_regex, md)
@@ -38,14 +39,15 @@ def strip_tags(md: str) -> str:
     """strip all tags and their adjacent whitespaces"""
     return regex.sub(_tag_regex, "", md)
 
-def extract_backlinks(source):
+def extract_backlink_blocks(source):
     return regex.findall(_backlinks_regex, source)
 
-def strip_backlinks(source):
+def strip_backlink_blocks(source):
     return regex.sub(_backlinks_regex, "", source)
 
 def extract_bear_id(md: str):
-    return regex.search(_bear_id_regex, md)
+    if match := regex.search(_bear_id_regex, md):
+        return match[0]
 
 def strip_bear_id(md: str):
     return regex.sub(_bear_id_regex, "", md)

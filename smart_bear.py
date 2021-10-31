@@ -18,7 +18,7 @@ import_cloze_prompts = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
-        md_text = md_parser.strip_backlinks(md_text)
+        md_text = md_parser.strip_backlink_blocks(md_text)
         basic_prompts = md_parser.extract_basic_prompts(md_text)
         basic_clozes = md_parser.extract_cloze_prompts(md_text)
         import_basic_prompts = import_basic_prompts | basic_prompts

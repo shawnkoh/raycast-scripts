@@ -17,9 +17,9 @@ def prettify(md: str) -> str:
 
     # extract and strip
 
-    backlinks = md_parser.extract_backlinks(md)
-    if backlinks:
-        md = md_parser.strip_backlinks(md)
+    backlink_blocks = md_parser.extract_backlink_blocks(md)
+    if backlink_blocks:
+        md = md_parser.strip_backlink_blocks(md)
 
     tag_block = md_parser.extract_tag_block(md)
     if tag_block:
@@ -34,24 +34,27 @@ def prettify(md: str) -> str:
         md = md_parser.strip_bear_id(md)
 
     # rebuild
+    # TODO: super hacky but whatever
 
-    # clear whitespaces at end of file
-    md = regex.sub(r"\s*$", "", md)
     # strip eof dividers
-    md = regex.sub(r"\s*---\s*$", "", md)
-    if references or backlinks or tag_block:
+    if references or backlink_blocks or tag_block:
+        md = regex.sub(r"\s*(---)?\s*$", "", md)
         md += "\n\n---\n\n"
 
     if references:
-        md += f"\n\n{references}\n\n"
+        md = regex.sub(r"\s*$", "", md)
+        md += f"\n\n{references}\n"
     
-    if backlinks:
-        md += f"\n\n{backlinks}\n\n"
+    for backlink_block in backlink_blocks:
+        md = regex.sub(r"\s*$", "", md)
+        md += f"\n\n{backlink_block}\n"
 
     if tag_block:
+        md = regex.sub(r"\s*$", "", md)
         md += f"\n\n{tag_block}\n\n"
 
     if bear_id:
+        md = regex.sub(r"\s*$", "", md)
         md += f"\n\n{bear_id}"
 
     return md
