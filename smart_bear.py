@@ -61,7 +61,7 @@ class BasicPrompt:
 
     def answer_field(self):
         if not self.answer_md:
-            return None
+            return ""
         html = md_parser.markdown_to_html(self.answer_md)
         field = md_parser.insert_data(html, self.source_attribute, self.answer_md)
         return field
@@ -112,42 +112,37 @@ ankify.collection.decks.save(ankify.deck)
 basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
 # update and delete existing anki notes
 for note_id in basic_note_ids:
-    note = ankify.collection.get_note(note_id)
-    anki_question_field = note.fields[0]
-    anki_answer_field = note.fields[1]
+    anki_note = ankify.collection.get_note(note_id)
+    anki_basic_prompt = BasicPrompt.from_anki_note(anki_note)
 
-    # Delete if anki's question has no source
-    anki_question_md = field_to_source(anki_question_field)
-    if not anki_question_md:
+    question_md = anki_basic_prompt.question_md
+
+    if question_md not in import_basic_prompts:
         notes_to_remove.append(note_id)
         continue
 
-    # Delete if anki's question is not found in import
-    if anki_question_md not in import_basic_prompts:
-        notes_to_remove.append(note_id)
-        continue
+    import_basic_prompts.pop(question_md)
 
-    # At this point, they are the same
-    import_question_md = anki_question_md
-    import_answer_md = import_basic_prompts.get(import_question_md)
+    import_answer_md = import_basic_prompts.get(question_md)
+    import_basic_prompt = BasicPrompt(question_md, import_answer_md)
 
-    # pop from list because its going to be processed
-    import_basic_prompts.pop(import_question_md)
+    import_question_field = import_basic_prompt.question_field()
+    import_answer_field = import_basic_prompt.answer_field()
 
-    # Ignore if anki's answer is the same as markdown
-    anki_answer_md = field_to_source(anki_answer_field)
-    if import_answer_md == anki_answer_md:
+    need_update = False
+
+    if anki_note.fields[0] != import_question_field:
+        anki_note.fields[0] = import_question_field
+        need_update = True
+    if anki_note.fields[1] != import_answer_field:
+        anki_note.fields[1] = import_answer_field
+        need_update = True
+
+    if not need_update:
         stats_unchanged += 1
         continue
 
-    # Edge case
-    if import_answer_md == "" and anki_answer_md is None:
-        stats_unchanged += 1
-        continue
-    
-    # Update Anki's answer
-    note.fields[1] = basic_to_field(import_answer_md)
-    ankify.collection.update_note(note)
+    ankify.collection.update_note(anki_note)
     stats_updated += 1
 
 # save new questions
