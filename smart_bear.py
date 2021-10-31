@@ -16,7 +16,6 @@
 
 import glob
 import pprint
-from typing import OrderedDict
 
 import ankify
 import md_parser
@@ -26,7 +25,7 @@ pp = pprint.PrettyPrinter(indent=4)
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 import_basic_prompts = dict()
-import_cloze_prompts = OrderedDict()
+import_cloze_prompts = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
