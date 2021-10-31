@@ -2,6 +2,8 @@ import os
 
 from anki.storage import _Collection
 
+import prompts
+
 # Anki Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
 DECK_ID = 1631681814019
@@ -32,3 +34,29 @@ if not cloze_notetype:
     exit()
 
 cloze_search_string = f"\"note:{cloze_notetype['name']}\""
+
+class BasicPrompt(prompts.BasicPrompt):
+    def to_anki_note(self):
+        note = collection.new_note(basic_notetype)
+        note.fields[0] = self.question_field()
+        note.fields[1] = self.answer_field()
+        return note
+
+    def is_different_from(self, note) -> bool:
+        return self.question_field != note.fields[0] or self.answer_field != note.fields[1]
+    
+    def override(self, note):
+        note.fields[0] = self.question_field
+        note.fields[1] = self.answer_field
+
+class ClozePrompt(prompts.ClozePrompt):
+    def to_anki_note(self):
+        note = collection.new_note(cloze_notetype)
+        note.fields[0] = self.field
+        return note
+
+    def is_different_from(self, note) -> bool:
+        return self.field != note.fields[0]
+
+    def override(self, note):
+        note.fields[0] = self.field

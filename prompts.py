@@ -1,4 +1,5 @@
-import ankify
+import functools
+
 import md_parser
 
 SOURCE_ATTRIBUTE = 'data-source'
@@ -33,23 +34,19 @@ class BasicPrompt:
         
         return cls(question_md, answer_md, source_attribute)
 
+    @functools.cached_property
     def question_field(self):
         html = md_parser.markdown_to_html(self.question_md)
         field = md_parser.insert_data(html, self.source_attribute, self.question_md)
         return field
 
+    @functools.cached_property
     def answer_field(self):
         if not self.answer_md:
             return ""
         html = md_parser.markdown_to_html(self.answer_md)
         field = md_parser.insert_data(html, self.source_attribute, self.answer_md)
         return field
-
-    def to_anki_note(self):
-        note = ankify.collection.new_note(ankify.basic_notetype)
-        note.fields[0] = self.question_field()
-        note.fields[1] = self.answer_field()
-        return note
 
 class ClozePrompt:
     def __init__(self, stripped_md: str, clozed_md: str, source_attribute=SOURCE_ATTRIBUTE):
@@ -74,12 +71,8 @@ class ClozePrompt:
 
         return cls(stripped_md, clozed_md, source_attribute)
 
+    @functools.cached_property
     def field(self):
         html = md_parser.markdown_to_html(self.clozed_md)
         field = md_parser.insert_data(html, self.source_attribute, self.stripped_md)
         return field
-
-    def to_anki_note(self):
-        note = ankify.collection.new_note(ankify.cloze_notetype)
-        note.fields[0] = self.field()
-        return note

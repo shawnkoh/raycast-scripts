@@ -6,23 +6,22 @@ import pprint
 import ankify
 import export_anki
 import md_parser
-import prompts
 
 pp = pprint.PrettyPrinter(indent=4)
 _date = datetime.date.today().strftime("%Y-%m-%d")
 _export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/{_date}.md"
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-def extract_basic_prompts(md) -> dict[str, prompts.BasicPrompt]:
+def extract_basic_prompts(md) -> dict[str, ankify.BasicPrompt]:
     basic_prompts = dict()
     for question_md, answer_md in md_parser.extract_basic_prompts(md).items():
-        basic_prompts[question_md] = prompts.BasicPrompt(question_md, answer_md)
+        basic_prompts[question_md] = ankify.BasicPrompt(question_md, answer_md)
     return basic_prompts
 
-def extract_cloze_prompts(md) -> dict[str, prompts.ClozePrompt]:
+def extract_cloze_prompts(md) -> dict[str, ankify.ClozePrompt]:
     cloze_prompts = dict()   
     for stripped_md, clozed_md in md_parser.extract_cloze_prompts(md).items():
-        cloze_prompts[stripped_md] = prompts.ClozePrompt(stripped_md, clozed_md)
+        cloze_prompts[stripped_md] = ankify.ClozePrompt(stripped_md, clozed_md)
     return cloze_prompts
 
 import_basic_prompts = dict()
@@ -53,7 +52,7 @@ basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
 # update and delete existing anki notes
 for note_id in basic_note_ids:
     anki_note = ankify.collection.get_note(note_id)
-    anki_basic_prompt = prompts.BasicPrompt.from_anki_note(anki_note)
+    anki_basic_prompt = ankify.BasicPrompt.from_anki_note(anki_note)
 
     import_basic_prompt = import_basic_prompts.get(anki_basic_prompt.question_md)
     if not import_basic_prompt:
@@ -61,22 +60,11 @@ for note_id in basic_note_ids:
         continue
     import_basic_prompts.pop(import_basic_prompt.question_md)
 
-    import_question_field = import_basic_prompt.question_field()
-    import_answer_field = import_basic_prompt.answer_field()
-
-    need_update = False
-
-    if anki_note.fields[0] != import_question_field:
-        anki_note.fields[0] = import_question_field
-        need_update = True
-    if anki_note.fields[1] != import_answer_field:
-        anki_note.fields[1] = import_answer_field
-        need_update = True
-
-    if not need_update:
+    if not import_basic_prompt.is_different_from(anki_note):
         stats_unchanged += 1
         continue
 
+    import_basic_prompt.override(anki_note)
     ankify.collection.update_note(anki_note)
     stats_updated += 1
 
@@ -92,7 +80,7 @@ cloze_note_ids = ankify.collection.find_notes(ankify.cloze_search_string)
 
 for note_id in cloze_note_ids:
     anki_note = ankify.collection.get_note(note_id)
-    anki_cloze_prompt = prompts.ClozePrompt.from_anki_note(anki_note)
+    anki_cloze_prompt = ankify.ClozePrompt.from_anki_note(anki_note)
 
     import_cloze_prompt = import_cloze_prompts.get(anki_cloze_prompt.stripped_md)
     if not import_cloze_prompt:
@@ -100,12 +88,11 @@ for note_id in cloze_note_ids:
         continue
     import_cloze_prompts.pop(import_cloze_prompt.stripped_md)
 
-    import_field = import_cloze_prompt.field()
-    if anki_note.fields[0] == import_field:
+    if not import_cloze_prompt.is_different_from(anki_note):
         stats_unchanged += 1
         continue
 
-    anki_note.fields[0] = import_field
+    import_cloze_prompt.override(anki_note)
     ankify.collection.update_note(anki_note)
     stats_updated += 1
 
