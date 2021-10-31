@@ -13,6 +13,18 @@ _date = datetime.date.today().strftime("%Y-%m-%d")
 _export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/{_date}.md"
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
+def extract_basic_prompts(md) -> dict[str, prompts.BasicPrompt]:
+    basic_prompts = dict()
+    for question_md, answer_md in md_parser.extract_basic_prompts(md).items():
+        basic_prompts[question_md] = prompts.BasicPrompt(question_md, answer_md)
+    return basic_prompts
+
+def extract_cloze_prompts(md) -> dict[str, prompts.ClozePrompt]:
+    cloze_prompts = dict()   
+    for stripped_md, clozed_md in md_parser.extract_cloze_prompts(md).items():
+        cloze_prompts[stripped_md] = prompts.ClozePrompt(stripped_md, clozed_md)
+    return cloze_prompts
+
 import_basic_prompts = dict()
 import_cloze_prompts = dict()
 for url in urls:
@@ -21,14 +33,10 @@ for url in urls:
         md_text = md_parser.strip_title(md_text)
         md_text = md_parser.strip_backlink_blocks(md_text)
 
-        basic_prompts = dict()
-        for question_md, answer_md in md_parser.extract_basic_prompts(md_text).items():
-            basic_prompts[question_md] = prompts.BasicPrompt(question_md, answer_md)
+        basic_prompts = extract_basic_prompts(md_text)
         import_basic_prompts = import_basic_prompts | basic_prompts
 
-        cloze_prompts = dict()   
-        for stripped_md, clozed_md in md_parser.extract_cloze_prompts(md_text).items():
-            cloze_prompts[stripped_md] = prompts.ClozePrompt(stripped_md, clozed_md)
+        cloze_prompts = extract_cloze_prompts(md_text)
         import_cloze_prompts = import_cloze_prompts | cloze_prompts
 
 stats_created = 0
@@ -47,13 +55,11 @@ for note_id in basic_note_ids:
     anki_note = ankify.collection.get_note(note_id)
     anki_basic_prompt = prompts.BasicPrompt.from_anki_note(anki_note)
 
-    question_md = anki_basic_prompt.question_md
-
-    if question_md not in import_basic_prompts:
+    import_basic_prompt = import_basic_prompts.get(anki_basic_prompt.question_md)
+    if not import_basic_prompt:
         notes_to_remove.append(note_id)
         continue
-
-    import_basic_prompt = import_basic_prompts.get(question_md)
+    import_basic_prompts.pop(import_basic_prompt.question_md)
 
     import_question_field = import_basic_prompt.question_field()
     import_answer_field = import_basic_prompt.answer_field()
@@ -66,8 +72,6 @@ for note_id in basic_note_ids:
     if anki_note.fields[1] != import_answer_field:
         anki_note.fields[1] = import_answer_field
         need_update = True
-
-    import_basic_prompts.pop(question_md)
 
     if not need_update:
         stats_unchanged += 1
@@ -90,18 +94,13 @@ for note_id in cloze_note_ids:
     anki_note = ankify.collection.get_note(note_id)
     anki_cloze_prompt = prompts.ClozePrompt.from_anki_note(anki_note)
 
-    stripped_md = anki_cloze_prompt.stripped_md
-
-    if stripped_md not in import_cloze_prompts:
+    import_cloze_prompt = import_cloze_prompts.get(anki_cloze_prompt.stripped_md)
+    if not import_cloze_prompt:
         notes_to_remove.append(note_id)
         continue
-
-    import_cloze_prompt = import_cloze_prompts.get(stripped_md)
+    import_cloze_prompts.pop(import_cloze_prompt.stripped_md)
 
     import_field = import_cloze_prompt.field()
-
-    import_cloze_prompts.pop(stripped_md)
-
     if anki_note.fields[0] == import_field:
         stats_unchanged += 1
         continue
