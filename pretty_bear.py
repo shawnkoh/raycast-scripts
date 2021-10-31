@@ -56,7 +56,8 @@ def prettify(md: str) -> str:
 
     if bear_id:
         md = regex.sub(_eof_whitespace_regex, "", md)
-        md += f"\n\n{bear_id}"
+        # Intentionally end file with new line.
+        md += f"\n\n{bear_id}\n"
 
     return md
 
