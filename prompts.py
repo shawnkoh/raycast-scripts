@@ -80,6 +80,6 @@ class ClozePrompt:
         return field
 
     def to_anki_note(self):
-        note = ankify.collection.new_note(ankify.basic_notetype)
+        note = ankify.collection.new_note(ankify.cloze_notetype)
         note.fields[0] = self.field()
         return note
