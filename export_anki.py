@@ -11,7 +11,8 @@ import ankify
 
 _delete_notes = False
 
-_export = f"# Exported from Anki on {_date}\n\n"
+_title = f"# Exported from Anki on {_date}\n\n"
+_export = _title
 _cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 _multi_line_regex = regex.compile(r"\n\n+")
 
@@ -34,6 +35,10 @@ for note_id in ankify.collection.find_notes(""):
             _export += f"{front}\n\n"
     else:
         _export += f"Q: {front}\nA: {back}\n\n"
+
+if _export is _title:
+    print("nothing to export")
+    exit()
 
 with open(_export_url, "w") as file:
     file.write(_export)
