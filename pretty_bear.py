@@ -29,6 +29,10 @@ for url in urls:
         md = file.read()
         result = md
 
+        # apply standardisations
+
+        result = md_parser.standardise_references(result)
+
         # extract and strip
 
         backlinks = md_parser.extract_backlinks(result)
@@ -39,18 +43,25 @@ for url in urls:
         if tag_block:
             result = md_parser.strip_tags(result)
 
+        references = md_parser.extract_references(result)
+        if references:
+            result = md_parser.strip_references(result)
+
         bear_id = md_parser.extract_bear_id(result)
         if bear_id:
             result = md_parser.strip_bear_id(result)
-
-        # apply standardisations
-
-        result = md_parser.standardise_references(result)
 
         # rebuild
 
         # clear whitespaces at end of file
         result = regex.sub(r"\s*$", "", result)
+        # strip eof dividers
+        result = regex.sub(r"\s*---\s*$", "", result)
+        if references or backlinks or tag_block:
+            result += "\n\n---\n\n"
+
+        if references:
+            result += f"\n\n{references}\n\n"
         
         if backlinks:
             result += f"\n\n{backlinks}\n\n"

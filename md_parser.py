@@ -18,11 +18,18 @@ _cloze_replacer_count = 0
 
 _anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 
-_reference_regex = regex.compile(r"(?i)\s*-*\s*#+\s+References*\s*")
-_reference_replacement = "\n\n---\n\n## References\n"
+_reference_regex = regex.compile(r"(?m)^## References\n(.+(\n.)?)*")
+_reference_standard_regex = regex.compile(r"(?i)(?m)^##+\s+References*\s*")
+_reference_standard = "## References"
 
 def standardise_references(md: str) -> str:
-    return regex.sub(_reference_regex, _reference_replacement, md)
+    return regex.sub(_reference_standard_regex, _reference_standard, md)
+
+def strip_references(md: str) -> str:
+    return regex.sub(_reference_regex, "", md)
+
+def extract_references(md: str) -> str:
+    return regex.search(_reference_regex, md)
 
 def extract_tag_block(md: str) -> str or None:
     tags = regex.findall(_tag_regex, md)
