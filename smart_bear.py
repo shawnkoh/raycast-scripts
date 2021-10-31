@@ -42,7 +42,7 @@ class BasicPrompt:
 
         question_md = md_parser.extract_data(question_field, source_attribute)
         if not question_md:
-            question_md = md_parser.markdown_to_html(question_field)
+            question_md = md_parser.html_to_markdown(question_field)
         if not question_md:
             return None
 
@@ -50,7 +50,7 @@ class BasicPrompt:
         if answer_field := note.fields[1]:
             answer_md = md_parser.extract_data(answer_field, source_attribute)
             if not answer_md:
-                answer_md = md_parser.markdown_to_html(answer_field)
+                answer_md = md_parser.html_to_markdown(answer_field)
         
         return cls(question_md, answer_md, source_attribute)
 
@@ -70,6 +70,39 @@ class BasicPrompt:
         note = ankify.collection.new_note(ankify.basic_notetype)
         note.fields[0] = self.question_field()
         note.fields[1] = self.answer_field()
+        return note
+
+class ClozePrompt:
+    def __init__(self, stripped_md: str, clozed_md: str, source_attribute=SOURCE_ATTRIBUTE):
+        self.stripped_md = stripped_md.strip()
+        self.clozed_md = clozed_md.strip()
+        self.source_attribute = source_attribute
+
+    @classmethod
+    def from_anki_note(cls, note, source_attribute=SOURCE_ATTRIBUTE):
+        field = note.fields[0]
+        if not field:
+            return None
+
+        md = md_parser.html_to_markdown(field)
+
+        stripped_md = None
+        clozed_md = md_parser.replace_anki_cloze_with_smart_cloze(md)
+
+        stripped_md = md_parser.extract_data(field, source_attribute)
+        if not stripped_md:
+            stripped_md = md_parser.strip_anki_cloze(md)
+
+        return cls(stripped_md, clozed_md, source_attribute)
+
+    def field(self):
+        html = md_parser.markdown_to_html(self.clozed_md)
+        field = md_parser.insert_data(html, self.source_attribute, self.stripped_md)
+        return field
+
+    def to_anki_note(self):
+        note = ankify.collection.new_note(ankify.basic_notetype)
+        note.fields[0] = self.field()
         return note
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
@@ -94,11 +127,6 @@ def field_to_source(field):
     source = md_parser.extract_data(field, SOURCE_ATTRIBUTE)
     return source
 
-def basic_to_field(md):
-    html = md_parser.markdown_to_html(md)
-    field = md_parser.insert_data(html, SOURCE_ATTRIBUTE, md)
-    return field
-
 def cloze_to_field(stripped_paragraph, clozed_paragraph):
     clozed_paragraph_html = md_parser.markdown_to_html(clozed_paragraph)
     field = md_parser.insert_data(clozed_paragraph_html, SOURCE_ATTRIBUTE, stripped_paragraph)
@@ -121,8 +149,6 @@ for note_id in basic_note_ids:
         notes_to_remove.append(note_id)
         continue
 
-    import_basic_prompts.pop(question_md)
-
     import_answer_md = import_basic_prompts.get(question_md)
     import_basic_prompt = BasicPrompt(question_md, import_answer_md)
 
@@ -137,6 +163,8 @@ for note_id in basic_note_ids:
     if anki_note.fields[1] != import_answer_field:
         anki_note.fields[1] = import_answer_field
         need_update = True
+
+    import_basic_prompts.pop(question_md)
 
     if not need_update:
         stats_unchanged += 1
@@ -156,37 +184,32 @@ ankify.collection.decks.save(ankify.deck)
 cloze_note_ids = ankify.collection.find_notes(ankify.cloze_search_string)
 
 for note_id in cloze_note_ids:
-    note = ankify.collection.get_note(note_id)
-    anki_field = note.fields[0]
+    anki_note = ankify.collection.get_note(note_id)
+    anki_cloze_prompt = ClozePrompt.from_anki_note(anki_note)
 
-    # Delete if anki's question has no source
-    stripped_paragraph_md = field_to_source(anki_field)
-    if not stripped_paragraph_md:
+    stripped_md = anki_cloze_prompt.stripped_md
+
+    if stripped_md not in import_cloze_prompts:
         notes_to_remove.append(note_id)
         continue
 
-    # Delete if anki's question is not found in import
-    if stripped_paragraph_md not in import_cloze_prompts:
-        notes_to_remove.append(note_id)
-        continue
+    import_clozed_md = import_cloze_prompts.get(stripped_md)
+    import_cloze_prompt = ClozePrompt(stripped_md, import_clozed_md)
 
-    clozed_paragraph_md = import_cloze_prompts.get(stripped_paragraph_md)
+    import_field = import_cloze_prompt.field()
 
-    import_cloze_prompts.pop(stripped_paragraph_md)
+    import_cloze_prompts.pop(stripped_md)
 
-    # Ignore if same
-    field = cloze_to_field(stripped_paragraph_md, clozed_paragraph_md)
-    if field == anki_field:
+    if anki_note.fields[0] == import_field:
         stats_unchanged += 1
         continue
 
-    note.fields[0] = field
-    ankify.collection.update_note(note)
+    anki_note.fields[0] = import_field
+    ankify.collection.update_note(anki_note)
     stats_updated += 1
 
 for stripped_paragraph, clozed_paragraph in import_cloze_prompts.items():
-    note = ankify.collection.new_note(ankify.cloze_notetype)
-    note.fields[0] = cloze_to_field(stripped_paragraph, clozed_paragraph)
+    note = ClozePrompt(stripped_paragraph, clozed_paragraph).to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 

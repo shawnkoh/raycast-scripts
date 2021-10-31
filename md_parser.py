@@ -16,6 +16,8 @@ _basic_prompt_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s
 _cloze_prompt_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
 _cloze_replacer_count = 0
 
+_anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
+
 _reference_regex = regex.compile(r"(?i)\s*-*\s*#+\s+References*\s*")
 _reference_replacement = "\n\n---\n\n## References\n"
 
@@ -72,6 +74,12 @@ def extract_cloze_prompts(source) -> dict:
             continue
         result[stripped_paragraph] = clozed_paragraph
     return result
+
+def strip_anki_cloze(md) -> str:
+    return regex.sub(md, _anki_cloze_regex, r"\2")
+
+def replace_anki_cloze_with_smart_cloze(md) -> str:
+    return regex.sub(md, _anki_cloze_regex, r"{\2}")
 
 def _cloze_replace(match):
     global _cloze_replacer_count

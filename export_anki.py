@@ -13,7 +13,7 @@ _delete_notes = False
 
 _title = f"# Exported from Anki on {_date}\n\n"
 _export = _title
-_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
+_anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 _multi_line_regex = regex.compile(r"\n\n+")
 
 _note_ids_to_delete = set()
@@ -28,7 +28,7 @@ for note_id in ankify.collection.find_notes(""):
     back = regex.sub(_multi_line_regex, "\n", back)
     if note.cloze_numbers_in_fields():
         replace_regex = r"{\2}"
-        front = regex.sub(_cloze_regex, replace_regex, front)
+        front = regex.sub(_anki_cloze_regex, replace_regex, front)
         if back:
             _export += f"{front}\n---\n{back}\n\n"
         else:
