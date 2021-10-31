@@ -10,7 +10,7 @@ import prompts
 
 pp = pprint.PrettyPrinter(indent=4)
 _date = datetime.date.today().strftime("%Y-%m-%d")
-_export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/export-{_date}.md"
+_export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/{_date}.md"
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 import_basic_prompts = dict()
