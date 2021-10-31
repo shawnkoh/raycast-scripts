@@ -26,13 +26,13 @@ def prettify(md: str) -> str:
     if backlink_blocks:
         md = md_parser.strip_backlink_blocks(md)
 
-    tag_block = md_parser.extract_tag_block(md)
-    if tag_block:
-        md = md_parser.strip_tags(md)
-
     references = md_parser.extract_references(md)
     if references:
         md = md_parser.strip_references(md)
+
+    tag_block = md_parser.extract_tag_block(md)
+    if tag_block:
+        md = md_parser.strip_tags(md)
 
     # rebuild
     # TODO: super hacky but whatever
