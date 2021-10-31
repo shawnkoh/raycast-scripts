@@ -22,6 +22,54 @@ import md_parser
 
 pp = pprint.PrettyPrinter(indent=4)
 
+SOURCE_ATTRIBUTE = 'data-source'
+
+class BasicPrompt:
+    def __init__(self, question_md: str, answer_md: str or None, source_attribute=SOURCE_ATTRIBUTE):
+        self.question_md = question_md.strip()
+        if answer_md:
+            self.answer_md = answer_md.strip()
+        else:
+            self.answer_md = None
+
+        self.source_attribute = source_attribute
+
+    @classmethod
+    def from_anki_note(cls, note, source_attribute=SOURCE_ATTRIBUTE):
+        question_field = note.fields[0]
+        if not question_field:
+            return None
+
+        answer_field = note.fields[1]
+
+        question_md = md_parser.extract_data(question_field, source_attribute)
+        if not question_md:
+            return None
+
+        answer_md = None
+        if answer_field:
+            answer_md = md_parser.extract_data(answer_field, source_attribute)
+        
+        return cls(question_field, answer_field, source_attribute)
+
+    def question_field(self):
+        html = md_parser.markdown_to_html(self.question_md)
+        field = md_parser.insert_data(html, self.source_attribute, self.question_md)
+        return field
+
+    def answer_field(self):
+        if not self.answer_md:
+            return None
+        html = md_parser.markdown_to_html(self.answer_md)
+        field = md_parser.insert_data(html, self.source_attribute, self.answer_md)
+        return field
+
+    def to_anki_note(self):
+        note = ankify.collection.new_note(ankify.basic_notetype)
+        note.fields[0] = self.question_field()
+        note.fields[1] = self.answer_field()
+        return note
+
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
 import_basic_prompts = dict()
@@ -30,17 +78,15 @@ for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
         md_text = md_parser.strip_backlinks(md_text)
-        basics = md_parser.extract_basic_prompts(md_text)
-        clozes = md_parser.extract_cloze_prompts(md_text)
-        import_basic_prompts = import_basic_prompts | basics
-        import_cloze_prompts = import_cloze_prompts | clozes
+        basic_prompts = md_parser.extract_basic_prompts(md_text)
+        basic_clozes = md_parser.extract_cloze_prompts(md_text)
+        import_basic_prompts = import_basic_prompts | basic_prompts
+        import_cloze_prompts = import_cloze_prompts | basic_clozes
 
 stats_created = 0
 stats_updated = 0
 stats_deleted = 0
 stats_unchanged = 0
-
-SOURCE_ATTRIBUTE = 'data-source'
 
 def field_to_source(field):
     source = md_parser.extract_data(field, SOURCE_ATTRIBUTE)
@@ -50,12 +96,6 @@ def basic_to_field(md):
     html = md_parser.markdown_to_html(md)
     field = md_parser.insert_data(html, SOURCE_ATTRIBUTE, md)
     return field
-
-def basic_to_note(question, answer):
-    note = ankify.collection.new_note(ankify.basic_notetype)
-    note.fields[0] = basic_to_field(question)
-    note.fields[1] = basic_to_field(answer)
-    return note
 
 def cloze_to_field(stripped_paragraph, clozed_paragraph):
     clozed_paragraph_html = md_parser.markdown_to_html(clozed_paragraph)
@@ -109,8 +149,8 @@ for note_id in basic_note_ids:
     stats_updated += 1
 
 # save new questions
-for import_question_md, import_answer_md in import_basic_prompts.items():
-    note = basic_to_note(import_question_md, import_answer_md)
+for question_md, answer_md in import_basic_prompts.items():
+    note = BasicPrompt(question_md, answer_md).to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
