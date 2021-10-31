@@ -1,19 +1,3 @@
-#!/usr/bin/env python3
-
-# Required parameters:
-# @raycast.schemaVersion 1
-# @raycast.title Pretty Bear
-# @raycast.mode fullOutput
-# @raycast.refreshTime 1h
-
-# Optional parameters:
-# @raycast.icon
-# @raycast.packageName sg.shawnkoh.pretty-bear
-
-# Documentation:
-# @raycast.author Shawn Koh
-# @raycast.authorURL https://github.com/shawnkoh
-
 import glob
 
 import regex

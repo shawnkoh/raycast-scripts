@@ -2,13 +2,13 @@
 
 # Required parameters:
 # @raycast.schemaVersion 1
-# @raycast.title Refresh bear backlinks
+# @raycast.title Smart Bear
 # @raycast.mode fullOutput
 # @raycast.refreshTime 1h
 
 # Optional parameters:
 # @raycast.icon 🤖
-# @raycast.packageName sg.shawnkoh.bear-backlinks
+# @raycast.packageName sg.shawnkoh.smart-bear
 
 # Documentation:
 # @raycast.author Shawn Koh
