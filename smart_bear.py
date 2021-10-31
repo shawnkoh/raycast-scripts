@@ -24,19 +24,23 @@ def extract_cloze_prompts(md) -> dict[str, ankify.ClozePrompt]:
         cloze_prompts[stripped_md] = ankify.ClozePrompt(stripped_md, clozed_md)
     return cloze_prompts
 
-import_basic_prompts = dict()
-import_cloze_prompts = dict()
-for url in urls:
-    with open(url, "r") as file:
-        md_text = file.read()
-        md_text = md_parser.strip_title(md_text)
-        md_text = md_parser.strip_backlink_blocks(md_text)
+def import_markdowns(urls):
+    import_basic_prompts = dict()
+    import_cloze_prompts = dict()
+    for url in urls:
+        with open(url, "r") as file:
+            md_text = file.read()
+            md_text = md_parser.strip_title(md_text)
+            md_text = md_parser.strip_backlink_blocks(md_text)
 
-        basic_prompts = extract_basic_prompts(md_text)
-        import_basic_prompts = import_basic_prompts | basic_prompts
+            basic_prompts = extract_basic_prompts(md_text)
+            import_basic_prompts = import_basic_prompts | basic_prompts
 
-        cloze_prompts = extract_cloze_prompts(md_text)
-        import_cloze_prompts = import_cloze_prompts | cloze_prompts
+            cloze_prompts = extract_cloze_prompts(md_text)
+            import_cloze_prompts = import_cloze_prompts | cloze_prompts
+    return import_basic_prompts, import_cloze_prompts
+
+import_basic_prompts, import_cloze_prompts = import_markdowns(urls)
 
 stats_created = 0
 stats_updated = 0
@@ -48,15 +52,11 @@ notes_to_remove = []
 ankify.deck["mid"] = ankify.basic_notetype["id"]
 ankify.collection.decks.save(ankify.deck)
 
-basic_note_ids = ankify.collection.find_notes(ankify.basic_search_string)
 # update and delete existing anki notes
-for note_id in basic_note_ids:
-    anki_note = ankify.collection.get_note(note_id)
-    anki_basic_prompt = ankify.BasicPrompt.from_anki_note(anki_note)
-
-    import_basic_prompt = import_basic_prompts.get(anki_basic_prompt.question_md)
+for anki_note, anki_prompt in ankify.basic_notes():
+    import_basic_prompt = import_basic_prompts.get(anki_prompt.question_md)
     if not import_basic_prompt:
-        notes_to_remove.append(note_id)
+        notes_to_remove.append(anki_note.id)
         continue
     import_basic_prompts.pop(import_basic_prompt.question_md)
 
@@ -76,15 +76,11 @@ for question_md, basic_prompt in import_basic_prompts.items():
 
 ankify.deck["mid"] = ankify.cloze_notetype["id"]
 ankify.collection.decks.save(ankify.deck)
-cloze_note_ids = ankify.collection.find_notes(ankify.cloze_search_string)
 
-for note_id in cloze_note_ids:
-    anki_note = ankify.collection.get_note(note_id)
-    anki_cloze_prompt = ankify.ClozePrompt.from_anki_note(anki_note)
-
-    import_cloze_prompt = import_cloze_prompts.get(anki_cloze_prompt.stripped_md)
+for anki_note, anki_prompt in ankify.cloze_notes():
+    import_cloze_prompt = import_cloze_prompts.get(anki_prompt.stripped_md)
     if not import_cloze_prompt:
-        notes_to_remove.append(note_id)
+        notes_to_remove.append(anki_note.id)
         continue
     import_cloze_prompts.pop(import_cloze_prompt.stripped_md)
 

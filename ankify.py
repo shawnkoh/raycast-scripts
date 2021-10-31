@@ -1,5 +1,6 @@
 import os
 
+import anki
 from anki.storage import _Collection
 
 import prompts
@@ -26,14 +27,14 @@ if not basic_notetype:
     print("basic notetype not found")
     exit()
 
-basic_search_string = f"\"note:{basic_notetype['name']}\""
+_basic_search_string = f"\"note:{basic_notetype['name']}\""
 
 cloze_notetype = collection.models.get(CLOZE_MODEL_ID)
 if not cloze_notetype:
     print("cloze notetype not found")
     exit()
 
-cloze_search_string = f"\"note:{cloze_notetype['name']}\""
+_cloze_search_string = f"\"note:{cloze_notetype['name']}\""
 
 class BasicPrompt(prompts.BasicPrompt):
     def to_anki_note(self):
@@ -60,3 +61,15 @@ class ClozePrompt(prompts.ClozePrompt):
 
     def override(self, note):
         note.fields[0] = self.field
+
+def basic_notes():
+    for note_id in collection.find_notes(_basic_search_string):
+        note = collection.get_note(note_id)
+        prompt = BasicPrompt.from_anki_note(note)
+        yield (note, prompt)
+
+def cloze_notes():
+    for note_id in collection.find_notes(_cloze_search_string):
+        note = collection.get_note(note_id)
+        prompt = ClozePrompt.from_anki_note(note)
+        yield (note, prompt)
