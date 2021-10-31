@@ -1,5 +1,6 @@
 import datetime
 import os
+import pathlib
 
 import regex
 
@@ -37,6 +38,7 @@ def export_notes(note_ids, export_url):
         print("nothing to export")
         return
 
+    pathlib.Path(export_url).mkdir(parents=True, exist_ok=True)
     if os.path.exists(export_url):
         with open(export_url, "a") as file:
             file.write(f"\n\n---\n\n{time}\n\n{export}")
