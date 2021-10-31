@@ -18,6 +18,10 @@ def prettify(md: str) -> str:
 
     # extract and strip
 
+    bear_id = md_parser.extract_bear_id(md)
+    if bear_id:
+        md = md_parser.strip_bear_id(md)
+
     backlink_blocks = md_parser.extract_backlink_blocks(md)
     if backlink_blocks:
         md = md_parser.strip_backlink_blocks(md)
@@ -29,10 +33,6 @@ def prettify(md: str) -> str:
     references = md_parser.extract_references(md)
     if references:
         md = md_parser.strip_references(md)
-
-    bear_id = md_parser.extract_bear_id(md)
-    if bear_id:
-        md = md_parser.strip_bear_id(md)
 
     # rebuild
     # TODO: super hacky but whatever
