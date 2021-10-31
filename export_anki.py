@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import regex
 
@@ -25,17 +26,22 @@ def note_to_prompt_md(note):
 
 def export_notes(note_ids, export_url):
     date = datetime.date.today().strftime("%Y-%m-%d")
+    time = datetime.now().strftime("%H:%M:%S")
     title = f"# Exported from Anki on {date}\n\n"
-    export = title
+    export = ""
     for note_id in note_ids:
         note = ankify.collection.get_note(note_id)
         export += note_to_prompt_md(note)
 
-    if export == title:
+    if export == "":
         print("nothing to export")
         return
 
-    with open(export_url, "w") as file:
-        file.write(export)
+    if os.path.exists(export_url):
+        with open(export_url, "a") as file:
+            file.write(f"\n\n---\n\n{time}\n\n{export}")
+    else:
+        with open(export_url, "w") as file:
+            file.write(f"{title}\n\n{time}\n\n{export}")
 
     print(f"exported to {export_url}")
