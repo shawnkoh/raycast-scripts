@@ -19,11 +19,6 @@ _cloze_replacer_count = 0
 _anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 
 _reference_regex = regex.compile(r"(?m)^## References\n(.+(\n.)?)*")
-_reference_standard_regex = regex.compile(r"(?i)(?m)^##+\s+References*\s*")
-_reference_standard = "## References"
-
-def standardise_references(md: str) -> str:
-    return regex.sub(_reference_standard_regex, _reference_standard, md)
 
 def strip_references(md: str) -> str:
     return regex.sub(_reference_regex, "", md)
