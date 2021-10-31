@@ -20,6 +20,9 @@ _anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 
 _reference_regex = regex.compile(r"(?m)^## References\n(.+(\n.)?)*")
 
+def strip_title(md: str) -> str:
+    return regex.sub(_title_regex, "", md)
+
 def strip_references(md: str) -> str:
     return regex.sub(_reference_regex, "", md)
 

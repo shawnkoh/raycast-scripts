@@ -18,11 +18,18 @@ import_cloze_prompts = dict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
+        md_text = md_parser.strip_title(md_text)
         md_text = md_parser.strip_backlink_blocks(md_text)
-        basic_prompts = md_parser.extract_basic_prompts(md_text)
-        basic_clozes = md_parser.extract_cloze_prompts(md_text)
+
+        basic_prompts = dict()
+        for question_md, answer_md in md_parser.extract_basic_prompts(md_text).items():
+            basic_prompts[question_md] = prompts.BasicPrompt(question_md, answer_md)
         import_basic_prompts = import_basic_prompts | basic_prompts
-        import_cloze_prompts = import_cloze_prompts | basic_clozes
+
+        cloze_prompts = dict()   
+        for stripped_md, clozed_md in md_parser.extract_cloze_prompts(md_text).items():
+            cloze_prompts[stripped_md] = prompts.ClozePrompt(stripped_md, clozed_md)
+        import_cloze_prompts = import_cloze_prompts | cloze_prompts
 
 stats_created = 0
 stats_updated = 0
@@ -46,8 +53,7 @@ for note_id in basic_note_ids:
         notes_to_remove.append(note_id)
         continue
 
-    import_answer_md = import_basic_prompts.get(question_md)
-    import_basic_prompt = prompts.BasicPrompt(question_md, import_answer_md)
+    import_basic_prompt = import_basic_prompts.get(question_md)
 
     import_question_field = import_basic_prompt.question_field()
     import_answer_field = import_basic_prompt.answer_field()
@@ -71,8 +77,8 @@ for note_id in basic_note_ids:
     stats_updated += 1
 
 # save new questions
-for question_md, answer_md in import_basic_prompts.items():
-    note = prompts.BasicPrompt(question_md, answer_md).to_anki_note()
+for question_md, basic_prompt in import_basic_prompts.items():
+    note = basic_prompt.to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
@@ -90,8 +96,7 @@ for note_id in cloze_note_ids:
         notes_to_remove.append(note_id)
         continue
 
-    import_clozed_md = import_cloze_prompts.get(stripped_md)
-    import_cloze_prompt = prompts.ClozePrompt(stripped_md, import_clozed_md)
+    import_cloze_prompt = import_cloze_prompts.get(stripped_md)
 
     import_field = import_cloze_prompt.field()
 
@@ -105,8 +110,8 @@ for note_id in cloze_note_ids:
     ankify.collection.update_note(anki_note)
     stats_updated += 1
 
-for stripped_paragraph, clozed_paragraph in import_cloze_prompts.items():
-    note = prompts.ClozePrompt(stripped_paragraph, clozed_paragraph).to_anki_note()
+for stripped_md, clozed_prompt in import_cloze_prompts.items():
+    note = clozed_prompt.to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
