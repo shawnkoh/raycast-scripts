@@ -123,15 +123,6 @@ stats_updated = 0
 stats_deleted = 0
 stats_unchanged = 0
 
-def field_to_source(field):
-    source = md_parser.extract_data(field, SOURCE_ATTRIBUTE)
-    return source
-
-def cloze_to_field(stripped_paragraph, clozed_paragraph):
-    clozed_paragraph_html = md_parser.markdown_to_html(clozed_paragraph)
-    field = md_parser.insert_data(clozed_paragraph_html, SOURCE_ATTRIBUTE, stripped_paragraph)
-    return field
-
 notes_to_remove = []
 
 ankify.deck["mid"] = ankify.basic_notetype["id"]
