@@ -14,7 +14,6 @@ _backlinks_regex = regex.compile(r"## Backlinks\n(?:.+(?:\n.)?)+")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
 _basic_prompt_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
 _cloze_prompt_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
-_cloze_replacer_count = 0
 
 _anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 
@@ -68,15 +67,19 @@ def extract_basic_prompts(source):
     return questions
 
 def extract_cloze_prompts(source) -> dict:
-    global _cloze_replacer_count
+    cloze_replacer_count = 0
+    def cloze_replace(match):
+        nonlocal cloze_replacer_count
+        cloze_replacer_count += 1
+        return f"{{{{c{cloze_replacer_count}::{match.group(1)}}}}}"
+
     result = dict()
     for match in regex.finditer(_paragraph_regex, source):
         paragraph = match[0]
         if regex.search(_basic_prompt_regex, paragraph) or regex.search(_bear_id_regex, paragraph):
             continue
-        _cloze_replacer_count = 0
         stripped_paragraph = regex.sub(_cloze_prompt_regex, r"\1", paragraph)
-        clozed_paragraph = regex.sub(_cloze_prompt_regex, _cloze_replace, paragraph)
+        clozed_paragraph = regex.sub(_cloze_prompt_regex, cloze_replace, paragraph)
         if paragraph == clozed_paragraph:
             continue
         result[stripped_paragraph] = clozed_paragraph
@@ -87,11 +90,6 @@ def strip_anki_cloze(md) -> str:
 
 def replace_anki_cloze_with_smart_cloze(md) -> str:
     return regex.sub(md, _anki_cloze_regex, r"{\2}")
-
-def _cloze_replace(match):
-    global _cloze_replacer_count
-    _cloze_replacer_count += 1
-    return f"{{{{c{_cloze_replacer_count}::{match.group(1)}}}}}"
 
 def insert_data(html, attribute, data):
     html_tree = BeautifulSoup(html, 'lxml')
