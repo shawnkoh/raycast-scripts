@@ -26,7 +26,7 @@ def note_to_prompt_md(note):
 
 def export_notes(note_ids, export_url):
     date = datetime.date.today().strftime("%Y-%m-%d")
-    time = datetime.now().strftime("%H:%M:%S")
+    time = datetime.datetime.now().strftime("%H:%M:%S")
     title = f"# Exported from Anki on {date}\n\n"
     export = ""
     for note_id in note_ids:
