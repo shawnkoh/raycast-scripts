@@ -9,9 +9,9 @@ _anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 _multi_line_regex = regex.compile(r"\n\n+")
 
 def note_to_prompt_md(note):
-    front = md_parser.html_to_md(note.fields[0])
+    front = md_parser.html_to_markdown(note.fields[0])
     front = regex.sub(_multi_line_regex, "\n", front)
-    back = md_parser.html_to_md(note.fields[1])
+    back = md_parser.html_to_markdown(note.fields[1])
     back = regex.sub(_multi_line_regex, "\n", back)
     if note.cloze_numbers_in_fields():
         replace_regex = r"{\2}"
