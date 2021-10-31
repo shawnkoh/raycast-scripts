@@ -11,8 +11,8 @@ _title_regex = regex.compile(r"^#(.+)")
 _tag_regex = regex.compile(r"\s?(#[\w\/-]+)\s?")
 _backlinks_regex = regex.compile(r"## Backlinks\n(.+(\n.)?)+")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
-_basic_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
-_cloze_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
+_basic_prompt_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")
+_cloze_prompt_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
 _cloze_replacer_count = 0
 
 _reference_regex = regex.compile(r"(?i)\s*-*\s*#+\s+References*\s*")
@@ -45,9 +45,9 @@ def extract_bear_id(md: str):
 def strip_bear_id(md: str):
     return regex.sub(_bear_id_regex, "", md)
 
-def md_to_basics(source):
+def extract_basic_prompts(source):
     questions = dict()
-    for match in regex.finditer(_basic_regex, source):
+    for match in regex.finditer(_basic_prompt_regex, source):
         question = match[1].strip()
         answer = ""
 
@@ -57,16 +57,16 @@ def md_to_basics(source):
         questions[question] = answer
     return questions
 
-def md_to_clozes(source) -> dict:
+def extract_cloze_prompts(source) -> dict:
     global _cloze_replacer_count
     result = dict()
     for match in regex.finditer(_paragraph_regex, source):
         paragraph = match[0]
-        if regex.search(_basic_regex, paragraph) or regex.search(_bear_id_regex, paragraph):
+        if regex.search(_basic_prompt_regex, paragraph) or regex.search(_bear_id_regex, paragraph):
             continue
         _cloze_replacer_count = 0
-        stripped_paragraph = regex.sub(_cloze_regex, r"\1", paragraph)
-        clozed_paragraph = regex.sub(_cloze_regex, _cloze_replace, paragraph)
+        stripped_paragraph = regex.sub(_cloze_prompt_regex, r"\1", paragraph)
+        clozed_paragraph = regex.sub(_cloze_prompt_regex, _cloze_replace, paragraph)
         if paragraph == clozed_paragraph:
             continue
         result[stripped_paragraph] = clozed_paragraph

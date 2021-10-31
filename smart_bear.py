@@ -25,16 +25,16 @@ pp = pprint.PrettyPrinter(indent=4)
 
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
-import_basics = dict()
-import_clozes = OrderedDict()
+import_basic_prompts = dict()
+import_cloze_prompts = OrderedDict()
 for url in urls:
     with open(url, "r") as file:
         md_text = file.read()
         md_text = md_parser.strip_backlinks(md_text)
-        basics = md_parser.md_to_basics(md_text)
-        clozes = md_parser.md_to_clozes(md_text)
-        import_basics = import_basics | basics
-        import_clozes = import_clozes | clozes
+        basics = md_parser.extract_basic_prompts(md_text)
+        clozes = md_parser.extract_cloze_prompts(md_text)
+        import_basic_prompts = import_basic_prompts | basics
+        import_cloze_prompts = import_cloze_prompts | clozes
 
 stats_created = 0
 stats_updated = 0
@@ -82,16 +82,16 @@ for note_id in basic_note_ids:
         continue
 
     # Delete if anki's question is not found in import
-    if anki_question_md not in import_basics:
+    if anki_question_md not in import_basic_prompts:
         notes_to_remove.append(note_id)
         continue
 
     # At this point, they are the same
     import_question_md = anki_question_md
-    import_answer_md = import_basics.get(import_question_md)
+    import_answer_md = import_basic_prompts.get(import_question_md)
 
     # pop from list because its going to be processed
-    import_basics.pop(import_question_md)
+    import_basic_prompts.pop(import_question_md)
 
     # Ignore if anki's answer is the same as markdown
     anki_answer_md = field_to_source(anki_answer_field)
@@ -110,7 +110,7 @@ for note_id in basic_note_ids:
     stats_updated += 1
 
 # save new questions
-for import_question_md, import_answer_md in import_basics.items():
+for import_question_md, import_answer_md in import_basic_prompts.items():
     note = basic_to_note(import_question_md, import_answer_md)
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
@@ -130,13 +130,13 @@ for note_id in cloze_note_ids:
         continue
 
     # Delete if anki's question is not found in import
-    if stripped_paragraph_md not in import_clozes:
+    if stripped_paragraph_md not in import_cloze_prompts:
         notes_to_remove.append(note_id)
         continue
 
-    clozed_paragraph_md = import_clozes.get(stripped_paragraph_md)
+    clozed_paragraph_md = import_cloze_prompts.get(stripped_paragraph_md)
 
-    import_clozes.pop(stripped_paragraph_md)
+    import_cloze_prompts.pop(stripped_paragraph_md)
 
     # Ignore if same
     field = cloze_to_field(stripped_paragraph_md, clozed_paragraph_md)
@@ -148,7 +148,7 @@ for note_id in cloze_note_ids:
     ankify.collection.update_note(note)
     stats_updated += 1
 
-for stripped_paragraph, clozed_paragraph in import_clozes.items():
+for stripped_paragraph, clozed_paragraph in import_cloze_prompts.items():
     note = ankify.collection.new_note(ankify.cloze_notetype)
     note.fields[0] = cloze_to_field(stripped_paragraph, clozed_paragraph)
     ankify.collection.add_note(note, ankify.DECK_ID)
