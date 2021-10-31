@@ -6,6 +6,7 @@ import md_parser
 
 _reference_standard_regex = regex.compile(r"(?i)(?m)^##+\s+References*\s*")
 _reference_standard = "## References\n"
+_eof_whitespace_regex = regex.compile(r"\s*$")
 
 def _standardise_references(md: str) -> str:
     return regex.sub(_reference_standard_regex, _reference_standard, md)
@@ -42,19 +43,19 @@ def prettify(md: str) -> str:
         md += "\n\n---\n\n"
 
     if references:
-        md = regex.sub(r"\s*$", "", md)
+        md = regex.sub(_eof_whitespace_regex, md)
         md += f"\n\n{references}\n"
     
     for backlink_block in backlink_blocks:
-        md = regex.sub(r"\s*$", "", md)
+        md = regex.sub(_eof_whitespace_regex, md)
         md += f"\n\n{backlink_block}\n"
 
     if tag_block:
-        md = regex.sub(r"\s*$", "", md)
+        md = regex.sub(_eof_whitespace_regex, md)
         md += f"\n\n{tag_block}\n\n"
 
     if bear_id:
-        md = regex.sub(r"\s*$", "", md)
+        md = regex.sub(_eof_whitespace_regex, md)
         md += f"\n\n{bear_id}"
 
     return md
