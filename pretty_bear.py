@@ -69,4 +69,4 @@ for url in urls:
         continue
 
     with open(url, "w") as file:
-        file.write(md)
+        file.write(result)
