@@ -94,7 +94,7 @@ cloze_note_ids = ankify.collection.find_notes(ankify.cloze_search_string)
 
 for note_id in cloze_note_ids:
     anki_note = ankify.collection.get_note(note_id)
-    anki_cloze_prompt = ankify.ClozePrompt.from_anki_note(anki_note)
+    anki_cloze_prompt = prompts.ClozePrompt.from_anki_note(anki_note)
 
     stripped_md = anki_cloze_prompt.stripped_md
 
@@ -103,7 +103,7 @@ for note_id in cloze_note_ids:
         continue
 
     import_clozed_md = import_cloze_prompts.get(stripped_md)
-    import_cloze_prompt = ankify.ClozePrompt(stripped_md, import_clozed_md)
+    import_cloze_prompt = prompts.ClozePrompt(stripped_md, import_clozed_md)
 
     import_field = import_cloze_prompt.field()
 
@@ -118,7 +118,7 @@ for note_id in cloze_note_ids:
     stats_updated += 1
 
 for stripped_paragraph, clozed_paragraph in import_cloze_prompts.items():
-    note = ankify.ClozePrompt(stripped_paragraph, clozed_paragraph).to_anki_note()
+    note = prompts.ClozePrompt(stripped_paragraph, clozed_paragraph).to_anki_note()
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
