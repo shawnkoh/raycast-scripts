@@ -14,31 +14,30 @@
 # @raycast.author Shawn Koh
 # @raycast.authorURL https://github.com/shawnkoh
 
-cd /Users/shawnkoh/repos/notes ;
+cd ~/repos/notes ;
 
 git add -A && git commit -m "Commit unexpected changes" ;
 
-python3 /Users/shawnkoh/repos/Bear-Markdown-Export/bear_export_sync.py --out /Users/shawnkoh/repos/notes/bear --backup /Users/shawnkoh/repos/notes/bear-backup ;
+python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
 git add -A && git commit -m "Commit exported changes from Bear" ;
 
-/usr/local/bin/node /Users/shawnkoh/.config/yarn/global/node_modules/@andymatuschak/note-link-janitor/dist/index.js /Users/shawnkoh/repos/notes/bear ;
-
-git add -A && git commit -m "Update backlinks" ;
-
-cd /Users/shawnkoh/repos/raycast-scripts ;
+cd ~/repos/raycast-scripts ;
 poetry run python pretty_bear.py ;
-cd /Users/shawnkoh/repos/notes ;
+cd ~/repos/notes ;
 git add -A && git commit -m "Pretty Bear" ;
 
-python3 /Users/shawnkoh/repos/Bear-Markdown-Export/bear_export_sync.py --out /Users/shawnkoh/repos/notes/bear --backup /Users/shawnkoh/repos/notes/bear-backup ;
-cd /Users/shawnkoh/repos/notes ;
+/usr/local/bin/node ~/.config/yarn/global/node_modules/@andymatuschak/note-link-janitor/dist/index.js ~/repos/notes/bear ;
+git add -A && git commit -m "Update backlinks" ;
+
+python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
+cd ~/repos/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
 
 git push ;
 
-cd /Users/shawnkoh/repos/raycast-scripts ;
+cd ~/repos/raycast-scripts ;
 poetry run python detect-duplicate-titles.py ;
 kill (pgrep Anki) ;
 poetry run python smart_bear.py ;
-cd /Users/shawnkoh/repos/notes ;
+cd ~/repos/notes ;
 git add -A && git commit -m "Commit deleted anki notes" ;
