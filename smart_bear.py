@@ -1,7 +1,16 @@
+
+import datetime
+import os
+
+_date = datetime.date.today().strftime("%Y-%m-%d")
+# Anki changes cwd, save it here
+_export_url = f"{os.getcwd()}/anki-export-{_date}.md"
+
 import glob
 import pprint
 
 import ankify
+import export_anki
 import md_parser
 import prompts
 
@@ -106,6 +115,7 @@ for stripped_paragraph, clozed_paragraph in import_cloze_prompts.items():
     ankify.collection.add_note(note, ankify.DECK_ID)
     stats_created += 1
 
+export_anki.export_notes(notes_to_remove, _export_url)
 ankify.collection.remove_notes(notes_to_remove)
 stats_deleted += len(notes_to_remove)
 
