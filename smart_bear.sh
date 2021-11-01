@@ -33,10 +33,10 @@ python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bea
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
 
-git push ;
-
 cd ~/repos/raycast-scripts ;
 poetry run python detect-duplicate-titles.py ;
 poetry run python smart_bear.py ;
 cd ~/repos/notes ;
-git add -A && git commit -m "Commit deleted anki notes" ;
+git add -A && git commit -m "Commit Smart Bear" ;
+
+git push ;
