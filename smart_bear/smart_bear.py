@@ -4,8 +4,9 @@ import glob
 import os
 from pathlib import Path
 
-import ankify
 import md_parser
+
+import ankify
 
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
