@@ -1,4 +1,6 @@
 import os
+from abc import abstractmethod
+from typing import Protocol
 
 from anki.storage import _Collection
 
@@ -36,7 +38,25 @@ if not cloze_notetype:
 
 _cloze_search_string = f"\"note:{cloze_notetype['name']}\""
 
-class BasicPrompt(prompts.BasicPrompt):
+class Ankifiable(Protocol):
+    @classmethod
+    @abstractmethod
+    def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_anki_note(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def is_different_from(self, note) -> bool:
+        raise NotImplementedError
+    
+    @abstractmethod
+    def override(self, note):
+        raise NotImplementedError
+
+class BasicPrompt(prompts.BasicPrompt, Ankifiable):
     @classmethod
     def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
         question_field = note.fields[0]
@@ -70,7 +90,7 @@ class BasicPrompt(prompts.BasicPrompt):
         note.fields[0] = self.question_field
         note.fields[1] = self.answer_field
 
-class ClozePrompt(prompts.ClozePrompt):
+class ClozePrompt(prompts.ClozePrompt, Ankifiable):
     @classmethod
     def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
         field = note.fields[0]

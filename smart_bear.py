@@ -49,53 +49,41 @@ stats_unchanged = 0
 
 notes_to_remove = []
 
+def import_to_anki(anki_collection, import_collection):
+    global stats_unchanged
+    global stats_updated
+    global stats_created
+    global notes_to_remove
+
+    # update and delete existing anki notes
+    for anki_note, anki_prompt in anki_collection:
+        import_basic_prompt = import_collection.get(anki_prompt.id)
+        if not import_basic_prompt:
+            notes_to_remove.append(anki_note.id)
+            continue
+        import_collection.pop(import_basic_prompt.id)
+
+        if not import_basic_prompt.is_different_from(anki_note):
+            stats_unchanged += 1
+            continue
+
+        import_basic_prompt.override(anki_note)
+        ankify.collection.update_note(anki_note)
+        stats_updated += 1
+
+    # save new questions
+    for id, basic_prompt in import_collection.items():
+        note = basic_prompt.to_anki_note()
+        ankify.collection.add_note(note, ankify.DECK_ID)
+        stats_created += 1
+
 ankify.deck["mid"] = ankify.basic_notetype["id"]
 ankify.collection.decks.save(ankify.deck)
-
-# update and delete existing anki notes
-for anki_note, anki_prompt in ankify.basic_notes():
-    import_basic_prompt = import_basic_prompts.get(anki_prompt.question_md)
-    if not import_basic_prompt:
-        notes_to_remove.append(anki_note.id)
-        continue
-    import_basic_prompts.pop(import_basic_prompt.question_md)
-
-    if not import_basic_prompt.is_different_from(anki_note):
-        stats_unchanged += 1
-        continue
-
-    import_basic_prompt.override(anki_note)
-    ankify.collection.update_note(anki_note)
-    stats_updated += 1
-
-# save new questions
-for question_md, basic_prompt in import_basic_prompts.items():
-    note = basic_prompt.to_anki_note()
-    ankify.collection.add_note(note, ankify.DECK_ID)
-    stats_created += 1
+import_to_anki(ankify.basic_notes(), import_basic_prompts)
 
 ankify.deck["mid"] = ankify.cloze_notetype["id"]
 ankify.collection.decks.save(ankify.deck)
-
-for anki_note, anki_prompt in ankify.cloze_notes():
-    import_cloze_prompt = import_cloze_prompts.get(anki_prompt.id)
-    if not import_cloze_prompt:
-        notes_to_remove.append(anki_note.id)
-        continue
-    import_cloze_prompts.pop(import_cloze_prompt.id)
-
-    if not import_cloze_prompt.is_different_from(anki_note):
-        stats_unchanged += 1
-        continue
-
-    import_cloze_prompt.override(anki_note)
-    ankify.collection.update_note(anki_note)
-    stats_updated += 1
-
-for stripped_md, clozed_prompt in import_cloze_prompts.items():
-    note = clozed_prompt.to_anki_note()
-    ankify.collection.add_note(note, ankify.DECK_ID)
-    stats_created += 1
+import_to_anki(ankify.cloze_notes(), import_cloze_prompts)
 
 export_anki.export_notes(notes_to_remove, _export_url)
 ankify.collection.remove_notes(notes_to_remove)
