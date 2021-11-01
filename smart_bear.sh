@@ -37,7 +37,6 @@ git push ;
 
 cd ~/repos/raycast-scripts ;
 poetry run python detect-duplicate-titles.py ;
-kill (pgrep Anki) ;
 poetry run python smart_bear.py ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit deleted anki notes" ;

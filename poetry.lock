@@ -581,7 +581,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "92fb9bd704269e82cee06667555eedf808098023d9a6e3fbf5dbd48721a419c1"
+content-hash = "98df5cbbbc180bc656bab74c77700fa804a7673f550b03e14679f38fb8b13b37"
 
 [metadata.files]
 anki = [

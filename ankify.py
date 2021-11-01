@@ -2,6 +2,7 @@ import os
 from abc import abstractmethod
 from typing import Protocol
 
+import psutil
 from anki.storage import _Collection
 
 import md_parser
@@ -14,6 +15,19 @@ BASIC_MODEL_ID = 1635365642288
 CLOZE_MODEL_ID = 1635539433589
 
 collection_path = os.path.join(PROFILE_HOME, "collection.anki2")
+
+# Change this if you're not on Mac.
+# TODO: Too dangerous to use regex, better to compile a list of names instead
+ANKI_PROCESS_NAME = "AnkiMac"
+
+def kill_anki_process():
+    for process in psutil.process_iter():
+        if process.name() == ANKI_PROCESS_NAME:
+            process.kill()
+            return
+    
+# Ensure Anki is closed before accessing its sqlite
+kill_anki_process()
 
 collection = _Collection(collection_path, log=True)
 collection.decks.select(DECK_ID)
