@@ -1,6 +1,5 @@
 import regex
-
-import md_parser
+from smart_bear.markdown import md_parser
 
 _reference_standard_regex = regex.compile(r"(?i)(?m)^##+\s+References*\s*")
 _reference_standard = "## References\n"

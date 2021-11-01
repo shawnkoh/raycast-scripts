@@ -1,8 +1,11 @@
 [tool.poetry]
-name = "raycast-scripts"
+name = "smart_bear"
 version = "0.1.0"
 description = ""
 authors = ["Shawn Koh <shawn@shawnkoh.sg>"]
+
+[tool.poetry.scripts]
+smart_bear = "smart_bear.cli:run"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.10"

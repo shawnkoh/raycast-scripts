@@ -8,9 +8,9 @@ from pprint import pprint
 import click
 from dotenv import dotenv_values
 
-from beeminder import Beeminder
 from smart_bear.anki.anki import Anki
 from smart_bear.anki.prompts import extract_prompts
+from smart_bear.beeminder.beeminder import Beeminder
 from smart_bear.markdown.pretty_bear import prettify
 
 # Anki User Settings
@@ -24,10 +24,10 @@ ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-note
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
 @click.group()
-def cli():
+def run():
     pass
 
-@cli.command()
+@run.command()
 def update_beeminder():
     config = dotenv_values()
     anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
@@ -37,7 +37,7 @@ def update_beeminder():
     pprint("Created")
     pprint(response.content)
 
-@cli.command()
+@run.command()
 def sync_anki():
     date = datetime.date.today().strftime("%Y-%m-%d")
     time = datetime.datetime.now().strftime("%H:%M:%S")
@@ -84,7 +84,7 @@ def sync_anki():
         with open(stats_log, mode) as file:
                 file.write(stats)
 
-@cli.command()
+@run.command()
 def prettify_markdowns():
     urls = glob.glob(f"{MARKDOWN_PATH}/*.md")
 
@@ -100,7 +100,3 @@ def prettify_markdowns():
 
         with open(url, "w") as file:
             file.write(result)
-
-
-if __name__ == "__main__":
-    cli()
