@@ -1,8 +1,8 @@
 import os
 
-import anki
 from anki.storage import _Collection
 
+import md_parser
 import prompts
 
 # Anki Settings
@@ -37,6 +37,26 @@ if not cloze_notetype:
 _cloze_search_string = f"\"note:{cloze_notetype['name']}\""
 
 class BasicPrompt(prompts.BasicPrompt):
+    @classmethod
+    def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
+        question_field = note.fields[0]
+        if not question_field:
+            return None
+
+        question_md = md_parser.extract_data(question_field, source_attribute)
+        if not question_md:
+            question_md = md_parser.html_to_markdown(question_field)
+        if not question_md:
+            return None
+
+        answer_md = None
+        if answer_field := note.fields[1]:
+            answer_md = md_parser.extract_data(answer_field, source_attribute)
+            if not answer_md:
+                answer_md = md_parser.html_to_markdown(answer_field)
+        
+        return cls(question_md, answer_md, source_attribute)
+
     def to_anki_note(self):
         note = collection.new_note(basic_notetype)
         note.fields[0] = self.question_field()
@@ -51,6 +71,23 @@ class BasicPrompt(prompts.BasicPrompt):
         note.fields[1] = self.answer_field
 
 class ClozePrompt(prompts.ClozePrompt):
+    @classmethod
+    def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
+        field = note.fields[0]
+        if not field:
+            return None
+
+        md = md_parser.html_to_markdown(field)
+
+        stripped_md = None
+        clozed_md = md_parser.replace_anki_cloze_with_smart_cloze(md)
+
+        stripped_md = md_parser.extract_data(field, source_attribute)
+        if not stripped_md:
+            stripped_md = md_parser.strip_anki_cloze(md)
+
+        return cls(stripped_md, clozed_md, source_attribute)
+
     def to_anki_note(self):
         note = collection.new_note(cloze_notetype)
         note.fields[0] = self.field
