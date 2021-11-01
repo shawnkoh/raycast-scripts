@@ -73,7 +73,7 @@ if __name__ == "__main__":
     anki.collection.remove_notes(notes_to_remove)
     stats_deleted += len(notes_to_remove)
 
-    ankify.collection.save()
+    anki.collection.save()
 
     stats = f"created:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}"
     print(stats)
