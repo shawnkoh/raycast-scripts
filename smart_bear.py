@@ -1,7 +1,9 @@
 
 import datetime
 import glob
+import os
 import pprint
+from pathlib import Path
 
 import ankify
 import export_anki
@@ -9,6 +11,7 @@ import md_parser
 
 pp = pprint.PrettyPrinter(indent=4)
 _date = datetime.date.today().strftime("%Y-%m-%d")
+_time = datetime.datetime.now().strftime("%H:%M:%S")
 _export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/{_date}.md"
 urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
 
@@ -91,4 +94,15 @@ stats_deleted += len(notes_to_remove)
 
 ankify.collection.save()
 
-print(f"statistics\ncreated:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}")
+stats = f"created:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}"
+print(stats)
+if stats_created or stats_updated or stats_deleted:
+    stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{_date}.log")
+    stats_log.parent.mkdir(parents=True, exist_ok=True)
+    stats = f"{_time}\n{stats}\n\n"
+    if os.path.exists(stats_log.parent):
+        with open(stats_log, "a") as file:
+            file.write(stats)
+    else:
+        with open(stats_log, "w") as file:
+            file.write(stats)
