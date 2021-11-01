@@ -1,5 +1,3 @@
-import glob
-
 import regex
 
 import md_parser
@@ -60,18 +58,3 @@ def prettify(md: str) -> str:
         md += f"\n\n{bear_id}\n"
 
     return md
-
-urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
-
-for url in urls:
-    md = ""
-    result = ""
-    with open(url, "r") as file:
-        md = file.read()
-        result = prettify(md)
-
-    if md == result:
-        continue
-
-    with open(url, "w") as file:
-        file.write(result)

@@ -3,19 +3,48 @@ import datetime
 import glob
 import os
 from pathlib import Path
+from pprint import pprint
 
+import click
+from dotenv import dotenv_values
+
+from beeminder import Beeminder
 from smart_bear.anki.anki import Anki
+from smart_bear.anki.prompts import extract_prompts
+from smart_bear.markdown.pretty_bear import prettify
 
+# Anki User Settings
+PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
+COLLECTION_PATH = os.path.join(PROFILE_HOME, "collection.anki2")
+
+DECK_ID = 1631681814019
+BASIC_MODEL_ID = 1635365642288
+CLOZE_MODEL_ID = 1635539433589
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
-if __name__ == "__main__":
+@click.group()
+def cli():
+    pass
+
+@cli.command()
+def update_beeminder():
+    config = dotenv_values()
+    anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
+    beeminder = Beeminder(config["BEEMINDER_USERNAME"], config["BEEMINDER_AUTH_TOKEN"])
+    date = datetime.date.today().strftime("%Y-%m-%d")
+    response = beeminder.create_datapoint("anki-api", value=len(anki.notes_rated_today()), requestid=date)
+    pprint("Created")
+    pprint(response.content)
+
+@cli.command()
+def sync_anki():
     date = datetime.date.today().strftime("%Y-%m-%d")
     time = datetime.datetime.now().strftime("%H:%M:%S")
     anki_deleted_notes_export_path = f"{ANKI_DELETED_NOTES_EXPORT_PATH}{date}.md"
 
     urls = glob.glob(f"{MARKDOWN_PATH}/*.md")
-    import_basic_prompts, import_cloze_prompts = import_markdowns(urls)
+    import_basic_prompts, import_cloze_prompts = extract_prompts(urls)
     stats_created = 0
     stats_updated = 0
     stats_deleted = 0
@@ -54,3 +83,24 @@ if __name__ == "__main__":
         mode = "a" if os.path.exists(stats_log.parent) else "w"
         with open(stats_log, mode) as file:
                 file.write(stats)
+
+@cli.command()
+def prettify_markdowns():
+    urls = glob.glob(f"{MARKDOWN_PATH}/*.md")
+
+    for url in urls:
+        md = ""
+        result = ""
+        with open(url, "r") as file:
+            md = file.read()
+            result = prettify(md)
+
+        if md == result:
+            continue
+
+        with open(url, "w") as file:
+            file.write(result)
+
+
+if __name__ == "__main__":
+    cli()
