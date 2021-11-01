@@ -51,7 +51,7 @@ def sync_anki():
     stats_unchanged = 0
     notes_to_remove = []
 
-    anki = Anki()
+    anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
     anki.deck["mid"] = anki.basic_notetype["id"]
     anki.collection.decks.save(anki.deck)
     created, updated, unchanged, to_remove = anki.replace_ankifiable_prompts(anki.basic_notes(), import_basic_prompts)
