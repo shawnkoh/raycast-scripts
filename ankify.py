@@ -79,8 +79,8 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
 
     def to_anki_note(self):
         note = collection.new_note(basic_notetype)
-        note.fields[0] = self.question_field()
-        note.fields[1] = self.answer_field()
+        note.fields[0] = self.question_field
+        note.fields[1] = self.answer_field
         return note
 
     def is_different_from(self, note) -> bool:
