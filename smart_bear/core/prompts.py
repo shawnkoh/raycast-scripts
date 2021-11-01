@@ -2,7 +2,7 @@ import functools
 from abc import abstractmethod
 from typing import Protocol
 
-import md_parser
+from smart_bear.markdown import md_parser
 
 SOURCE_ATTRIBUTE = 'data-source'
 

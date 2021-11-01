@@ -1,9 +1,9 @@
 import datetime
 from pprint import pprint
 
+import ankify
 from dotenv import dotenv_values
 
-import ankify
 from beeminder import Beeminder
 
 if __name__ == "__main__":
