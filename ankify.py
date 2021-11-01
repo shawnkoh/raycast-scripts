@@ -78,7 +78,7 @@ class Anki:
 
     def notes_rated_today(self):
         search_string = self.collection.build_search_string(SearchNode(rated=SearchNode.Rated(days=0, rating=0)))
-        return len(self.collection.find_notes(search_string))
+        return self.collection.find_notes(search_string)
 
     def replace_ankifiable_prompts(self, anki_collection, import_collection):
         created = 0
