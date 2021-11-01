@@ -100,9 +100,6 @@ if stats_created or stats_updated or stats_deleted:
     stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{_date}.log")
     stats_log.parent.mkdir(parents=True, exist_ok=True)
     stats = f"{_time}\n{stats}\n\n"
-    if os.path.exists(stats_log.parent):
-        with open(stats_log, "a") as file:
-            file.write(stats)
-    else:
-        with open(stats_log, "w") as file:
+    mode = "a" if os.path.exists(stats_log.parent) else "w"
+    with open(stats_log, mode) as file:
             file.write(stats)
