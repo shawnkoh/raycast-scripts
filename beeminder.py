@@ -1,9 +1,4 @@
-import datetime
-
 import requests
-from dotenv import dotenv_values
-
-import ankify
 
 BASE_URL = "https://www.beeminder.com/api/v1/"
 
@@ -23,10 +18,3 @@ class Beeminder:
         data.pop("goal")
         params = self.make_params()
         return requests.post(url, data=data, params=params)
-
-if __name__ == "__main__":
-    config = dotenv_values()
-    anki = ankify.Anki(ankify.COLLECTION_PATH, ankify.DECK_ID)
-    beeminder = Beeminder(config["BEEMINDER_USERNAME"], config["BEEMINDER_AUTH_TOKEN"])
-    date = datetime.date.today().strftime("%Y-%m-%d")
-    response = beeminder.create_datapoint("anki-api", value=len(anki.notes_rated_today()), requestid=date)

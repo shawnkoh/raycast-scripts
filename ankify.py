@@ -77,6 +77,8 @@ class Anki:
             yield (note, prompt)
 
     def notes_rated_today(self):
+        rated = SearchNode.Rated(days=0, rating=0)
+        SearchNode()
         search_string = self.collection.build_search_string(SearchNode(rated=SearchNode.Rated(days=0, rating=0)))
         return self.collection.find_notes(search_string)
 
