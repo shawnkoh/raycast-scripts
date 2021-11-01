@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 import ankify
-import export_anki
 import md_parser
 
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
@@ -69,7 +68,7 @@ if __name__ == "__main__":
     stats_unchanged += unchanged
     notes_to_remove += to_remove
 
-    export_anki.export_notes(notes_to_remove, anki_deleted_notes_export_path)
+    anki.export_notes(notes_to_remove, anki_deleted_notes_export_path)
     anki.collection.remove_notes(notes_to_remove)
     stats_deleted += len(notes_to_remove)
 

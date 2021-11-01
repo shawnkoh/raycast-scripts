@@ -1,10 +1,14 @@
+import datetime
 import os
+import pathlib
 from abc import abstractmethod
 from typing import Protocol
 
 import psutil
+import regex
 from anki.collection import SearchNode
 from anki.decks import DeckDict
+from anki.models import NotetypeDict
 from anki.storage import _Collection
 
 import md_parser
@@ -21,6 +25,9 @@ COLLECTION_PATH = os.path.join(PROFILE_HOME, "collection.anki2")
 # TODO: Too dangerous to use regex, better to compile a list of names instead
 ANKI_PROCESS_NAME = "AnkiMac"
 
+_anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
+_multi_line_regex = regex.compile(r"\n\n+")
+
 def close_anki_process():
     for process in psutil.process_iter():
         if process.name() == ANKI_PROCESS_NAME:
@@ -30,6 +37,8 @@ def close_anki_process():
 class Anki:
     collection: _Collection
     deck: DeckDict
+    basic_notetype: NotetypeDict
+    cloze_notetype: NotetypeDict
 
     def __init__(self, collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID, will_close_anki=True) -> None:
         if will_close_anki:
@@ -37,6 +46,8 @@ class Anki:
         self.collection = _Collection(collection_path, log=True)
         self.collection.decks.select(deck_id)
         self.deck = self.collection.decks.current()
+
+        # TODO: Throw instead
         if self.collection.decks.get_current_id() != DECK_ID:
             print("Warning: deck id not found")
             exit()
@@ -46,22 +57,21 @@ class Anki:
             print("basic notetype not found")
             exit()
 
-        self.basic_search_string = f"\"note:{self.basic_notetype['name']}\""
-
         self.cloze_notetype = self.collection.models.get(cloze_model_id)
         if not self.cloze_notetype:
             print("cloze notetype not found")
             exit()
 
     def basic_notes(self):
-        for note_id in self.collection.find_notes(self.basic_search_string):
+        search_string = f"\"note:{self.basic_notetype['name']}\""
+        for note_id in self.collection.find_notes(search_string):
             note = self.collection.get_note(note_id)
             prompt = BasicPrompt.from_anki_note(note)
             yield (note, prompt)
 
     def cloze_notes(self):
-        cloze_search_string = f"\"note:{self.cloze_notetype['name']}\""
-        for note_id in self.collection.find_notes(cloze_search_string):
+        search_string = f"\"note:{self.cloze_notetype['name']}\""
+        for note_id in self.collection.find_notes(search_string):
             note = self.collection.get_note(note_id)
             prompt = ClozePrompt.from_anki_note(note)
             yield (note, prompt)
@@ -99,6 +109,28 @@ class Anki:
             created += 1
 
         return created, updated, unchanged, notes_to_remove
+
+    def export_notes(self, note_ids, export_url):
+        date = datetime.date.today().strftime("%Y-%m-%d")
+        time = datetime.datetime.now().strftime("%H:%M:%S")
+        title = f"# Exported from Anki on {date}\n\n"
+        export = ""
+        for note_id in note_ids:
+            note = self.collection.get_note(note_id)
+            export += note_to_prompt_md(note)
+
+        if export == "":
+            print("nothing to export")
+            return
+        pathlib.Path(export_url).parent.mkdir(parents=True, exist_ok=True)
+        if os.path.exists(export_url):
+            with open(export_url, "a") as file:
+                file.write(f"\n\n---\n\n{time}\n\n{export}")
+        else:
+            with open(export_url, "w") as file:
+                file.write(f"{title}\n\n{time}\n\n{export}")
+
+        print(f"exported to {export_url}")
 
 class Ankifiable(Protocol):
     @classmethod
@@ -180,3 +212,18 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 
     def override(self, note):
         note.fields[0] = self.field
+
+def note_to_prompt_md(note):
+    front = md_parser.html_to_markdown(note.fields[0])
+    front = regex.sub(_multi_line_regex, "\n", front)
+    back = md_parser.html_to_markdown(note.fields[1])
+    back = regex.sub(_multi_line_regex, "\n", back)
+    if note.cloze_numbers_in_fields():
+        replace_regex = r"{\2}"
+        front = regex.sub(_anki_cloze_regex, replace_regex, front)
+        if back:
+            return f"{front}\n---\n{back}\n\n"
+        else:
+            return f"{front}\n\n"
+    else:
+        return f"Q: {front}\nA: {back}\n\n"
