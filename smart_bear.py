@@ -51,6 +51,7 @@ if __name__ == "__main__":
     stats_deleted = 0
     stats_unchanged = 0
     notes_to_remove = []
+
     anki = ankify.Anki()
     anki.deck["mid"] = anki.basic_notetype["id"]
     anki.collection.decks.save(anki.deck)

@@ -78,17 +78,17 @@ class Anki:
 
         # update and delete existing anki notes
         for anki_note, anki_prompt in anki_collection:
-            import_basic_prompt = import_collection.get(anki_prompt.id)
-            if not import_basic_prompt:
+            import_prompt = import_collection.get(anki_prompt.id)
+            if not import_prompt:
                 notes_to_remove.append(anki_note.id)
                 continue
-            import_collection.pop(import_basic_prompt.id)
+            import_collection.pop(import_prompt.id)
 
-            if not import_basic_prompt.is_different_from(anki_note):
+            if not import_prompt.is_different_from(anki_note):
                 unchanged += 1
                 continue
 
-            import_basic_prompt.override(anki_note)
+            import_prompt.override(anki_note)
             self.collection.update_note(anki_note)
             updated += 1
 
