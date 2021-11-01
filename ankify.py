@@ -3,54 +3,72 @@ from abc import abstractmethod
 from typing import Protocol
 
 import psutil
+from anki.collection import SearchNode
+from anki.decks import DeckDict
 from anki.storage import _Collection
 
 import md_parser
 import prompts
 
-# Anki Settings
-PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
+# Anki User Settings
 DECK_ID = 1631681814019
 BASIC_MODEL_ID = 1635365642288
 CLOZE_MODEL_ID = 1635539433589
-
-collection_path = os.path.join(PROFILE_HOME, "collection.anki2")
+PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
+COLLECTION_PATH = os.path.join(PROFILE_HOME, "collection.anki2")
 
 # Change this if you're not on Mac.
 # TODO: Too dangerous to use regex, better to compile a list of names instead
 ANKI_PROCESS_NAME = "AnkiMac"
 
-def kill_anki_process():
+def close_anki_process():
     for process in psutil.process_iter():
         if process.name() == ANKI_PROCESS_NAME:
             process.kill()
             return
-    
-# Ensure Anki is closed before accessing its sqlite
-kill_anki_process()
 
-collection = _Collection(collection_path, log=True)
-collection.decks.select(DECK_ID)
+class Anki:
+    collection: _Collection
+    deck: DeckDict
 
-if collection.decks.get_current_id() != DECK_ID:
-    print("Warning: deck id not found")
-    exit()
+    def __init__(self, collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID, will_close_anki=True) -> None:
+        if will_close_anki:
+            close_anki_process()
+        self.collection = _Collection(collection_path, log=True)
+        self.collection.decks.select(deck_id)
+        self.deck = self.collection.decks.current()
+        if self.collection.decks.get_current_id() != DECK_ID:
+            print("Warning: deck id not found")
+            exit()
 
-deck = collection.decks.current()
+        self.basic_notetype = self.collection.models.get(basic_model_id)
+        if not self.basic_notetype:
+            print("basic notetype not found")
+            exit()
 
-basic_notetype = collection.models.get(BASIC_MODEL_ID)
-if not basic_notetype:
-    print("basic notetype not found")
-    exit()
+        self.basic_search_string = f"\"note:{self.basic_notetype['name']}\""
 
-_basic_search_string = f"\"note:{basic_notetype['name']}\""
+        self.cloze_notetype = self.collection.models.get(cloze_model_id)
+        if not self.cloze_notetype:
+            print("cloze notetype not found")
+            exit()
 
-cloze_notetype = collection.models.get(CLOZE_MODEL_ID)
-if not cloze_notetype:
-    print("cloze notetype not found")
-    exit()
+    def basic_notes(self):
+        for note_id in self.collection.find_notes(self.basic_search_string):
+            note = self.collection.get_note(note_id)
+            prompt = BasicPrompt.from_anki_note(note)
+            yield (note, prompt)
 
-_cloze_search_string = f"\"note:{cloze_notetype['name']}\""
+    def cloze_notes(self):
+        cloze_search_string = f"\"note:{self.cloze_notetype['name']}\""
+        for note_id in self.collection.find_notes(cloze_search_string):
+            note = self.collection.get_note(note_id)
+            prompt = ClozePrompt.from_anki_note(note)
+            yield (note, prompt)
+
+    def notes_rated_today(self):
+        search_string = self.collection.build_search_string(SearchNode(rated=SearchNode.Rated(days=0, rating=0)))
+        return len(self.collection.find_notes(search_string))
 
 class Ankifiable(Protocol):
     @classmethod
@@ -91,8 +109,8 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
         
         return cls(question_md, answer_md, source_attribute)
 
-    def to_anki_note(self):
-        note = collection.new_note(basic_notetype)
+    def to_anki_note(self, anki: Anki):
+        note = anki.collection.new_note(anki.basic_notetype)
         note.fields[0] = self.question_field
         note.fields[1] = self.answer_field
         return note
@@ -122,8 +140,8 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 
         return cls(stripped_md, clozed_md, source_attribute)
 
-    def to_anki_note(self):
-        note = collection.new_note(cloze_notetype)
+    def to_anki_note(self, anki: Anki):
+        note = anki.collection.new_note(anki.cloze_notetype)
         note.fields[0] = self.field
         return note
 
@@ -132,15 +150,3 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 
     def override(self, note):
         note.fields[0] = self.field
-
-def basic_notes():
-    for note_id in collection.find_notes(_basic_search_string):
-        note = collection.get_note(note_id)
-        prompt = BasicPrompt.from_anki_note(note)
-        yield (note, prompt)
-
-def cloze_notes():
-    for note_id in collection.find_notes(_cloze_search_string):
-        note = collection.get_note(note_id)
-        prompt = ClozePrompt.from_anki_note(note)
-        yield (note, prompt)

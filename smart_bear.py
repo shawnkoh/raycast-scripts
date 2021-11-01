@@ -43,20 +43,10 @@ def import_markdowns(urls):
             import_cloze_prompts = import_cloze_prompts | cloze_prompts
     return import_basic_prompts, import_cloze_prompts
 
-import_basic_prompts, import_cloze_prompts = import_markdowns(urls)
-
-stats_created = 0
-stats_updated = 0
-stats_deleted = 0
-stats_unchanged = 0
-
-notes_to_remove = []
-
 def import_to_anki(anki_collection, import_collection):
-    global stats_unchanged
-    global stats_updated
-    global stats_created
-    global notes_to_remove
+    created = 0
+    updated = 0
+    unchanged = 0
 
     # update and delete existing anki notes
     for anki_note, anki_prompt in anki_collection:
@@ -67,39 +57,55 @@ def import_to_anki(anki_collection, import_collection):
         import_collection.pop(import_basic_prompt.id)
 
         if not import_basic_prompt.is_different_from(anki_note):
-            stats_unchanged += 1
+            unchanged += 1
             continue
 
         import_basic_prompt.override(anki_note)
         ankify.collection.update_note(anki_note)
-        stats_updated += 1
+        updated += 1
 
     # save new questions
     for id, basic_prompt in import_collection.items():
         note = basic_prompt.to_anki_note()
         ankify.collection.add_note(note, ankify.DECK_ID)
-        stats_created += 1
+        created += 1
 
-ankify.deck["mid"] = ankify.basic_notetype["id"]
-ankify.collection.decks.save(ankify.deck)
-import_to_anki(ankify.basic_notes(), import_basic_prompts)
+    return created, updated, unchanged
 
-ankify.deck["mid"] = ankify.cloze_notetype["id"]
-ankify.collection.decks.save(ankify.deck)
-import_to_anki(ankify.cloze_notes(), import_cloze_prompts)
+if __name__ == "__main__":
+    import_basic_prompts, import_cloze_prompts = import_markdowns(urls)
+    stats_created = 0
+    stats_updated = 0
+    stats_deleted = 0
+    stats_unchanged = 0
+    notes_to_remove = []
+    anki = ankify.Anki()
+    anki.deck["mid"] = anki.basic_notetype["id"]
+    anki.collection.decks.save(anki.deck)
+    created, updated, unchanged = import_to_anki(anki.basic_notes(), import_basic_prompts)
+    stats_created += created
+    stats_updated += updated
+    stats_unchanged += unchanged
 
-export_anki.export_notes(notes_to_remove, _export_url)
-ankify.collection.remove_notes(notes_to_remove)
-stats_deleted += len(notes_to_remove)
+    anki.deck["mid"] = anki.cloze_notetype["id"]
+    anki.collection.decks.save(anki.deck)
+    created, updated, unchanged = import_to_anki(anki.cloze_notes(), import_cloze_prompts)
+    stats_created += created
+    stats_updated += updated
+    stats_unchanged += unchanged
 
-ankify.collection.save()
+    export_anki.export_notes(notes_to_remove, _export_url)
+    anki.collection.remove_notes(notes_to_remove)
+    stats_deleted += len(notes_to_remove)
 
-stats = f"created:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}"
-print(stats)
-if stats_created or stats_updated or stats_deleted:
-    stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{_date}.log")
-    stats_log.parent.mkdir(parents=True, exist_ok=True)
-    stats = f"{_time}\n{stats}\n\n"
-    mode = "a" if os.path.exists(stats_log.parent) else "w"
-    with open(stats_log, mode) as file:
-            file.write(stats)
+    ankify.collection.save()
+
+    stats = f"created:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}"
+    print(stats)
+    if stats_created or stats_updated or stats_deleted:
+        stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{_date}.log")
+        stats_log.parent.mkdir(parents=True, exist_ok=True)
+        stats = f"{_time}\n{stats}\n\n"
+        mode = "a" if os.path.exists(stats_log.parent) else "w"
+        with open(stats_log, mode) as file:
+                file.write(stats)
