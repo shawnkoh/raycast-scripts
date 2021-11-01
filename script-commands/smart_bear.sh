@@ -36,6 +36,7 @@ git add -A && git commit -m "Commit imported changes to Bear" ;
 cd ~/repos/raycast-scripts ;
 poetry run python script-commands/detect-duplicate-titles.py ;
 poetry run smart_bear sync-anki ;
+poetry run smart_bear update-beeminder ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit Smart Bear" ;
 

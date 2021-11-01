@@ -29,6 +29,7 @@ def run():
 
 @run.command()
 def update_beeminder():
+    click.confirm("Hello")
     config = dotenv_values()
     anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
     beeminder = Beeminder(config["BEEMINDER_USERNAME"], config["BEEMINDER_AUTH_TOKEN"])
