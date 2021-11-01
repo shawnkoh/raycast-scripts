@@ -14,4 +14,4 @@
 # @raycast.author Shawn Koh
 # @raycast.authorURL https://github.com/shawnkoh
 
-poetry run python beeminder_cli.py
+poetry run smart_bear update-beeminder

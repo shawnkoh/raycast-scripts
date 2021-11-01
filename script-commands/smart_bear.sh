@@ -22,7 +22,7 @@ python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bea
 git add -A && git commit -m "Commit exported changes from Bear" ;
 
 cd ~/repos/raycast-scripts ;
-poetry run python pretty_bear.py ;
+poetry run smart_bear prettify-markdowns ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Pretty Bear" ;
 
@@ -34,8 +34,8 @@ cd ~/repos/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
 
 cd ~/repos/raycast-scripts ;
-poetry run python detect-duplicate-titles.py ;
-poetry run python smart_bear.py ;
+poetry run python script-commands/detect-duplicate-titles.py ;
+poetry run smart_bear sync-anki ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit Smart Bear" ;
 
