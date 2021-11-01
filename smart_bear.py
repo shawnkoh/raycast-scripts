@@ -2,18 +2,14 @@
 import datetime
 import glob
 import os
-import pprint
 from pathlib import Path
 
 import ankify
 import export_anki
 import md_parser
 
-pp = pprint.PrettyPrinter(indent=4)
-_date = datetime.date.today().strftime("%Y-%m-%d")
-_time = datetime.datetime.now().strftime("%H:%M:%S")
-_export_url = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/{_date}.md"
-urls = glob.glob("/Users/shawnkoh/repos/notes/bear/*.md")
+ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
+MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
 def extract_basic_prompts(md) -> dict[str, ankify.BasicPrompt]:
     basic_prompts = dict()
@@ -73,6 +69,11 @@ def import_to_anki(anki_collection, import_collection):
     return created, updated, unchanged
 
 if __name__ == "__main__":
+    date = datetime.date.today().strftime("%Y-%m-%d")
+    time = datetime.datetime.now().strftime("%H:%M:%S")
+    anki_deleted_notes_export_path = f"{ANKI_DELETED_NOTES_EXPORT_PATH}{date}.md"
+
+    urls = glob.glob(f"{MARKDOWN_PATH}/*.md")
     import_basic_prompts, import_cloze_prompts = import_markdowns(urls)
     stats_created = 0
     stats_updated = 0
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     stats_updated += updated
     stats_unchanged += unchanged
 
-    export_anki.export_notes(notes_to_remove, _export_url)
+    export_anki.export_notes(notes_to_remove, anki_deleted_notes_export_path)
     anki.collection.remove_notes(notes_to_remove)
     stats_deleted += len(notes_to_remove)
 
@@ -103,9 +104,9 @@ if __name__ == "__main__":
     stats = f"created:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}"
     print(stats)
     if stats_created or stats_updated or stats_deleted:
-        stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{_date}.log")
+        stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{date}.log")
         stats_log.parent.mkdir(parents=True, exist_ok=True)
-        stats = f"{_time}\n{stats}\n\n"
+        stats = f"{time}\n{stats}\n\n"
         mode = "a" if os.path.exists(stats_log.parent) else "w"
         with open(stats_log, mode) as file:
                 file.write(stats)
