@@ -1,6 +1,6 @@
 
 
-from smart_bear.cli import cli
+from smart_bear.cli import run
 
 if __name__ == "__main__":
-    cli()
+    run()
