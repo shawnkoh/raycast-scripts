@@ -78,11 +78,11 @@ ankify.deck["mid"] = ankify.cloze_notetype["id"]
 ankify.collection.decks.save(ankify.deck)
 
 for anki_note, anki_prompt in ankify.cloze_notes():
-    import_cloze_prompt = import_cloze_prompts.get(anki_prompt.stripped_md)
+    import_cloze_prompt = import_cloze_prompts.get(anki_prompt.id)
     if not import_cloze_prompt:
         notes_to_remove.append(anki_note.id)
         continue
-    import_cloze_prompts.pop(import_cloze_prompt.stripped_md)
+    import_cloze_prompts.pop(import_cloze_prompt.id)
 
     if not import_cloze_prompt.is_different_from(anki_note):
         stats_unchanged += 1

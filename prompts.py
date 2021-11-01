@@ -7,6 +7,7 @@ import md_parser
 SOURCE_ATTRIBUTE = 'data-source'
 
 class Identifiable(Protocol):
+    @property
     @abstractmethod
     def id(self) -> str:
         raise NotImplementedError
@@ -21,6 +22,7 @@ class BasicPrompt(Identifiable):
 
         self.source_attribute = source_attribute
 
+    @property
     def id(self) -> str:
         return self.question_md
 
@@ -44,6 +46,7 @@ class ClozePrompt(Identifiable):
         self.clozed_md = clozed_md.strip()
         self.source_attribute = source_attribute
     
+    @property
     def id(self) -> str:
         return self.stripped_md
 
