@@ -70,6 +70,36 @@ class Anki:
         search_string = self.collection.build_search_string(SearchNode(rated=SearchNode.Rated(days=0, rating=0)))
         return len(self.collection.find_notes(search_string))
 
+    def replace_ankifiable_prompts(self, anki_collection, import_collection):
+        created = 0
+        updated = 0
+        unchanged = 0
+        notes_to_remove = []
+
+        # update and delete existing anki notes
+        for anki_note, anki_prompt in anki_collection:
+            import_basic_prompt = import_collection.get(anki_prompt.id)
+            if not import_basic_prompt:
+                notes_to_remove.append(anki_note.id)
+                continue
+            import_collection.pop(import_basic_prompt.id)
+
+            if not import_basic_prompt.is_different_from(anki_note):
+                unchanged += 1
+                continue
+
+            import_basic_prompt.override(anki_note)
+            self.collection.update_note(anki_note)
+            updated += 1
+
+        # save new questions
+        for id, basic_prompt in import_collection.items():
+            note = basic_prompt.to_anki_note()
+            self.collection.add_note(note, self.DECK_ID)
+            created += 1
+
+        return created, updated, unchanged, notes_to_remove
+
 class Ankifiable(Protocol):
     @classmethod
     @abstractmethod

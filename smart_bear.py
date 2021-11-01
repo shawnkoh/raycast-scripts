@@ -39,35 +39,6 @@ def import_markdowns(urls):
             import_cloze_prompts = import_cloze_prompts | cloze_prompts
     return import_basic_prompts, import_cloze_prompts
 
-def import_to_anki(anki_collection, import_collection):
-    created = 0
-    updated = 0
-    unchanged = 0
-
-    # update and delete existing anki notes
-    for anki_note, anki_prompt in anki_collection:
-        import_basic_prompt = import_collection.get(anki_prompt.id)
-        if not import_basic_prompt:
-            notes_to_remove.append(anki_note.id)
-            continue
-        import_collection.pop(import_basic_prompt.id)
-
-        if not import_basic_prompt.is_different_from(anki_note):
-            unchanged += 1
-            continue
-
-        import_basic_prompt.override(anki_note)
-        ankify.collection.update_note(anki_note)
-        updated += 1
-
-    # save new questions
-    for id, basic_prompt in import_collection.items():
-        note = basic_prompt.to_anki_note()
-        ankify.collection.add_note(note, ankify.DECK_ID)
-        created += 1
-
-    return created, updated, unchanged
-
 if __name__ == "__main__":
     date = datetime.date.today().strftime("%Y-%m-%d")
     time = datetime.datetime.now().strftime("%H:%M:%S")
@@ -83,17 +54,19 @@ if __name__ == "__main__":
     anki = ankify.Anki()
     anki.deck["mid"] = anki.basic_notetype["id"]
     anki.collection.decks.save(anki.deck)
-    created, updated, unchanged = import_to_anki(anki.basic_notes(), import_basic_prompts)
+    created, updated, unchanged, to_remove = anki.replace_ankifiable_prompts(anki.basic_notes(), import_basic_prompts)
     stats_created += created
     stats_updated += updated
     stats_unchanged += unchanged
+    notes_to_remove += to_remove
 
     anki.deck["mid"] = anki.cloze_notetype["id"]
     anki.collection.decks.save(anki.deck)
-    created, updated, unchanged = import_to_anki(anki.cloze_notes(), import_cloze_prompts)
+    created, updated, unchanged, to_remove = anki.replace_ankifiable_prompts(anki.cloze_notes(), import_cloze_prompts)
     stats_created += created
     stats_updated += updated
     stats_unchanged += unchanged
+    notes_to_remove += to_remove
 
     export_anki.export_notes(notes_to_remove, anki_deleted_notes_export_path)
     anki.collection.remove_notes(notes_to_remove)
