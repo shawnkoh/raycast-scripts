@@ -1,19 +1,3 @@
-#!/usr/bin/env python3
-
-# Required parameters:
-# @raycast.schemaVersion 1
-# @raycast.title Beeminder
-# @raycast.mode fullOutput
-# @raycast.refreshTime 1h
-
-# Optional parameters:
-# @raycast.icon
-# @raycast.packageName sg.shawnkoh.beeminder
-
-# Documentation:
-# @raycast.author Shawn Koh
-# @raycast.authorURL https://github.com/shawnkoh
-
 import datetime
 
 from dotenv import dotenv_values
