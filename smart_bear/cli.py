@@ -47,38 +47,25 @@ def sync_anki():
 
     urls = get_urls()
     import_basic_prompts, import_cloze_prompts = extract_prompts(urls)
-    stats_created = 0
-    stats_updated = 0
-    stats_deleted = 0
-    stats_unchanged = 0
     notes_to_remove = []
 
     anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
     anki.deck["mid"] = anki.basic_notetype["id"]
     anki.collection.decks.save(anki.deck)
-    created, updated, unchanged, to_remove = anki.replace_ankifiable_prompts(anki.basic_notes(), import_basic_prompts)
-    stats_created += created
-    stats_updated += updated
-    stats_unchanged += unchanged
-    notes_to_remove += to_remove
+    notes_to_remove += anki.replace_ankifiable_prompts(anki.basic_notes(), import_basic_prompts)
 
     anki.deck["mid"] = anki.cloze_notetype["id"]
     anki.collection.decks.save(anki.deck)
-    created, updated, unchanged, to_remove = anki.replace_ankifiable_prompts(anki.cloze_notes(), import_cloze_prompts)
-    stats_created += created
-    stats_updated += updated
-    stats_unchanged += unchanged
-    notes_to_remove += to_remove
+    notes_to_remove += anki.replace_ankifiable_prompts(anki.cloze_notes(), import_cloze_prompts)
 
     anki.export_notes(notes_to_remove, anki_deleted_notes_export_path)
-    anki.collection.remove_notes(notes_to_remove)
-    stats_deleted += len(notes_to_remove)
+    anki.remove_notes(notes_to_remove)
 
     anki.collection.save()
 
-    stats = f"created:{stats_created}\nupdated:{stats_updated}\ndeleted:{stats_deleted}\nunchanged:{stats_unchanged}"
+    stats = f"created:{anki.stats_created}\nupdated:{anki.stats_updated}\ndeleted:{anki.stats_deleted}\nunchanged:{anki.stats_unchanged}"
     print(stats)
-    if stats_created or stats_updated or stats_deleted:
+    if anki.stats_created or anki.stats_updated or anki.stats_deleted:
         stats_log = Path(f"/Users/shawnkoh/repos/notes/anki/stats-log/{date}.log")
         stats_log.parent.mkdir(parents=True, exist_ok=True)
         stats = f"{time}\n{stats}\n\n"
