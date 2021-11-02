@@ -36,6 +36,7 @@ class Anki:
     stats_updated: int
     stats_deleted: int
     stats_unchanged: int
+    stats_studied: int
     scheduler: Scheduler
 
     def __init__(self, collection_path, deck_id, basic_model_id, cloze_model_id, will_close_anki=True) -> None:
@@ -48,6 +49,7 @@ class Anki:
         self.stats_updated = 0
         self.stats_deleted = 0
         self.stats_unchanged = 0
+        self.stats_studied = 0
         self.scheduler = Scheduler(self.collection)
 
         # TODO: Throw instead
@@ -143,13 +145,12 @@ class Anki:
         print(f"exported to {export_url}")
 
     def study(self):
-        studied = 0
         while True:
             card = self.scheduler.getCard()
             self.scheduler.answerCard
             if not card:
-                return studied
-            studied += 1
+                return
+            self.stats_studied += 1
             note = card.note()
             prompt = None
             if note.cloze_numbers_in_fields():
