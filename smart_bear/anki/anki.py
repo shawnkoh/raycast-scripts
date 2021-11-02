@@ -175,8 +175,7 @@ class Anki:
                 click.echo(prompt.clozed_md)
 
             remembered = click.confirm("Remembered?", default=True)
-            # 1 = hard, 2 = easy
-            ease = 4 if remembered else 1
+            ease = 4 if remembered else 2
             self.scheduler.answerCard(card, ease)
 
 def note_to_prompt_md(note):
