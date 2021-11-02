@@ -37,7 +37,16 @@ def update_beeminder():
     beeminder = Beeminder(config["BEEMINDER_USERNAME"], config["BEEMINDER_AUTH_TOKEN"])
     date = datetime.date.today().strftime("%Y-%m-%d")
     response = beeminder.create_datapoint("anki-api", value=len(anki.notes_rated_today()), requestid=date)
-    pprint(response.content)
+    pprint(response.json())
+
+@run.command()
+def study():
+    anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
+    studied = anki.study()
+    click.echo(f"studied {studied} cards")
+    anki.collection.save()
+    if not studied:
+        click.echo("no card to review")
 
 @run.command()
 def sync_anki():
