@@ -23,19 +23,20 @@ CLOZE_MODEL_ID = 1635539433589
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
+def get_urls():
+    return glob.glob(f"{MARKDOWN_PATH}/*.md")
+
 @click.group()
 def run():
     pass
 
 @run.command()
 def update_beeminder():
-    click.confirm("Hello")
     config = dotenv_values()
     anki = Anki(collection_path=COLLECTION_PATH, deck_id=DECK_ID, basic_model_id=BASIC_MODEL_ID, cloze_model_id=CLOZE_MODEL_ID)
     beeminder = Beeminder(config["BEEMINDER_USERNAME"], config["BEEMINDER_AUTH_TOKEN"])
     date = datetime.date.today().strftime("%Y-%m-%d")
     response = beeminder.create_datapoint("anki-api", value=len(anki.notes_rated_today()), requestid=date)
-    pprint("Created")
     pprint(response.content)
 
 @run.command()
@@ -44,7 +45,7 @@ def sync_anki():
     time = datetime.datetime.now().strftime("%H:%M:%S")
     anki_deleted_notes_export_path = f"{ANKI_DELETED_NOTES_EXPORT_PATH}{date}.md"
 
-    urls = glob.glob(f"{MARKDOWN_PATH}/*.md")
+    urls = get_urls()
     import_basic_prompts, import_cloze_prompts = extract_prompts(urls)
     stats_created = 0
     stats_updated = 0
@@ -87,9 +88,7 @@ def sync_anki():
 
 @run.command()
 def prettify_markdowns():
-    urls = glob.glob(f"{MARKDOWN_PATH}/*.md")
-
-    for url in urls:
+    for url in get_urls():
         md = ""
         result = ""
         with open(url, "r") as file:
