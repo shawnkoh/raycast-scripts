@@ -5,31 +5,31 @@ import regex
 from smart_bear.markdown import md_parser
 
 
+def link_map(urls):
+    link_map = dict()
+    for url in urls:
+        with open(url, "r") as file:
+            title_line = file.readline()
+            match = regex.search(md_parser._title_regex, title_line)
+            if not match:
+                continue
+            title = match[1]
+            # two way dictionary because titles and urls should be mutually exclusive
+            link_map[title] = url
+            link_map[url] = title
+    return link_map
+
 class Crawler:
-    # two way dictionary because titles and urls should be mutually exclusive
-    title_url_dictionary: dict[str, str]
     visited_titles: set
     titles_without_urls: set
 
-    def __init__(self):
-        self.title_url_dictionary = dict()
+    def __init__(self, link_map: dict[str, str]):
+        self.link_map = link_map
         self.visited_titles = set()
         self.titles_without_urls = set()
 
-    def update_title_url_dictionary(self, urls):
-        for url in urls:
-            with open(url, "r") as file:
-                title_line = file.readline()
-                match = regex.search(md_parser._title_regex, title_line)
-                if not match:
-                    continue
-                # Drop #
-                title = match[0][2:]
-                self.title_url_dictionary[title] = url
-                self.title_url_dictionary[url] = title
-
     def crawl(self, url, functor: Callable[[str, str, str], None] = None):
-        title = self.title_url_dictionary.get(url)
+        title = self.link_map.get(url)
         if not title:
             click.echo(f"no title for url: {title}")
             return
@@ -44,7 +44,7 @@ class Crawler:
 
             stripped_md = md_parser.strip_backlink_blocks(md)
             for title in regex.findall(md_parser._link_regex, stripped_md):
-                url = self.title_url_dictionary.get(title)
+                url = self.link_map.get(title)
                 if not url:
                     self.titles_without_urls.add(title)
                     continue

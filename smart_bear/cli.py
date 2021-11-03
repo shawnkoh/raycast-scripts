@@ -13,7 +13,7 @@ from smart_bear.anki.anki import Anki
 from smart_bear.anki.prompts import extract_prompts
 from smart_bear.beeminder.beeminder import Beeminder
 from smart_bear.markdown import md_parser
-from smart_bear.markdown.crawler import Crawler
+from smart_bear.markdown.crawler import Crawler, link_map
 from smart_bear.markdown.pretty_bear import prettify
 
 # Anki User Settings
@@ -122,9 +122,10 @@ def add_tag_recursively(tag: str, filename: str):
             file.write(md)
         count += 1
 
-    crawler = Crawler()
     urls = glob.glob(str(path.parent.with_name("*.md")))
-    crawler.update_title_url_dictionary(urls)
+    title_url_map = link_map(urls)
+
+    crawler = Crawler(title_url_map)
     crawler.crawl(filename, add_tag)
     click.echo(f"added {tag} to {count} notes")
     click.echo("titles without urls")
