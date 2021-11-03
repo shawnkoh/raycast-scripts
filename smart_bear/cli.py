@@ -93,11 +93,8 @@ def prettify_markdowns():
         if result == document.original_md:
             continue
 
-        count += 1
-
         with open(url, "w") as file:
             file.write(result)
-    print(count)
 
 
 def _validate_tag(ctx, param, value) -> bool:
