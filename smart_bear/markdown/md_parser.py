@@ -39,6 +39,13 @@ def extract_tag_block(md: str) -> str or None:
         return None
     return "\n".join(tags)
 
+def is_tag(md: str) -> bool:
+    return regex.match(_tag_regex, md) is not None
+
+def contains_tag(md: str, tag: str) -> bool:
+    pattern = r"(?<=\S?)#" + tag + r"(?=\S?)"
+    return regex.match(pattern, md) is not None
+
 def strip_tags(md: str) -> str:
     """strip all tags and their adjacent whitespaces"""
     return regex.sub(_tag_regex, "", md)

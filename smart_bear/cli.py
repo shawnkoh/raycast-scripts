@@ -6,7 +6,6 @@ from pathlib import Path
 from pprint import pprint
 
 import click
-import regex
 from dotenv import dotenv_values
 
 from smart_bear.anki.anki import Anki
@@ -102,18 +101,23 @@ def prettify_markdowns():
 
 
 def _validate_tag(ctx, param, value) -> bool:
-    if not regex.match(md_parser._tag_regex, value):
-        raise click.BadParameter("tag must be #tag")
+    if not md_parser.is_tag(value):
+        raise click.BadParameter("--tag must be #tag_name")
     return value
 
 @run.command()
 @click.option("--tag", prompt=True, callback=_validate_tag)
 def add_tag_recursively(tag: str):
     def add_tag(url:str, title: str, md: str):
-        pattern = r"(?<=\S?)#" + tag + r"(?=\S?)"
-        if regex.match(pattern, md):
+        if md_parser.contains_tag(md, tag):
             return
-        print(title)
+
+        md += f"\n{tag}\n"
+        md = prettify(md)
+
+        with open(url, "w") as file:
+            file.write(md)
+
     crawler = Crawler()
     urls = get_urls()
     crawler.update_title_url_dictionary(urls)
