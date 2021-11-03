@@ -108,20 +108,22 @@ def _validate_tag(ctx, param, value) -> bool:
 @run.command()
 @click.option("--tag", prompt=True, callback=_validate_tag)
 def add_tag_recursively(tag: str):
+    count = 0
     def add_tag(url:str, title: str, md: str):
+        nonlocal count
         if md_parser.contains_tag(md, tag):
             return
-
         md += f"\n{tag}\n"
         md = prettify(md)
-
         with open(url, "w") as file:
             file.write(md)
+        count += 1
 
     crawler = Crawler()
     urls = get_urls()
     crawler.update_title_url_dictionary(urls)
     crawler.crawl(f"{MARKDOWN_PATH}G2.md", add_tag)
+    click.echo(f"added {tag} to {count} notes")
     click.echo("titles without urls")
     titles_without_urls = sorted(crawler.titles_without_urls)
     click.echo("\n".join(titles_without_urls))
