@@ -9,9 +9,9 @@ from markdown import Markdown
 _markdown_to_html_parser = Markdown()
 
 _bear_id_regex = regex.compile(r"(<!--\s*\{BearID:.+\}\s*-->)")
-_title_regex = regex.compile(r"^#(.+)")
+_title_regex = regex.compile(r"^#\s?(.+)")
 _tag_regex = regex.compile(r"\s?(#[\w\/-]+)\s?")
-_backlink_regex = regex.compile(r"\[\[((?>[^\[\]]|(?R))*)\]\]")
+_link_regex = regex.compile(r"\[\[((?>[^\[\]]|(?R))*)\]\]")
 _backlinks_regex = regex.compile(r"## Backlinks\n(?:.+(?:\n.)?)+")
 _paragraph_regex = regex.compile(r"(?:.+(?:\n.)?)+")
 _basic_prompt_regex = regex.compile(r"(?m)^Q:\n?((?:.+(?:\n(?!Q:|A:).)?)++)(?:\s*?\n){0,3}(?:^A:\n?((?:.+(?:\n(?!Q:|A:).)?)+))?")

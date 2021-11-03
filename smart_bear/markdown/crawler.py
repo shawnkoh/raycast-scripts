@@ -43,7 +43,7 @@ class Crawler:
                 functor(url, title, md)
 
             stripped_md = md_parser.strip_backlink_blocks(md)
-            for title in regex.findall(md_parser._backlink_regex, stripped_md):
+            for title in regex.findall(md_parser._link_regex, stripped_md):
                 url = self.title_url_dictionary.get(title)
                 if not url:
                     self.titles_without_urls.add(title)
