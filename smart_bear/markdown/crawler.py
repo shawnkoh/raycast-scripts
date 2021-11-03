@@ -28,7 +28,7 @@ class Crawler:
                 self.title_url_dictionary[title] = url
                 self.title_url_dictionary[url] = title
 
-    def crawl(self, url, functor: Callable[[str, list], None] = None):
+    def crawl(self, url, functor: Callable[[str, str, str, list], None] = None):
         title = self.title_url_dictionary.get(url)
         if not title:
             click.echo(f"no title for url: {title}")
@@ -42,7 +42,7 @@ class Crawler:
             backlink_blocks = md_parser.extract_backlink_blocks(md)
             md = md_parser.strip_backlink_blocks(md)
             if functor:
-                functor(md, backlink_blocks)
+                functor(url, title, md, backlink_blocks)
 
             for title in regex.findall(md_parser._backlink_regex, md):
                 url = self.title_url_dictionary.get(title)

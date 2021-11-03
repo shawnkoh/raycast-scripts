@@ -6,11 +6,13 @@ from pathlib import Path
 from pprint import pprint
 
 import click
+import regex
 from dotenv import dotenv_values
 
 from smart_bear.anki.anki import Anki
 from smart_bear.anki.prompts import extract_prompts
 from smart_bear.beeminder.beeminder import Beeminder
+from smart_bear.markdown import md_parser
 from smart_bear.markdown.crawler import Crawler
 from smart_bear.markdown.pretty_bear import prettify
 
@@ -99,16 +101,23 @@ def prettify_markdowns():
             file.write(result)
 
 
+def _validate_tag(ctx, param, value) -> bool:
+    if not regex.match(md_parser._tag_regex, value):
+        raise click.BadParameter("tag must be #tag")
+    return value
+
 @run.command()
-def test():
-    def functor(md: str, backlink_blocks: list):
-        # print(md[:10])
-        # print(md_parser.extract_tag_block(md))
-        pass
+@click.option("--tag", prompt=True, callback=_validate_tag)
+def add_tag_recursively(tag: str):
+    def add_tag(url:str, title: str, md: str, backlink_blocks: list):
+        pattern = r"(?<=\S?)#" + tag + r"(?=\S?)"
+        if regex.match(pattern, md):
+            return
+        print(title)
     crawler = Crawler()
     urls = get_urls()
     crawler.update_title_url_dictionary(urls)
-    crawler.crawl(f"{MARKDOWN_PATH}G2.md", functor)
+    crawler.crawl(f"{MARKDOWN_PATH}G2.md", add_tag)
     click.echo("titles without urls")
     titles_without_urls = sorted(crawler.titles_without_urls)
     click.echo("\n".join(titles_without_urls))
