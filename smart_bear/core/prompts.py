@@ -1,8 +1,6 @@
-import functools
 from abc import abstractmethod
 from typing import Protocol
 
-from smart_bear.markdown import md_parser
 
 SOURCE_ATTRIBUTE = 'data-source'
 
@@ -26,20 +24,6 @@ class BasicPrompt(Identifiable):
     def id(self) -> str:
         return self.question_md
 
-    @functools.cached_property
-    def question_field(self):
-        html = md_parser.markdown_to_html(self.question_md)
-        field = md_parser.insert_data(html, self.source_attribute, self.question_md)
-        return field
-
-    @functools.cached_property
-    def answer_field(self):
-        if not self.answer_md:
-            return ""
-        html = md_parser.markdown_to_html(self.answer_md)
-        field = md_parser.insert_data(html, self.source_attribute, self.answer_md)
-        return field
-
 class ClozePrompt(Identifiable):
     def __init__(self, stripped_md: str, clozed_md: str, source_attribute=SOURCE_ATTRIBUTE):
         self.stripped_md = stripped_md.strip()
@@ -49,9 +33,3 @@ class ClozePrompt(Identifiable):
     @property
     def id(self) -> str:
         return self.stripped_md
-
-    @functools.cached_property
-    def field(self):
-        html = md_parser.markdown_to_html(self.clozed_md)
-        field = md_parser.insert_data(html, self.source_attribute, self.stripped_md)
-        return field

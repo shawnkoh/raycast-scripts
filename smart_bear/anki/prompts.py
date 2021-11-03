@@ -1,5 +1,6 @@
 
 from abc import abstractmethod
+from functools import cached_property
 from typing import Protocol
 
 from smart_bear.core import prompts
@@ -42,6 +43,20 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
         
         return cls(question_md, answer_md, source_attribute)
 
+    @cached_property
+    def question_field(self):
+        html = md_parser.markdown_to_html(self.question_md)
+        field = md_parser.insert_data(html, self.source_attribute, self.question_md)
+        return field
+
+    @cached_property
+    def answer_field(self):
+        if not self.answer_md:
+            return ""
+        html = md_parser.markdown_to_html(self.answer_md)
+        field = md_parser.insert_data(html, self.source_attribute, self.answer_md)
+        return field
+
     def is_different_from(self, note) -> bool:
         return self.question_field != note.fields[0] or self.answer_field != note.fields[1]
     
@@ -67,6 +82,12 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 
         return cls(stripped_md, clozed_md, source_attribute)
 
+    @cached_property
+    def field(self):
+        html = md_parser.markdown_to_html(self.clozed_md)
+        field = md_parser.insert_data(html, self.source_attribute, self.stripped_md)
+        return field
+
     def is_different_from(self, note) -> bool:
         return self.field != note.fields[0]
 
@@ -78,6 +99,12 @@ def extract_prompts(urls):
     import_cloze_prompts = dict()
     for url in urls:
         document = Document(url)
-        import_basic_prompts = import_basic_prompts | document.basic_prompts
-        import_cloze_prompts = import_cloze_prompts | document.clozed_prompts
+        for id, prompt in document.basic_prompts.items():
+            # antipattern!
+            prompt.__class__ = BasicPrompt
+            import_basic_prompts[id] = prompt
+        for id, prompt in document.clozed_prompts.items():
+            # antipattern!
+            prompt.__class__ = ClozePrompt
+            import_cloze_prompts[id] = prompt
     return import_basic_prompts, import_cloze_prompts

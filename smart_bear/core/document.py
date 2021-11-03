@@ -91,7 +91,8 @@ class Document(Identifiable):
         self.backlink_blocks
         basic_prompts = dict()
         for question_md, answer_md in md_parser.extract_basic_prompts(self._current_md).items():
-            basic_prompts[question_md] = BasicPrompt(question_md, answer_md)
+            prompt = BasicPrompt(question_md, answer_md)
+            basic_prompts[prompt.id] = prompt
         return basic_prompts
 
     @cached_property
@@ -100,7 +101,8 @@ class Document(Identifiable):
         self.backlink_blocks
         cloze_prompts = dict()   
         for stripped_md, clozed_md in md_parser.extract_cloze_prompts(self._current_md).items():
-            cloze_prompts[stripped_md] = ClozePrompt(stripped_md, clozed_md)
+            prompt = ClozePrompt(stripped_md, clozed_md)
+            cloze_prompts[prompt.id] = prompt
         return cloze_prompts
 
     def build_str(self) -> str:
