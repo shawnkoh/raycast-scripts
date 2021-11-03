@@ -2,7 +2,7 @@ from functools import cached_property
 
 import regex
 from smart_bear.core.prompts import Identifiable
-from smart_bear.markdown import md_parser
+from smart_bear.markdown import md_parser, pretty_bear
 
 
 class Document(Identifiable):
@@ -76,3 +76,14 @@ class Document(Identifiable):
             return ""
         self._current_md = regex.sub(md_parser._bear_id_regex, repl, self._current_md)
         return bear_id
+
+    @cached_property
+    def references(self) -> str or None:
+        self._current_md = regex.sub(pretty_bear._reference_standard_regex, pretty_bear._reference_standard, self._current_md)
+        references = None
+        def repl(match: regex.Match) -> str:
+            nonlocal references
+            references = match[0]
+            return ""
+        self._current_md = regex.sub(md_parser._reference_regex, repl, self._current_md)
+        return references
