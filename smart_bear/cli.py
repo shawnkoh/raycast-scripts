@@ -15,7 +15,6 @@ from smart_bear.beeminder.beeminder import Beeminder
 from smart_bear.core.document import Document
 from smart_bear.markdown import md_parser
 from smart_bear.markdown.crawler import Crawler, link_map
-from smart_bear.markdown.pretty_bear import prettify
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
@@ -88,18 +87,20 @@ def sync_anki():
 
 @run.command()
 def prettify_markdowns():
-    for url in get_urls():
-        md = ""
-        result = ""
-        with open(url, "r") as file:
-            md = file.read()
-            result = prettify(md)
-
-        if md == result:
+    count = 0
+    urls = ["/Users/shawnkoh/repos/notes/bear/Aileen.md"]
+    for url in urls:
+        print(url)
+        document = Document(url)
+        result = document.build_str()
+        if result == document.original_md:
             continue
+
+        count += 1
 
         with open(url, "w") as file:
             file.write(result)
+    print(count)
 
 
 def _validate_tag(ctx, param, value) -> bool:

@@ -6,9 +6,6 @@ from smart_bear.markdown import md_parser, pretty_bear
 
 
 class Document(Identifiable):
-    filename: str
-    bear_id: str or None
-
     def __init__(self, filename: str) -> None:
         self.filename = filename
     
@@ -16,14 +13,10 @@ class Document(Identifiable):
         return self.title
 
     @cached_property
-    def title(self) -> str:
-        title = None
-        def repl(match: regex.Match) -> str:
-            nonlocal title
-            title = match[1]
-            return ""
-        self._current_md = regex.sub(md_parser._title_regex, repl, self._current_md)
-        return title
+    def title(self) -> str or None:
+        if match := regex.match(md_parser._title_regex, self._current_md):
+            return match[0]
+        return None
 
     @cached_property
     def original_md(self) -> str:
@@ -87,3 +80,40 @@ class Document(Identifiable):
             return ""
         self._current_md = regex.sub(md_parser._reference_regex, repl, self._current_md)
         return references
+
+    def build_str(self) -> str:
+        self.title
+        self.references
+        self.backlink_blocks
+        self.tags
+        self.bear_id
+        md = self._current_md
+
+        tag_block = "\n".join(self.tags)
+
+        # rebuild
+        # TODO: super hacky but whatever
+
+        # strip eof dividers
+        if self.references or self.backlink_blocks or tag_block:
+            md = regex.sub(r"\s*(---)?\s*$", "", md)
+            md += "\n\n---\n\n"
+
+        if self.references:
+            md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
+            md += f"\n\n{self.references}\n"
+        
+        for backlink_block in self.backlink_blocks:
+            md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
+            md += f"\n\n{backlink_block}\n"
+
+        if tag_block:
+            md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
+            md += f"\n\n{tag_block}\n\n"
+
+        if self.bear_id:
+            md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
+            # Intentionally end file with new line.
+            md += f"\n\n{self.bear_id}\n"
+
+        return md
