@@ -88,9 +88,7 @@ def sync_anki():
 @run.command()
 def prettify_markdowns():
     count = 0
-    urls = ["/Users/shawnkoh/repos/notes/bear/Aileen.md"]
-    for url in urls:
-        print(url)
+    for url in get_urls():
         document = Document(url)
         result = document.build_str()
         if result == document.original_md:

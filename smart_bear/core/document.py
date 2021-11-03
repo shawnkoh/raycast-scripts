@@ -89,7 +89,7 @@ class Document(Identifiable):
         self.bear_id
         md = self._current_md
 
-        tag_block = "\n".join(self.tags)
+        tag_block = "\n".join(sorted(self.tags))
 
         # rebuild
         # TODO: super hacky but whatever
