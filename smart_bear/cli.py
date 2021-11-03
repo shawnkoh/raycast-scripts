@@ -87,7 +87,6 @@ def sync_anki():
 
 @run.command()
 def prettify_markdowns():
-    count = 0
     for url in get_urls():
         document = Document(url)
         result = document.build_str()
@@ -117,10 +116,8 @@ def add_tag_recursively(tag: str, filename: str):
         if tag in document.tags:
             return
         document.tags.add(tag)
-        # md += f"\n{tag}\n"
-        # md = prettify(md)
-        # with open(url, "w") as file:
-        #     file.write(md)
+        with open(filename, "w") as file:
+            file.write(document.build_str())
         count += 1
 
     urls = glob.glob(str(path.with_name("*.md")))

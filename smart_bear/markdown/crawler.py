@@ -30,7 +30,7 @@ class Crawler:
         self.visited_titles = set()
         self.titles_without_urls = set()
 
-    def crawl(self, url, functor: Callable[[str, str, str], None] = None):
+    def crawl(self, url, functor: Callable[[Document], None] = None):
         title = self.link_map.get(url)
         if not title:
             click.echo(f"no title for url: {title}")
