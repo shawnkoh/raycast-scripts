@@ -2,6 +2,7 @@
 import datetime
 import glob
 import os
+import pathlib
 from pathlib import Path
 from pprint import pprint
 
@@ -106,10 +107,12 @@ def _validate_tag(ctx, param, value) -> bool:
     return value
 
 @run.command()
-@click.option("--tag", prompt=True, callback=_validate_tag)
-def add_tag_recursively(tag: str):
+@click.option("--tag", prompt=True, type=str, callback=_validate_tag)
+@click.option("--filename", prompt=True, type=click.Path(exists=True))
+def add_tag_recursively(tag: str, filename: str):
+    path = pathlib.Path(filename)
     count = 0
-    def add_tag(url:str, title: str, md: str):
+    def add_tag(url: str, title: str, md: str):
         nonlocal count
         if md_parser.contains_tag(md, tag):
             return
@@ -120,9 +123,9 @@ def add_tag_recursively(tag: str):
         count += 1
 
     crawler = Crawler()
-    urls = get_urls()
+    urls = glob.glob(str(path.parent.with_name("*.md")))
     crawler.update_title_url_dictionary(urls)
-    crawler.crawl(f"{MARKDOWN_PATH}G2.md", add_tag)
+    crawler.crawl(filename, add_tag)
     click.echo(f"added {tag} to {count} notes")
     click.echo("titles without urls")
     titles_without_urls = sorted(crawler.titles_without_urls)
