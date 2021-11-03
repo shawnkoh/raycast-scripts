@@ -109,7 +109,7 @@ def _validate_tag(ctx, param, value) -> bool:
 @run.command()
 @click.option("--tag", prompt=True, callback=_validate_tag)
 def add_tag_recursively(tag: str):
-    def add_tag(url:str, title: str, md: str, backlink_blocks: list):
+    def add_tag(url:str, title: str, md: str):
         pattern = r"(?<=\S?)#" + tag + r"(?=\S?)"
         if regex.match(pattern, md):
             return
