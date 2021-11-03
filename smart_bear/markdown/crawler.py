@@ -1,56 +1,45 @@
+from typing import Callable
+
+import click
 import regex
+from smart_bear.markdown import md_parser
 
-import md_parser
-
-# TODO: need to exclude those in the backlinks block
-backlink_regex = r"\[\[(.+)\]\]"
-tag_regex = r"#evergreen"
 
 class Crawler:
-    def __init__(self):
-        pass
+    title_url_dictionary: dict[str, str]
+    visited_titles = set()
 
-    def build_url_title_dict(self, urls):
-        self.url_title_dictionary = dict()
+    def __init__(self):
+        self.title_url_dictionary = dict()
+
+    def update_title_url_dictionary(self, urls):
         for url in urls:
             with open(url, "r") as file:
                 md_text = file.read()
                 match = regex.search(md_parser._title_regex, md_text)
                 if not match:
                     continue
-                title = match.group(1)
-                self.url_title_dictionary[title] = url
+                # Drop #
+                title = match[0][2:]
+                self.title_url_dictionary[title] = url
+                # print(title)
 
-        self.visited_urls = set()
-
-    def crawl(self, url):
-        md_text = ""
+    def crawl(self, url, functor: Callable[[str, list], None] = None):
         with open(url, "r") as file:
-            md_text = file.read()
+            md = file.read()
+            backlink_blocks = md_parser.extract_backlink_blocks(md)
+            md = md_parser.strip_backlink_blocks(md)
 
-        match = regex.search(tag_regex, md_text)
-        if not match:
-            with open(url, "w") as file:
-                md_text += "\n#evergreen\n"
-                file.write(md_text)
+            for title in regex.findall(md_parser._backlink_regex, md):
+                if title in self.visited_titles:
+                    continue
+                self.visited_titles.add(title)
+                if functor:
+                    functor(md, backlink_blocks)
 
-        self.url_title_dictionary[url]
-
-        unvisited_backlinks = self.get_backlinks(md_text) - self.visited_urls
-        for link in unvisited_backlinks:
-            self.crawl(link)
-
-    def get_backlinks(md_text):
-        backlinks = regex.findall(backlink_regex, md_text)
-        return set(backlinks)
-
-        for url in urls:
-            md_text = ""
-            with open(url, "r") as file:
-                md_text = file.read()
-                match = regex.search(regex, md_text)
-                if not match:
+                url = self.title_url_dictionary.get(title)
+                if not url:
+                    click.echo(f"no url for title: {title}")
                     continue
 
-        # with open(url, "w") as file:
-        #     file.write(new_text)
+                self.crawl(url)

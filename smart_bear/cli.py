@@ -11,6 +11,7 @@ from dotenv import dotenv_values
 from smart_bear.anki.anki import Anki
 from smart_bear.anki.prompts import extract_prompts
 from smart_bear.beeminder.beeminder import Beeminder
+from smart_bear.markdown.crawler import Crawler
 from smart_bear.markdown.pretty_bear import prettify
 
 # Anki User Settings
@@ -96,3 +97,15 @@ def prettify_markdowns():
 
         with open(url, "w") as file:
             file.write(result)
+
+
+@run.command()
+def test():
+    def functor(md: str, backlink_blocks: list):
+        # print(md)
+        pass
+
+    crawler = Crawler()
+    urls = get_urls()
+    crawler.update_title_url_dictionary(urls)
+    crawler.crawl(f"{MARKDOWN_PATH}G2.md", functor)
