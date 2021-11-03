@@ -8,10 +8,13 @@ from smart_bear.markdown import md_parser
 class Crawler:
     # two way dictionary because titles and urls should be mutually exclusive
     title_url_dictionary: dict[str, str]
-    visited_titles = set()
+    visited_titles: set
+    titles_without_urls: set
 
     def __init__(self):
         self.title_url_dictionary = dict()
+        self.visited_titles = set()
+        self.titles_without_urls = set()
 
     def update_title_url_dictionary(self, urls):
         for url in urls:
@@ -32,7 +35,6 @@ class Crawler:
             return
         if title in self.visited_titles:
             return
-        print(title)
         self.visited_titles.add(title)
 
         with open(url, "r") as file:
@@ -45,7 +47,7 @@ class Crawler:
             for title in regex.findall(md_parser._backlink_regex, md):
                 url = self.title_url_dictionary.get(title)
                 if not url:
-                    click.echo(f"no url for title: {title}")
+                    self.titles_without_urls.add(title)
                     continue
 
                 self.crawl(url, functor)

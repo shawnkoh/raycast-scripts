@@ -109,3 +109,6 @@ def test():
     urls = get_urls()
     crawler.update_title_url_dictionary(urls)
     crawler.crawl(f"{MARKDOWN_PATH}G2.md", functor)
+    click.echo("titles without urls")
+    titles_without_urls = sorted(crawler.titles_without_urls)
+    click.echo("\n".join(titles_without_urls))
