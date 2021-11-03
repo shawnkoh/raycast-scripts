@@ -49,6 +49,7 @@ class Document(Identifiable):
     def backlink_blocks(self) -> list[str]:
         backlink_blocks = list()
         def repl(match: regex.Match) -> str:
+            nonlocal backlink_blocks
             backlink_blocks.append(match[0])
             return ""
         self._current_md = regex.sub(md_parser._backlinks_regex, repl, self._current_md)
@@ -70,6 +71,7 @@ class Document(Identifiable):
     def bear_id(self) -> str or None:
         bear_id = None
         def repl(match: regex.Match) -> str:
+            nonlocal bear_id
             bear_id = match[0]
             return ""
         self._current_md = regex.sub(md_parser._bear_id_regex, repl, self._current_md)
