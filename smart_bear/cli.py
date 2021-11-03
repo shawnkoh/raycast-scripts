@@ -102,9 +102,9 @@ def prettify_markdowns():
 @run.command()
 def test():
     def functor(md: str, backlink_blocks: list):
-        # print(md)
+        # print(md[:10])
+        # print(md_parser.extract_tag_block(md))
         pass
-
     crawler = Crawler()
     urls = get_urls()
     crawler.update_title_url_dictionary(urls)
