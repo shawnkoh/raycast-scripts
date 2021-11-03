@@ -1,8 +1,9 @@
 
 from abc import abstractmethod
-from typing import Protocol, Type, TypeVar
+from typing import Protocol
 
 from smart_bear.core import prompts
+from smart_bear.core.document import Document
 from smart_bear.markdown import md_parser
 
 
@@ -20,16 +21,7 @@ class Ankifiable(Protocol):
     def override(self, note):
         raise NotImplementedError
 
-_BP = TypeVar("_BP")
-
 class BasicPrompt(prompts.BasicPrompt, Ankifiable):
-    @classmethod
-    def from_markdown(cls: Type[_BP], md) -> dict[str, Type[_BP]]:
-        basic_prompts = dict()
-        for question_md, answer_md in md_parser.extract_basic_prompts(md).items():
-            basic_prompts[question_md] = cls(question_md, answer_md)
-        return basic_prompts
-
     @classmethod
     def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
         question_field = note.fields[0]
@@ -57,16 +49,7 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
         note.fields[0] = self.question_field
         note.fields[1] = self.answer_field
 
-_CP = TypeVar("_CP")
-
 class ClozePrompt(prompts.ClozePrompt, Ankifiable):
-    @classmethod
-    def from_markdown(cls: Type[_CP], md: str) -> dict[str, Type[_CP]]:
-        cloze_prompts = dict()   
-        for stripped_md, clozed_md in md_parser.extract_cloze_prompts(md).items():
-            cloze_prompts[stripped_md] = cls(stripped_md, clozed_md)
-        return cloze_prompts
-
     @classmethod
     def from_anki_note(cls, note, source_attribute=prompts.SOURCE_ATTRIBUTE):
         field = note.fields[0]
@@ -94,14 +77,7 @@ def extract_prompts(urls):
     import_basic_prompts = dict()
     import_cloze_prompts = dict()
     for url in urls:
-        with open(url, "r") as file:
-            md_text = file.read()
-            md_text = md_parser.strip_title(md_text)
-            md_text = md_parser.strip_backlink_blocks(md_text)
-
-            basic_prompts = BasicPrompt.from_markdown(md_text)
-            import_basic_prompts = import_basic_prompts | basic_prompts
-
-            cloze_prompts = ClozePrompt.from_markdown(md_text)
-            import_cloze_prompts = import_cloze_prompts | cloze_prompts
+        document = Document(url)
+        import_basic_prompts = import_basic_prompts | document.basic_prompts
+        import_cloze_prompts = import_cloze_prompts | document.clozed_prompts
     return import_basic_prompts, import_cloze_prompts

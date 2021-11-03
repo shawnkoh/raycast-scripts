@@ -1,7 +1,7 @@
 from functools import cached_property
 
 import regex
-from smart_bear.core.prompts import Identifiable
+from smart_bear.core.prompts import BasicPrompt, ClozePrompt, Identifiable
 from smart_bear.markdown import md_parser, pretty_bear
 
 
@@ -84,6 +84,24 @@ class Document(Identifiable):
             return ""
         self._current_md = regex.sub(md_parser._reference_regex, repl, self._current_md)
         return references
+
+    @cached_property
+    def basic_prompts(self) -> dict[str, BasicPrompt]:
+        self.title
+        self.backlink_blocks
+        basic_prompts = dict()
+        for question_md, answer_md in md_parser.extract_basic_prompts(self._current_md).items():
+            basic_prompts[question_md] = BasicPrompt(question_md, answer_md)
+        return basic_prompts
+
+    @cached_property
+    def clozed_prompts(self) -> dict[str, ClozePrompt]:
+        self.title
+        self.backlink_blocks
+        cloze_prompts = dict()   
+        for stripped_md, clozed_md in md_parser.extract_cloze_prompts(self._current_md).items():
+            cloze_prompts[stripped_md] = ClozePrompt(stripped_md, clozed_md)
+        return cloze_prompts
 
     def build_str(self) -> str:
         self.title
