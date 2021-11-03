@@ -39,7 +39,7 @@ class Document(Identifiable):
         tags = set()
         def repl(match: regex.Match) -> str:
             nonlocal tags
-            tags.append(match[1])
+            tags.add(match[1])
             return ""
         self._current_md = regex.sub(md_parser._tag_regex, repl, self._current_md)
         return tags

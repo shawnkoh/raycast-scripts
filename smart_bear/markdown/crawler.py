@@ -41,7 +41,7 @@ class Crawler:
 
         document = Document(url)
         if functor:
-            functor(url, document.title, document._current_md)
+            functor(document)
         for link in document.links:
             url = self.link_map.get(link)
             if not url:

@@ -12,6 +12,7 @@ from dotenv import dotenv_values
 from smart_bear.anki.anki import Anki
 from smart_bear.anki.prompts import extract_prompts
 from smart_bear.beeminder.beeminder import Beeminder
+from smart_bear.core.document import Document
 from smart_bear.markdown import md_parser
 from smart_bear.markdown.crawler import Crawler, link_map
 from smart_bear.markdown.pretty_bear import prettify
@@ -112,12 +113,13 @@ def _validate_tag(ctx, param, value) -> bool:
 def add_tag_recursively(tag: str, filename: str):
     path = pathlib.Path(filename)
     count = 0
-    def add_tag(url: str, title: str, md: str):
+    def add_tag(document: Document):
         nonlocal count
-        if md_parser.contains_tag(md, tag):
+        if tag in document.tags:
             return
-        md += f"\n{tag}\n"
-        md = prettify(md)
+        document.tags.add(tag)
+        # md += f"\n{tag}\n"
+        # md = prettify(md)
         # with open(url, "w") as file:
         #     file.write(md)
         count += 1
