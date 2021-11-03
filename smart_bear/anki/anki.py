@@ -113,7 +113,7 @@ class Anki:
             else:
                 note = self.collection.new_note(self.basic_notetype)
             prompt.override(note)
-            self.collection.add_note(note, self.DECK_ID)
+            self.collection.add_note(note, self.deck["id"])
             self.stats_created += 1
 
         return notes_to_remove
