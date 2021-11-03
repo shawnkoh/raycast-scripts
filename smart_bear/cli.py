@@ -4,7 +4,6 @@ import glob
 import os
 import pathlib
 from pathlib import Path
-from pprint import pprint
 
 import click
 from dotenv import dotenv_values
@@ -40,7 +39,6 @@ def update_beeminder():
     beeminder = Beeminder(config["BEEMINDER_USERNAME"], config["BEEMINDER_AUTH_TOKEN"])
     date = datetime.date.today().strftime("%Y-%m-%d")
     response = beeminder.create_datapoint("anki-api", value=len(anki.notes_rated_today()), requestid=date)
-    pprint(response.json())
 
 @run.command()
 def study():
