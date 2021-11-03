@@ -83,7 +83,7 @@ def sync_anki():
         stats = f"{time}\n{stats}\n\n"
         mode = "a" if os.path.exists(stats_log.parent) else "w"
         with open(stats_log, mode) as file:
-                file.write(stats)
+            file.write(stats)
 
 @run.command()
 def prettify_markdowns():

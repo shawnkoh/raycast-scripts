@@ -14,9 +14,13 @@ class Document(Identifiable):
 
     @cached_property
     def title(self) -> str or None:
-        if match := regex.match(md_parser._title_regex, self._current_md):
-            return match[0]
-        return None
+        title = None
+        def repl(match: regex.Match) -> str:
+            nonlocal title
+            title = match[1]
+            return ""
+        self._current_md = regex.sub(md_parser._title_regex, repl, self._current_md)
+        return title
 
     @cached_property
     def original_md(self) -> str:
@@ -93,6 +97,9 @@ class Document(Identifiable):
 
         # rebuild
         # TODO: super hacky but whatever
+
+        if title := self.title:
+            md = f"# {title}\n{md}"
 
         # strip eof dividers
         if self.references or self.backlink_blocks or tag_block:
