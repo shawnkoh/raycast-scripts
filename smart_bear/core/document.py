@@ -50,7 +50,7 @@ class Document(Identifiable):
         backlink_blocks = list()
         def repl(match: regex.Match) -> str:
             backlink_blocks.append(match[0])
-        pass
+            return ""
         self._current_md = regex.sub(md_parser._backlinks_regex, repl, self._current_md)
         return backlink_blocks
 
@@ -61,7 +61,7 @@ class Document(Identifiable):
         links = set()
         def repl(match: regex.Match) -> str:
             nonlocal links
-            links.append(match[1])
+            links.add(match[1])
             return ""
         self._current_md = regex.sub(md_parser._link_regex, repl, self._current_md)
         return links

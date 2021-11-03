@@ -118,11 +118,11 @@ def add_tag_recursively(tag: str, filename: str):
             return
         md += f"\n{tag}\n"
         md = prettify(md)
-        with open(url, "w") as file:
-            file.write(md)
+        # with open(url, "w") as file:
+        #     file.write(md)
         count += 1
 
-    urls = glob.glob(str(path.parent.with_name("*.md")))
+    urls = glob.glob(str(path.with_name("*.md")))
     title_url_map = link_map(urls)
 
     crawler = Crawler(title_url_map)

@@ -2,6 +2,7 @@ from typing import Callable
 
 import click
 import regex
+from smart_bear.core.document import Document
 from smart_bear.markdown import md_parser
 
 
@@ -17,6 +18,7 @@ def link_map(urls):
             # two way dictionary because titles and urls should be mutually exclusive
             link_map[title] = url
             link_map[url] = title
+
     return link_map
 
 class Crawler:
@@ -37,16 +39,13 @@ class Crawler:
             return
         self.visited_titles.add(title)
 
-        with open(url, "r") as file:
-            md = file.read()
-            if functor:
-                functor(url, title, md)
+        document = Document(url)
+        if functor:
+            functor(url, document.title, document._current_md)
+        for link in document.links:
+            url = self.link_map.get(link)
+            if not url:
+                self.titles_without_urls.add(link)
+                continue
 
-            stripped_md = md_parser.strip_backlink_blocks(md)
-            for title in regex.findall(md_parser._link_regex, stripped_md):
-                url = self.link_map.get(title)
-                if not url:
-                    self.titles_without_urls.add(title)
-                    continue
-
-                self.crawl(url, functor)
+            self.crawl(url, functor)
