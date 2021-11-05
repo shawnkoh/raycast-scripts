@@ -1,35 +1,25 @@
-import arrow
+from enum import Enum
+
 from furl import furl
 
+# bear://x-callback-url/[action]?[action parameters]&[x-callback parameters]
+
 BASE_URL = "bear://x-callback-url/"
-
-
-class Success:
-    note: str
-    identifier: str
-    title: str
-    tags: list[str]
-    is_trashed: bool
-    modification_date: arrow.Arrow
-    creation_date: arrow.Arrow
-
-    def __init__(self) -> None:
-        pass
 
 
 def open_note(
     id: str = None,
     title: str = None,
     header: str = None,
-    exclude_trashed: bool = False,
+    exclude_trashed: bool = None,
     new_window: bool = None,
     float: bool = None,
     show_window: bool = None,
-    open_note: bool = False,
-    selected: bool = False,
+    open_note: bool = None,
+    selected: bool = None,
     pin: bool = None,
     edit: bool = None,
-) -> Success:
+) -> furl:
     """Open a note identified by its title or id and return its content.
 
     Args:
@@ -45,16 +35,50 @@ def open_note(
         pin (bool, optional): if yes pin the note to the top of the list. Defaults to None.
         edit (bool, optional): if yes place the cursor inside the note editor. Defaults to None.
     """
-    args = locals()
-    for key, value in args.items():
+    args = locals().copy()
+    for key, value in locals().items():
         if value is None:
             args.pop(key)
-        if type(value) != bool:
-            continue
-        args[key] = "yes" if value == True else "no"
+        elif type(value) == bool:
+            args[key] = "yes" if value == True else "no"
 
     url = furl(BASE_URL)
     url.path = "open-note"
     url.args = args
-    print(url.url)
-    # bear://x-callback-url/[action]?[action parameters]&[x-callback parameters]
+    return url
+
+
+class CreateType(Enum):
+    html = "html"
+
+
+def create(
+    title: str = None,
+    text: str = None,
+    clipboard: bool = None,
+    tags: list[str] = None,
+    file: bytes = None,
+    filename: str = None,
+    open_note: bool = None,
+    new_window: bool = None,
+    float: bool = None,
+    show_window: bool = None,
+    pin: bool = None,
+    edit: bool = None,
+    timestamp: bool = None,
+    create_type: CreateType = None,
+    url: str = None,
+) -> furl:
+    locals()["type"] = locals()["create_type"]
+    locals().pop("create_type")
+    args = locals().copy()
+    for key, value in locals().items():
+        if value is None:
+            args.pop(key)
+        elif type(value) == bool:
+            args[key] = "yes" if value == True else "no"
+
+    url = furl(BASE_URL)
+    url.path = "create"
+    url.args = args
+    return url

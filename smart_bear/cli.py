@@ -2,6 +2,7 @@ import datetime
 import glob
 import os
 import pathlib
+import webbrowser
 from pathlib import Path
 
 import arrow
@@ -158,5 +159,9 @@ def add_tag_recursively(tag: str, filename: str):
 
 @run.command()
 def open_today():
-    title = arrow.now().format("YYYY-MM-DD")
-    print(x_callback_url.open_note(title=title))
+    a = arrow.now()
+    title = a.format("YYYY-MM-DD")
+    tag = "#daily/" + a.format("YYYY/MM")
+    url = x_callback_url.open_note(title=title)
+    url.args["x-error"] = x_callback_url.create(title=title, tags=[tag])
+    webbrowser.open(url.url)
