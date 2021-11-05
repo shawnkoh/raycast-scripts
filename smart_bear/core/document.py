@@ -8,17 +8,19 @@ from smart_bear.markdown import md_parser, pretty_bear
 class Document(Identifiable):
     def __init__(self, filename: str) -> None:
         self.filename = filename
-    
+
     def id(self) -> str:
         return self.title
 
     @cached_property
     def title(self) -> str or None:
         title = None
+
         def repl(match: regex.Match) -> str:
             nonlocal title
             title = match[1]
             return ""
+
         self._current_md = regex.sub(md_parser._title_regex, repl, self._current_md)
         return title
 
@@ -34,10 +36,12 @@ class Document(Identifiable):
     @cached_property
     def tags(self) -> set[str]:
         tags = set()
+
         def repl(match: regex.Match) -> str:
             nonlocal tags
             tags.add(match[1])
             return ""
+
         self._current_md = regex.sub(md_parser._tag_regex, repl, self._current_md)
         return tags
 
@@ -45,10 +49,12 @@ class Document(Identifiable):
     @cached_property
     def backlink_blocks(self) -> list[str]:
         backlink_blocks = list()
+
         def repl(match: regex.Match) -> str:
             nonlocal backlink_blocks
             backlink_blocks.append(match[0])
             return ""
+
         self._current_md = regex.sub(md_parser._backlinks_regex, repl, self._current_md)
         return backlink_blocks
 
@@ -57,31 +63,41 @@ class Document(Identifiable):
         # force backlinks to be stripped to avoid double counting
         self.backlink_blocks
         links = set()
+
         def repl(match: regex.Match) -> str:
             nonlocal links
             links.add(match[1])
             return ""
+
         self._current_md = regex.sub(md_parser._link_regex, repl, self._current_md)
         return links
 
     @cached_property
     def bear_id(self) -> str or None:
         bear_id = None
+
         def repl(match: regex.Match) -> str:
             nonlocal bear_id
             bear_id = match[0]
             return ""
+
         self._current_md = regex.sub(md_parser._bear_id_regex, repl, self._current_md)
         return bear_id
 
     @cached_property
     def references(self) -> str or None:
-        self._current_md = regex.sub(pretty_bear._reference_standard_regex, pretty_bear._reference_standard, self._current_md)
+        self._current_md = regex.sub(
+            pretty_bear._reference_standard_regex,
+            pretty_bear._reference_standard,
+            self._current_md,
+        )
         references = None
+
         def repl(match: regex.Match) -> str:
             nonlocal references
             references = match[0]
             return ""
+
         self._current_md = regex.sub(md_parser._reference_regex, repl, self._current_md)
         return references
 
@@ -90,7 +106,9 @@ class Document(Identifiable):
         self.title
         self.backlink_blocks
         basic_prompts = dict()
-        for question_md, answer_md in md_parser.extract_basic_prompts(self._current_md).items():
+        for question_md, answer_md in md_parser.extract_basic_prompts(
+            self._current_md
+        ).items():
             prompt = BasicPrompt(question_md, answer_md)
             basic_prompts[prompt.id] = prompt
         return basic_prompts
@@ -99,8 +117,10 @@ class Document(Identifiable):
     def clozed_prompts(self) -> dict[str, ClozePrompt]:
         self.title
         self.backlink_blocks
-        cloze_prompts = dict()   
-        for stripped_md, clozed_md in md_parser.extract_cloze_prompts(self._current_md).items():
+        cloze_prompts = dict()
+        for stripped_md, clozed_md in md_parser.extract_cloze_prompts(
+            self._current_md
+        ).items():
             prompt = ClozePrompt(stripped_md, clozed_md)
             cloze_prompts[prompt.id] = prompt
         return cloze_prompts
@@ -129,7 +149,7 @@ class Document(Identifiable):
         if self.references:
             md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
             md += f"\n\n{self.references}\n"
-        
+
         for backlink_block in self.backlink_blocks:
             md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
             md += f"\n\n{backlink_block}\n"

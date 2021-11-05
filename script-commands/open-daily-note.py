@@ -22,7 +22,9 @@ date = datetime.today().strftime("%Y-%m-%d")
 open_url = f"bear://x-callback-url/open-note?title={date}&new_window=yes&edit=yes"
 # comma separated list of tags e.g. journal/daily,journal/weekly
 tags = "journal/daily"
-create_url = f"bear://x-callback-url/create?title={date}&tags={tags}&new_window=yes&edit=yes"
+create_url = (
+    f"bear://x-callback-url/create?title={date}&tags={tags}&new_window=yes&edit=yes"
+)
 create_url = urllib.parse.quote_plus(create_url)
 url = f"{open_url}&x-error={create_url}"
 webbrowser.open(url)

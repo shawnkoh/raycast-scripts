@@ -21,6 +21,7 @@ def link_map(urls):
 
     return link_map
 
+
 class Crawler:
     visited_titles: set
     titles_without_urls: set

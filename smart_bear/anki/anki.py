@@ -21,11 +21,13 @@ ANKI_PROCESS_NAME = "AnkiMac"
 _anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 _multi_line_regex = regex.compile(r"\n\n+")
 
+
 def close_anki_process(process_name: str = ANKI_PROCESS_NAME):
     for process in psutil.process_iter():
         if process.name() == process_name:
             process.kill()
             return
+
 
 class Anki:
     collection: _Collection
@@ -39,7 +41,14 @@ class Anki:
     stats_studied: int
     scheduler: Scheduler
 
-    def __init__(self, collection_path, deck_id, basic_model_id, cloze_model_id, will_close_anki=True) -> None:
+    def __init__(
+        self,
+        collection_path,
+        deck_id,
+        basic_model_id,
+        cloze_model_id,
+        will_close_anki=True,
+    ) -> None:
         if will_close_anki:
             close_anki_process()
         self.collection = _Collection(collection_path, log=True)
@@ -121,7 +130,6 @@ class Anki:
     def remove_notes(self, note_ids):
         self.stats_deleted += self.collection.remove_notes(note_ids).count
 
-
     def export_notes(self, note_ids, export_url):
         date = datetime.date.today().strftime("%Y-%m-%d")
         time = datetime.datetime.now().strftime("%H:%M:%S")
@@ -177,6 +185,7 @@ class Anki:
             remembered = click.confirm("Remembered?", default=True)
             ease = 4 if remembered else 2
             self.scheduler.answerCard(card, ease)
+
 
 def note_to_prompt_md(note):
     front = md_parser.html_to_markdown(note.fields[0])

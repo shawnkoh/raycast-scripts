@@ -1,4 +1,3 @@
-
 from abc import abstractmethod
 from functools import cached_property
 from typing import Protocol
@@ -17,10 +16,11 @@ class Ankifiable(Protocol):
     @abstractmethod
     def is_different_from(self, note) -> bool:
         raise NotImplementedError
-    
+
     @abstractmethod
     def override(self, note):
         raise NotImplementedError
+
 
 class BasicPrompt(prompts.BasicPrompt, Ankifiable):
     @classmethod
@@ -40,7 +40,7 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
             answer_md = md_parser.extract_data(answer_field, source_attribute)
             if not answer_md:
                 answer_md = md_parser.html_to_markdown(answer_field)
-        
+
         return cls(question_md, answer_md, source_attribute)
 
     @cached_property
@@ -58,11 +58,14 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
         return field
 
     def is_different_from(self, note) -> bool:
-        return self.question_field != note.fields[0] or self.answer_field != note.fields[1]
-    
+        return (
+            self.question_field != note.fields[0] or self.answer_field != note.fields[1]
+        )
+
     def override(self, note):
         note.fields[0] = self.question_field
         note.fields[1] = self.answer_field
+
 
 class ClozePrompt(prompts.ClozePrompt, Ankifiable):
     @classmethod
@@ -93,6 +96,7 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 
     def override(self, note):
         note.fields[0] = self.field
+
 
 def extract_prompts(urls):
     import_basic_prompts = dict()
