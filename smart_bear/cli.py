@@ -8,7 +8,6 @@ import arrow
 import click
 from dotenv import dotenv_values
 
-from smart_bear import bear
 from smart_bear.anki.anki import Anki
 from smart_bear.anki.prompts import extract_prompts
 from smart_bear.bear import x_callback_url

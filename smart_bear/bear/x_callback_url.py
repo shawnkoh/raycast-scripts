@@ -1,4 +1,7 @@
 import arrow
+from furl import furl
+
+BASE_URL = "bear://x-callback-url/"
 
 
 class Success:
@@ -42,4 +45,16 @@ def open_note(
         pin (bool, optional): if yes pin the note to the top of the list. Defaults to None.
         edit (bool, optional): if yes place the cursor inside the note editor. Defaults to None.
     """
-    pass
+    args = locals()
+    for key, value in args.items():
+        if value is None:
+            args.pop(key)
+        if type(value) != bool:
+            continue
+        args[key] = "yes" if value == True else "no"
+
+    url = furl(BASE_URL)
+    url.path = "open-note"
+    url.args = args
+    print(url.url)
+    # bear://x-callback-url/[action]?[action parameters]&[x-callback parameters]
