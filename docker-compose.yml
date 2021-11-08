@@ -1,0 +1,7 @@
+services:
+  cli:
+    build: .
+    platform: linux/amd64
+
+volumes:
+  smart-bear:
