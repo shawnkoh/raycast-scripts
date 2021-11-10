@@ -12,7 +12,8 @@ app = typer.Typer()
 def wip(text: str):
     time = arrow.now().format("YYYY-MM-DD HH:mm")
     output = f"\n{time}\n{text}"
-    url = add_text(title="WIP", text=output).url
+    furl = add_text(title="WIP", text=output, show_window=False)
+    url = furl.tostr(query_quote_plus=False)
     webbrowser.open(url)
     typer.echo(f"Saved {text}")
 

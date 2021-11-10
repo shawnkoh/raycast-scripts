@@ -3,7 +3,7 @@
 # Required parameters:
 # @raycast.schemaVersion 1
 # @raycast.title Wip
-# @raycast.mode fullOutput
+# @raycast.mode silent
 # @raycast.argument1 { "type": "text", "placeholder": "Todo" }
 
 # Optional parameters:
