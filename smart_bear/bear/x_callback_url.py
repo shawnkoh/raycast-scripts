@@ -82,3 +82,40 @@ def create(
     url.path = "create"
     url.args = args
     return url
+
+
+class Mode(Enum):
+    prepend = "prepend"
+    append = "append"
+    replace_all = "replace_all"
+    replace = "replace"
+
+
+def add_text(
+    id: str = None,
+    title: str = None,
+    selected: bool = None,
+    text: str = None,
+    clipboard: bool = None,
+    header: str = None,
+    mode: Mode = None,
+    new_line: bool = None,
+    tags: list[str] = None,
+    exclude_trashed: bool = None,
+    open_note: bool = None,
+    new_window: bool = None,
+    show_window: bool = None,
+    edit: bool = None,
+    timestamp: bool = None,
+) -> furl:
+    args = locals().copy()
+    for key, value in locals().items():
+        if value is None:
+            args.pop(key)
+        elif type(value) == bool:
+            args[key] = "yes" if value == True else "no"
+
+    url = furl(BASE_URL)
+    url.path = "add-text"
+    url.args = args
+    return url
