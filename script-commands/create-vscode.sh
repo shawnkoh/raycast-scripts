@@ -5,7 +5,7 @@
 # @raycast.title Create VSCode Project
 # @raycast.mode silent
 # @raycast.refreshTime 1h
-# @raycast.argument1 { "type": "text", "placeholder": "project name" }
+# @raycast.argument1 { "type": "text", "placeholder": "project name", "optional": true }
 
 # Optional parameters:
 # @raycast.icon 🤖
