@@ -3,8 +3,8 @@
 # Required parameters:
 # @raycast.schemaVersion 1
 # @raycast.title Wip
-# @raycast.mode silent
-# @raycast.argument1 { "type": "text", "placeholder": "project name" }
+# @raycast.mode fullOutput
+# @raycast.argument1 { "type": "text", "placeholder": "Todo" }
 
 # Optional parameters:
 # @raycast.icon 🤖
