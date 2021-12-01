@@ -133,7 +133,8 @@ def _validate_tag(ctx, param, value) -> bool:
 @run.command()
 @click.option("--tag", prompt=True, type=str, callback=_validate_tag)
 @click.option("--filename", prompt=True, type=click.Path(exists=True))
-def add_tag_recursively(tag: str, filename: str):
+@click.option("--dry", prompt=True, type=bool)
+def add_tag_recursively(tag: str, filename: str, dry: bool):
     path = pathlib.Path(filename)
     count = 0
 
@@ -142,8 +143,9 @@ def add_tag_recursively(tag: str, filename: str):
         if tag in document.tags:
             return
         document.tags.add(tag)
-        with open(filename, "w") as file:
-            file.write(document.build_str())
+        if not dry:
+            with open(document.filename, "w") as file:
+                file.write(document.build_str())
         count += 1
 
     urls = glob.glob(str(path.with_name("*.md")))
@@ -154,6 +156,7 @@ def add_tag_recursively(tag: str, filename: str):
     click.echo(f"added {tag} to {count} notes")
     click.echo("titles without urls")
     titles_without_urls = sorted(crawler.titles_without_urls)
+    click.echo("\n")
     click.echo("\n".join(titles_without_urls))
 
 

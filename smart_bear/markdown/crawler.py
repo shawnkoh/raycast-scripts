@@ -25,13 +25,15 @@ def link_map(urls):
 class Crawler:
     visited_titles: set
     titles_without_urls: set
+    breakpoints: set
 
     def __init__(self, link_map: dict[str, str]):
         self.link_map = link_map
         self.visited_titles = set()
         self.titles_without_urls = set()
+        self.breakpoints = set()
 
-    def crawl(self, url, functor: Callable[[Document], None] = None):
+    def crawl(self, url, functor: Callable[[Document], None] = None, level: int = 0):
         title = self.link_map.get(url)
         if not title:
             click.echo(f"no title for url: {title}")
@@ -41,6 +43,7 @@ class Crawler:
         self.visited_titles.add(title)
 
         document = Document(url)
+        print(level * "  " + document.title)
         if functor:
             functor(document)
         for link in document.links:
@@ -48,5 +51,7 @@ class Crawler:
             if not url:
                 self.titles_without_urls.add(link)
                 continue
+            if len(document.tags.intersection(self.breakpoints)) != 0:
+                continue
 
-            self.crawl(url, functor)
+            self.crawl(url, functor, level + 1)
