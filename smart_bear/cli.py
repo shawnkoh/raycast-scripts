@@ -159,6 +159,23 @@ def add_tag_recursively(tag: str, filename: str, dry: bool):
     click.echo("\n")
     click.echo("\n".join(titles_without_urls))
 
+@run.command()
+@click.option("--tag", prompt=True, type=str, callback=_validate_tag)
+@click.option("--folder", prompt=True, type=click.Path(exists=True))
+def export_tag(tag: str, folder: str):
+    folder_path = pathlib.Path(folder)
+    urls = glob.glob(MARKDOWN_PATH + "*.md")
+    for url in urls:
+        document = Document(url)
+
+        if tag not in document.tags:
+            continue
+        document.backlink_blocks
+        print(document.backlink_blocks)
+        note_path = folder_path / (document.title + ".md")
+        with note_path.open("w") as file:
+            # Obsidian treats filenames as headers, and has first class support for backlinks.
+            file.write(document.build_str(include_title=False, include_backlinks=False))
 
 @run.command()
 def open_today():

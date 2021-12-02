@@ -125,7 +125,7 @@ class Document(Identifiable):
             cloze_prompts[prompt.id] = prompt
         return cloze_prompts
 
-    def build_str(self) -> str:
+    def build_str(self, include_title: bool = True, include_backlinks: bool = True) -> str:
         self.title
         self.references
         self.backlink_blocks
@@ -138,7 +138,7 @@ class Document(Identifiable):
         # rebuild
         # TODO: super hacky but whatever
 
-        if title := self.title:
+        if title := self.title and include_title:
             md = f"# {title}\n{md}"
 
         # strip eof dividers
@@ -150,9 +150,10 @@ class Document(Identifiable):
             md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
             md += f"\n\n{self.references}\n"
 
-        for backlink_block in self.backlink_blocks:
-            md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
-            md += f"\n\n{backlink_block}\n"
+        if include_backlinks:
+            for backlink_block in self.backlink_blocks:
+                md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
+                md += f"\n\n{backlink_block}\n"
 
         if tag_block:
             md = regex.sub(pretty_bear._eof_whitespace_regex, "", md)
