@@ -170,8 +170,6 @@ def export_tag(tag: str, folder: str):
 
         if tag not in document.tags:
             continue
-        document.backlink_blocks
-        print(document.backlink_blocks)
         note_path = folder_path / (document.title + ".md")
         with note_path.open("w") as file:
             # Obsidian treats filenames as headers, and has first class support for backlinks.
