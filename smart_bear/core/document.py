@@ -135,11 +135,14 @@ class Document(Identifiable):
 
         tag_block = "\n".join(sorted(self.tags))
 
+        print("self.title", self.title)
+
         # rebuild
         # TODO: super hacky but whatever
 
-        if title := self.title and include_title:
-            md = f"# {title}\n{md}"
+        if include_title:
+            if title := self.title:
+                md = f"# {title}\n{md}"
 
         # strip eof dividers
         if self.references or self.backlink_blocks or tag_block:
