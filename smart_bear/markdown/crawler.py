@@ -43,9 +43,12 @@ class Crawler:
         self.visited_titles.add(title)
 
         document = Document(url)
-        print(level * "  " + document.title)
         if functor:
-            functor(document)
+            if "#confidential" not in document.tags:
+                functor(document)
+                print(level * "  " + document.title)
+            else:
+                print(level * "  " + "CONFIDENTIAL: " + document.title)
         for link in document.links:
             url = self.link_map.get(link)
             if not url:

@@ -135,8 +135,6 @@ class Document(Identifiable):
 
         tag_block = "\n".join(sorted(self.tags))
 
-        print("self.title", self.title)
-
         # rebuild
         # TODO: super hacky but whatever
 

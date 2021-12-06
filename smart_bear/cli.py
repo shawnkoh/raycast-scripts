@@ -2,8 +2,10 @@ import datetime
 import glob
 import os
 import pathlib
+import re
 import webbrowser
 from pathlib import Path
+import shutil
 
 import arrow
 import click
@@ -170,6 +172,20 @@ def export_tag(tag: str, folder: str):
 
         if tag not in document.tags:
             continue
+
+        pattern = re.compile(r"!\[\]\((.+)\)")
+        # TODO: Quick hack
+        for image_path in re.findall(pattern, document._current_md):
+            image_path = pathlib.Path(MARKDOWN_PATH + "/" + image_path)
+            print(image_path)
+            shutil.copy2(image_path, folder_path)
+
+        def repl(match: re.Match) -> str:
+            path = pathlib.Path(match.group(1))
+            return "[[" + path.name + "]]"
+
+        document._current_md = re.sub(pattern, repl, document._current_md)
+
         note_path = folder_path / (document.title + ".md")
         with note_path.open("w") as file:
             # Obsidian treats filenames as headers, and has first class support for backlinks.
