@@ -22,6 +22,7 @@ arrow = "^1.2.1"
 anki = "^2.1.49"
 furl = "^2.1.3"
 parsy = "^1.4.0"
+aqt = {extras = ["qt6"], version = "^2.1.49", allow-prereleases = true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
