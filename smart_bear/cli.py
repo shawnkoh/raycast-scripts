@@ -199,3 +199,7 @@ def open_today():
     url = x_callback_url.open_note(title=title)
     url.args["x-error"] = x_callback_url.create(title=title, tags=[tag])
     webbrowser.open(url.url)
+
+@run.command()
+def parse():
+    ()

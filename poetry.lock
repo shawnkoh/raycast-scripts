@@ -287,6 +287,14 @@ python-versions = ">=3.6"
 pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
+name = "parsy"
+version = "1.4.0"
+description = "easy-to-use parser combinators, for parsing in pure Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pathspec"
 version = "0.9.0"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -560,7 +568,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "85e0378cb754e3eae2b264b23aecb501db04fc9a689f74532693a9f376a1c5b6"
+content-hash = "6367d8f9a80efb605cce2472c5ef0d4ace2aee8fa237b6af294328353fcaede4"
 
 [metadata.files]
 anki = [
@@ -743,6 +751,10 @@ orjson = [
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
+]
+parsy = [
+    {file = "parsy-1.4.0-py2.py3-none-any.whl", hash = "sha256:01aa47cf3aa2a911e4d8653193c061605acf229b802ab3a7c97692fd6aa790de"},
+    {file = "parsy-1.4.0.tar.gz", hash = "sha256:7c411373e520e97431f0b390db9d2cfc5089bc1d33f4f1584d2cdc9e6368f302"},
 ]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
