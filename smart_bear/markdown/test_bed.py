@@ -62,15 +62,18 @@ def test_question():
     assert question.parse(given) == expected
 
 
-basic_prompt = question << whitespace.optional() + answer
+basic_prompt = ((question << whitespace.optional()) + answer) | question
 
 
 def test_basic_prompt():
     expected = ["I am a question", "I am an answer"]
-    given = """
-    Q: I am a question
-    A: I am an answer
-    """
+    given = """Q: I am a question
+    A: I am an answer"""
+    print("partial")
+    # this is throwing because its not even able to find another answer
+    # since the question consumed it
+    # can we use backtracking to deal with this? instead of changing question_separator?
+    print(basic_prompt.parse_partial(given))
     assert(basic_prompt.parse(given) == expected)
 
 
