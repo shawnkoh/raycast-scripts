@@ -10,6 +10,8 @@ from smart_bear.markdown.lexer import (
     question_prefix,
     answer_prefix,
     text,
+    lbrace,
+    rbrace,
 )
 
 from attrs import define
@@ -45,8 +47,14 @@ class ClozePrompt:
     clozes: List[Cloze]
 
 
-question = seq(prefix=question_prefix, text=text).combine_dict(Question)
-answer = seq(prefix=answer_prefix, text=text).combine_dict(Answer)
+question = seq(
+    prefix=question_prefix,
+    text=text,
+).combine_dict(Question)
+answer = seq(
+    prefix=answer_prefix,
+    text=text,
+).combine_dict(Answer)
 
 basic_prompt = (
     seq(
@@ -56,3 +64,10 @@ basic_prompt = (
     ).combine_dict(BasicPrompt)
     | question.map(lambda x: BasicPrompt(question=x, answer=None))
 )
+
+# TODO: Investigate how to support recursive
+cloze = seq(
+    lbrace=lbrace,
+    text=text,
+    rbrace=rbrace,
+).combine_dict(Cloze)
