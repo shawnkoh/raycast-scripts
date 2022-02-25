@@ -95,27 +95,6 @@ def test_separator_answer():
     assert separator.parse(given) == expected
 
 
-question = seq(question_prefix, text)
-
-
-def test_question():
-    given = "Q: I am a question"
-    expected = [QuestionPrefix("Q:"), Text(" I am a question")]
-    assert question.parse(given) == expected
-
-
-answer = seq(answer_prefix, text)
-
-
-def test_answer():
-    given = "A: I am an Answer"
-    expected = [AnswerPrefix("A:"), Text(" I am an Answer")]
-    assert answer.parse(given) == expected
-
-
-statement = question | answer | separator | text
-
-
 def test_question_two():
     given = "Q: Question 1\nQ: Question 2"
     expected = [
