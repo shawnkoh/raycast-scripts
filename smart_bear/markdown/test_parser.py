@@ -1,6 +1,9 @@
+from cgitb import text
 from lib2to3.pgen2.token import LBRACE
 from smart_bear.markdown.lexer import LeftBrace, RightBrace
 from smart_bear.markdown.parser import (
+    cloze_prompt,
+    ClozePrompt,
     cloze,
     Cloze,
     question,
@@ -94,3 +97,18 @@ def test_cloze_rspace():
         rbrace=RightBrace("}"),
     )
     assert cloze.parse(given) == expected
+
+
+def test_cloze_prompt():
+    given = "Some text {with clozes}"
+    expected = ClozePrompt(
+        children=[
+            Text("Some text "),
+            Cloze(
+                lbrace=LeftBrace("{"),
+                text=Text("with clozes"),
+                rbrace=RightBrace("}"),
+            ),
+        ]
+    )
+    assert (cloze_prompt.parse(given)) == expected

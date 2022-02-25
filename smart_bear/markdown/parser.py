@@ -44,7 +44,7 @@ class Cloze:
 
 @define
 class ClozePrompt:
-    clozes: List[Cloze]
+    children: List[Text | Cloze]
 
 
 question = seq(
@@ -71,3 +71,5 @@ cloze = seq(
     text=text,
     rbrace=rbrace,
 ).combine_dict(Cloze)
+
+cloze_prompt = (text | cloze).at_least(1).map(ClozePrompt)
