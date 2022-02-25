@@ -51,13 +51,20 @@ separator_identity = (
     eol.at_least(2)
     | (whitespace << question_prefix)
     | (whitespace << answer_prefix)
+    | rbrace
+    | lbrace
     | (whitespace << eof)
 )
 separator = peek(separator_identity) >> whitespace.map(Separator)
 
-# TODO: Unsure if this is a lexical token?
-text = (separator.should_fail("separator") >> any_char).at_least(1).concat().map(Text)
+text = (
+    (separator_identity.should_fail("separator") >> any_char)
+    .at_least(1)
+    .concat()
+    .map(Text)
+)
+inline = lbrace | rbrace | text
 
 
-statement = question_prefix | answer_prefix | separator | text
+statement = question_prefix | answer_prefix | separator | inline
 lexer = statement.many()

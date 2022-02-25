@@ -2,6 +2,7 @@ from pprint import pprint
 from attr import define
 from parsy import whitespace, eof, any_char, regex, string, seq, peek
 from smart_bear.markdown.lexer import (
+    lbrace,
     QuestionPrefix,
     AnswerPrefix,
     LeftBrace,
@@ -32,6 +33,18 @@ def test_text_discard_answer():
     given = "I am a text A: Discarded answer"
     expected = Text("I am a text")
     assert (text << any_char.many()).parse(given) == expected
+
+
+def test_lbrace():
+    given = "{abc"
+    expected = LeftBrace("{")
+    assert (lbrace << any_char.many()).parse(given) == expected
+
+
+def test_lbrace_space():
+    given = "{ abc"
+    expected = LeftBrace("{")
+    assert (lbrace << any_char.many()).parse(given) == expected
 
 
 def test_separator_eol():

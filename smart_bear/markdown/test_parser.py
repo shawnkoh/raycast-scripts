@@ -1,4 +1,8 @@
+from lib2to3.pgen2.token import LBRACE
+from smart_bear.markdown.lexer import LeftBrace, RightBrace
 from smart_bear.markdown.parser import (
+    cloze,
+    Cloze,
     question,
     Question,
     QuestionPrefix,
@@ -45,3 +49,43 @@ def test_basic_prompt_question_only():
         answer=None,
     )
     assert basic_prompt.parse(given) == expected
+
+
+def test_cloze():
+    given = "{abc}"
+    expected = Cloze(
+        lbrace=LeftBrace("{"),
+        text=Text("abc"),
+        rbrace=RightBrace("}"),
+    )
+    assert cloze.parse(given) == expected
+
+
+def test_cloze_space():
+    given = "{ abc }"
+    expected = Cloze(
+        lbrace=LeftBrace("{"),
+        text=Text(" abc "),
+        rbrace=RightBrace("}"),
+    )
+    assert cloze.parse(given) == expected
+
+
+def test_cloze_lspace():
+    given = "{ abc}"
+    expected = Cloze(
+        lbrace=LeftBrace("{"),
+        text=Text(" abc"),
+        rbrace=RightBrace("}"),
+    )
+    assert cloze.parse(given) == expected
+
+
+def test_cloze_rspace():
+    given = "{abc }"
+    expected = Cloze(
+        lbrace=LeftBrace("{"),
+        text=Text("abc "),
+        rbrace=RightBrace("}"),
+    )
+    assert cloze.parse(given) == expected
