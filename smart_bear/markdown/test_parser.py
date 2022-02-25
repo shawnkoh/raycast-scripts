@@ -1,48 +1,16 @@
-from pprint import pprint
-from typing import Optional
-from parsy import seq
-from smart_bear.markdown.lexer import (
+from smart_bear.markdown.parser import (
+    question,
+    Question,
     QuestionPrefix,
-    AnswerPrefix,
-    separator,
     Text,
-    question_prefix,
-    answer_prefix,
-    text,
+    BasicPrompt,
+    Answer,
+    answer,
+    AnswerPrefix,
+    basic_prompt,
 )
 
-from attrs import define
-
-
-@define
-class Question:
-    prefix: QuestionPrefix
-    text: Text
-
-
-@define
-class Answer:
-    prefix: AnswerPrefix
-    text: Text
-
-
-@define
-class BasicPrompt:
-    question: Question
-    answer: Optional[Answer]
-
-
-question = seq(prefix=question_prefix, text=text).combine_dict(Question)
-answer = seq(prefix=answer_prefix, text=text).combine_dict(Answer)
-
-basic_prompt = (
-    seq(
-        question=question,
-        _separator=separator,
-        answer=answer.optional(),
-    ).combine_dict(BasicPrompt)
-    | question.map(lambda x: BasicPrompt(question=x, answer=None))
-)
+from pprint import pprint
 
 
 def test_question():
@@ -76,5 +44,4 @@ def test_basic_prompt_question_only():
         ),
         answer=None,
     )
-    pprint(basic_prompt.parse(given))
     assert basic_prompt.parse(given) == expected
