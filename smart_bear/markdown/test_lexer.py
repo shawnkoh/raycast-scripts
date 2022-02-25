@@ -36,6 +36,7 @@ class Text:
 # Utilities
 eol = string("\n")
 flatten_list = lambda ls: sum(ls, [])
+exclude_none = lambda l: [i for i in l if i is not None]
 
 # Lexical Tokens
 question_prefix = string("Q:").map(QuestionPrefix)
@@ -124,7 +125,7 @@ def test_question_two():
 
     tester = (
         seq(question, sep.optional())
-        .map(lambda list: filter(None, list))
+        .map(exclude_none)
         .map(flatten_list)
         .many()
         .map(flatten_list)
