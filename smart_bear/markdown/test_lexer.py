@@ -39,8 +39,12 @@ flatten_list = lambda ls: sum(ls, [])
 exclude_none = lambda l: [i for i in l if i is not None]
 
 # Lexical Tokens
-question_prefix = string("Q:").map(QuestionPrefix)
-answer_prefix = string("A:").map(AnswerPrefix)
+question_prefix = (string("Q:") + whitespace.optional().map(lambda x: x or "")).map(
+    QuestionPrefix
+)
+answer_prefix = (string("A:") + whitespace.optional().map(lambda x: x or "")).map(
+    AnswerPrefix
+)
 lbrace = string("{").map(LeftBrace)
 rbrace = string("}").map(RightBrace)
 # TODO: I think separator as defined here is a utility and not a token!
@@ -52,7 +56,7 @@ separator = (
 ).map(Separator)
 
 # TODO: Unsure if this is a lexical token?
-text = (separator.should_fail("separator") >> any_char).many().concat().map(Text)
+text = (separator.should_fail("separator") >> any_char).at_least(1).concat().map(Text)
 
 
 def test_text():
@@ -130,7 +134,6 @@ def test_question_two():
         .many()
         .map(flatten_list)
     )
-    pprint(tester.parse(given))
     assert tester.parse(given) == expected
 
 
@@ -140,9 +143,6 @@ def test_repeat():
     lexer = (
         (seq(symbol, breakpoint) | symbol.map(lambda x: [x])).many().map(flatten_list)
     )
-    # lexer = seq(symbol_until_breakpoint, breakpoint.optional()).many()
-    # maybe its becaus eof that! lookahead!
-    # is there no backtracking in optional?
     given = "hihi;"
     expected = ["hi", "hi", ";"]
     assert lexer.parse(given) == expected
@@ -165,9 +165,6 @@ def test_repeat_two():
         .many()
         .map(flatten_list)
     )
-    # given = "hihi;"
-    # expected = ["hihi", ";"]
-    # assert lexer.parse(given) == expected
     given = "hihi;hihi"
     expected = ["hihi", ";", "hihi"]
 
