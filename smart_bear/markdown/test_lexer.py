@@ -132,3 +132,44 @@ def test_question_two():
     )
     pprint(tester.parse(given))
     assert tester.parse(given) == expected
+
+
+def test_repeat():
+    symbol = string("hi")
+    breakpoint = string(";")
+    lexer = (
+        (seq(symbol, breakpoint) | symbol.map(lambda x: [x])).many().map(flatten_list)
+    )
+    # lexer = seq(symbol_until_breakpoint, breakpoint.optional()).many()
+    # maybe its becaus eof that! lookahead!
+    # is there no backtracking in optional?
+    given = "hihi;"
+    expected = ["hi", "hi", ";"]
+    assert lexer.parse(given) == expected
+    given = "hihi;hihi"
+    expected = ["hi", "hi", ";", "hi", "hi"]
+    assert lexer.parse(given) == expected
+    pprint(lexer.parse(given))
+
+
+def test_repeat_two():
+    symbol = string("hi")
+    breakpoint = string(";")
+    # NB: This MUST be at_least(1) and NOT many()
+    symbol_until_breakpoint = (
+        (breakpoint.should_fail("not ;") >> symbol).at_least(1).concat()
+    )
+    lexer = (
+        seq(symbol_until_breakpoint, breakpoint.optional())
+        .map(exclude_none)
+        .many()
+        .map(flatten_list)
+    )
+    # given = "hihi;"
+    # expected = ["hihi", ";"]
+    # assert lexer.parse(given) == expected
+    given = "hihi;hihi"
+    expected = ["hihi", ";", "hihi"]
+
+    pprint(lexer.parse(given))
+    assert lexer.parse(given) == expected
