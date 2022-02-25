@@ -68,11 +68,11 @@ def test_separator_answer():
 def test_lexer():
     given = "Q: Question 1\nQ: Question 2\nA:Some\nLong answer\n\nUnrelated\n\n"
     expected = [
-        QuestionPrefix("Q: "),
-        Text("Question 1"),
+        QuestionPrefix("Q:"),
+        Text(" Question 1"),
         Separator("\n"),
-        QuestionPrefix("Q: "),
-        Text("Question 2"),
+        QuestionPrefix("Q:"),
+        Text(" Question 2"),
         Separator("\n"),
         AnswerPrefix("A:"),
         Text("Some\nLong answer"),

@@ -39,12 +39,8 @@ exclude_none = lambda l: [i for i in l if i is not None]
 
 
 # Lexical Tokens
-question_prefix = (string("Q:") + whitespace.optional().map(lambda x: x or "")).map(
-    QuestionPrefix
-)
-answer_prefix = (string("A:") + whitespace.optional().map(lambda x: x or "")).map(
-    AnswerPrefix
-)
+question_prefix = string("Q:").map(QuestionPrefix)
+answer_prefix = string("A:").map(AnswerPrefix)
 lbrace = string("{").map(LeftBrace)
 rbrace = string("}").map(RightBrace)
 separator_identity = (
