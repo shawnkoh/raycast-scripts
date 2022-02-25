@@ -1,8 +1,10 @@
-from typing import Optional
+from typing import List, Optional
 from parsy import seq
 from smart_bear.markdown.lexer import (
+    LeftBrace,
     QuestionPrefix,
     AnswerPrefix,
+    RightBrace,
     separator,
     Text,
     question_prefix,
@@ -29,6 +31,18 @@ class Answer:
 class BasicPrompt:
     question: Question
     answer: Optional[Answer]
+
+
+@define
+class Cloze:
+    lbrace: LeftBrace
+    text: Text
+    rbrace: RightBrace
+
+
+@define
+class ClozePrompt:
+    clozes: List[Cloze]
 
 
 question = seq(prefix=question_prefix, text=text).combine_dict(Question)
