@@ -1,63 +1,19 @@
 from pprint import pprint
 from attr import define
 from parsy import whitespace, eof, any_char, regex, string, seq, peek
-
-
-@define
-class Separator:
-    raw_value: str
-
-
-@define
-class QuestionPrefix:
-    raw_value: str
-
-
-@define
-class AnswerPrefix:
-    raw_value: str
-
-
-@define
-class LeftBrace:
-    raw_value: str
-
-
-@define
-class RightBrace:
-    raw_value: str
-
-
-@define
-class Text:
-    raw_value: str
-
-
-# Utilities
-eol = string("\n")
-flatten_list = lambda ls: sum(ls, [])
-exclude_none = lambda l: [i for i in l if i is not None]
-
-
-# Lexical Tokens
-question_prefix = (string("Q:") + whitespace.optional().map(lambda x: x or "")).map(
-    QuestionPrefix
+from smart_bear.markdown.lexer import (
+    QuestionPrefix,
+    AnswerPrefix,
+    LeftBrace,
+    RightBrace,
+    Text,
+    Separator,
+    lexer,
+    text,
+    separator,
+    exclude_none,
+    flatten_list,
 )
-answer_prefix = (string("A:") + whitespace.optional().map(lambda x: x or "")).map(
-    AnswerPrefix
-)
-lbrace = string("{").map(LeftBrace)
-rbrace = string("}").map(RightBrace)
-separator_identity = (
-    eol.at_least(2)
-    | (whitespace << question_prefix)
-    | (whitespace << answer_prefix)
-    | (whitespace << eof)
-)
-separator = peek(separator_identity) >> whitespace.map(Separator)
-
-# TODO: Unsure if this is a lexical token?
-text = (separator.should_fail("separator") >> any_char).at_least(1).concat().map(Text)
 
 
 def test_text():
@@ -94,10 +50,6 @@ def test_separator_answer():
     given = "\nA:"
     expected = Separator("\n")
     assert (separator << any_char.many()).parse(given) == expected
-
-
-statement = question_prefix | answer_prefix | separator | text
-lexer = statement.many()
 
 
 def test_lexer():
