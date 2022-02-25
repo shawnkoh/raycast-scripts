@@ -96,6 +96,28 @@ def test_separator_answer():
     assert (separator << any_char.many()).parse(given) == expected
 
 
+statement = question_prefix | answer_prefix | separator | text
+lexer = statement.many()
+
+
+def test_lexer():
+    given = "Q: Question 1\nQ: Question 2\nA:Some\nLong answer\n\nUnrelated\n\n"
+    expected = [
+        QuestionPrefix("Q: "),
+        Text("Question 1"),
+        Separator("\n"),
+        QuestionPrefix("Q: "),
+        Text("Question 2"),
+        Separator("\n"),
+        AnswerPrefix("A:"),
+        Text("Some\nLong answer"),
+        Separator("\n\n"),
+        Text("Unrelated"),
+        Separator("\n\n"),
+    ]
+    assert lexer.parse(given) == expected
+
+
 def test_repeat():
     symbol = string("hi")
     breakpoint = string(";")
