@@ -2,6 +2,7 @@ from pprint import pprint
 from attr import define
 from parsy import whitespace, eof, any_char, regex, string, seq, peek
 from smart_bear.markdown.lexer import (
+    Break,
     lbrace,
     QuestionPrefix,
     AnswerPrefix,
@@ -11,7 +12,6 @@ from smart_bear.markdown.lexer import (
     Separator,
     lexer,
     text,
-    separator,
     exclude_none,
     flatten_list,
 )
@@ -25,13 +25,13 @@ def test_text():
 
 def test_text_discard_question():
     given = "I am a text Q: Some random question"
-    expected = Text("I am a text")
+    expected = Text("I am a text ")
     assert (text << any_char.many()).parse(given) == expected
 
 
 def test_text_discard_answer():
     given = "I am a text A: Discarded answer"
-    expected = Text("I am a text")
+    expected = Text("I am a text ")
     assert (text << any_char.many()).parse(given) == expected
 
 
@@ -47,38 +47,24 @@ def test_lbrace_space():
     assert (lbrace << any_char.many()).parse(given) == expected
 
 
-def test_separator_eol():
-    given = "\n\n"
-    expected = Separator(given)
-    assert separator.parse(given) == expected
-
-
-def test_separator_question():
-    given = "\nQ:"
-    expected = Separator("\n")
-    assert (separator << any_char.many()).parse(given) == expected
-
-
-def test_separator_answer():
-    given = "\nA:"
-    expected = Separator("\n")
-    assert (separator << any_char.many()).parse(given) == expected
-
-
 def test_lexer():
     given = "Q: Question 1\nQ: Question 2\nA:Some\nLong answer\n\nUnrelated\n\n"
     expected = [
         QuestionPrefix("Q:"),
         Text(" Question 1"),
-        Separator("\n"),
+        Break("\n"),
         QuestionPrefix("Q:"),
         Text(" Question 2"),
-        Separator("\n"),
+        Break("\n"),
         AnswerPrefix("A:"),
-        Text("Some\nLong answer"),
-        Separator("\n\n"),
+        Text("Some"),
+        Break("\n"),
+        Text("Long answer"),
+        Break("\n"),
+        Break("\n"),
         Text("Unrelated"),
-        Separator("\n\n"),
+        Break("\n"),
+        Break("\n"),
     ]
     assert lexer.parse(given) == expected
 

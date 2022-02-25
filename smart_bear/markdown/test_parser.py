@@ -1,6 +1,6 @@
-from cgitb import text
-from lib2to3.pgen2.token import LBRACE
-from smart_bear.markdown.lexer import LeftBrace, RightBrace
+from smart_bear.markdown.lexer import (
+    lexer,
+)
 from smart_bear.markdown.parser import (
     cloze_prompt,
     ClozePrompt,
@@ -8,107 +8,151 @@ from smart_bear.markdown.parser import (
     Cloze,
     question,
     Question,
-    QuestionPrefix,
     Text,
     BasicPrompt,
     Answer,
     answer,
-    AnswerPrefix,
-    basic_prompt,
+    Content,
+    Break,
+    text,
+    content,
 )
 
 from pprint import pprint
 
 
+def test_text():
+    tokens = lexer.parse("text")
+    print(tokens)
+    print(text.parse(tokens))
+    assert text.parse(tokens) == Text("text")
+
+
+def test_text_multiple():
+    tokens = lexer.parse("text\n")
+    pprint(tokens)
+    assert text.at_least(1).parse(tokens) == [Text("text"), Break("\n")]
+
+
+def test_content():
+    tokens = lexer.parse("content\ncontent")
+    pprint(tokens)
+    pprint(content.parse(tokens))
+    assert content.parse(tokens) == Content(
+        [
+            Text("content"),
+            Break("\n"),
+            Text("content"),
+        ]
+    )
+
+
 def test_question():
     given = "Q: Question\nExtended"
-    expected = Question(prefix=QuestionPrefix("Q:"), text=Text(" Question\nExtended"))
-    assert question.parse(given) == expected
+    tokens = lexer.parse(given)
+    pprint(tokens)
+    expected = Question(
+        Content(
+            [
+                Text(" Question"),
+                Break("\n"),
+                Text("Extended"),
+            ]
+        )
+    )
+    pprint(expected)
+    pprint(question.parse(tokens))
+    assert question.parse(tokens) == expected
 
 
 def test_answer():
-    given = "A: Answer\nExtended"
-    expected = Answer(prefix=AnswerPrefix("A:"), text=Text(" Answer\nExtended"))
-    assert answer.parse(given) == expected
-
-
-def test_basic_prompt():
-    given = "Q: Question\nExtended\nA: Answer\nExtended"
-    expected = BasicPrompt(
-        question=Question(
-            prefix=QuestionPrefix("Q:"),
-            text=Text(" Question\nExtended"),
-        ),
-        answer=Answer(
-            prefix=AnswerPrefix("A:"),
-            text=Text(" Answer\nExtended"),
-        ),
+    tokens = lexer.parse("A: Answer\nExtended")
+    expected = Answer(
+        Content(
+            [
+                Text(" Answer"),
+                Break("\n"),
+                Text("Extended"),
+            ]
+        )
     )
-    assert basic_prompt.parse(given) == expected
+    assert answer.parse(tokens) == expected
 
 
-def test_basic_prompt_question_only():
-    given = "Q: Question\nExtended"
-    expected = BasicPrompt(
-        question=Question(
-            prefix=QuestionPrefix("Q:"),
-            text=Text(" Question\nExtended"),
-        ),
-        answer=None,
-    )
-    assert basic_prompt.parse(given) == expected
+# def test_basic_prompt():
+#     given = "Q: Question\nExtended\nA: Answer\nExtended"
+#     expected = BasicPrompt(
+#         question=Question(
+#             Content(
+#                 Text(" Question"),
+#                 Break("\n"),
+#                 Text("Extended"),
+#             ),
+#         ),
+#         answer=Answer(
+#             Content(
+#                 Text(" Answer"),
+#                 Break("\n"),
+#                 Text("Extended"),
+#             ),
+#         ),
+#     )
+#     assert basic_prompt.parse(given) == expected
 
 
-def test_cloze():
-    given = "{abc}"
-    expected = Cloze(
-        lbrace=LeftBrace("{"),
-        text=Text("abc"),
-        rbrace=RightBrace("}"),
-    )
-    assert cloze.parse(given) == expected
+# def test_basic_prompt_question_only():
+#     given = "Q: Question\nExtended"
+#     expected = BasicPrompt(
+#         question=Question(
+#             Text(" Question\nExtended"),
+#         ),
+#         answer=None,
+#     )
+#     assert basic_prompt.parse(given) == expected
 
 
-def test_cloze_space():
-    given = "{ abc }"
-    expected = Cloze(
-        lbrace=LeftBrace("{"),
-        text=Text(" abc "),
-        rbrace=RightBrace("}"),
-    )
-    assert cloze.parse(given) == expected
+# def test_cloze():
+#     given = "{abc}"
+#     expected = Cloze(
+#         Text("abc"),
+#     )
+#     assert cloze.parse(given) == expected
 
 
-def test_cloze_lspace():
-    given = "{ abc}"
-    expected = Cloze(
-        lbrace=LeftBrace("{"),
-        text=Text(" abc"),
-        rbrace=RightBrace("}"),
-    )
-    assert cloze.parse(given) == expected
+# def test_cloze_space():
+#     given = "{ abc }"
+#     expected = Cloze(
+#         Text(" abc "),
+#     )
+#     assert cloze.parse(given) == expected
 
 
-def test_cloze_rspace():
-    given = "{abc }"
-    expected = Cloze(
-        lbrace=LeftBrace("{"),
-        text=Text("abc "),
-        rbrace=RightBrace("}"),
-    )
-    assert cloze.parse(given) == expected
+# def test_cloze_lspace():
+#     given = "{ abc}"
+#     expected = Cloze(
+#         Text(" abc"),
+#     )
+#     assert cloze.parse(given) == expected
 
 
-def test_cloze_prompt():
-    given = "Some text {with clozes}"
-    expected = ClozePrompt(
-        children=[
-            Text("Some text "),
-            Cloze(
-                lbrace=LeftBrace("{"),
-                text=Text("with clozes"),
-                rbrace=RightBrace("}"),
-            ),
-        ]
-    )
-    assert (cloze_prompt.parse(given)) == expected
+# def test_cloze_rspace():
+#     given = "{abc }"
+#     expected = Cloze(
+#         Text("abc "),
+#     )
+#     assert cloze.parse(given) == expected
+
+
+# def test_cloze_prompt():
+#     given = "Some text {with clozes}"
+#     expected = ClozePrompt(
+#         children=[
+#             Content(
+#                 Text("Some text "),
+#             ),
+#             Cloze(
+#                 Text("with clozes"),
+#             ),
+#         ]
+#     )
+#     assert (cloze_prompt.parse(given)) == expected
