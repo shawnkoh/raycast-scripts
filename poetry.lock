@@ -808,7 +808,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "e6a7e4d1ed4b0052663768b3e10b5ab3d78e60c0f2d02a5db67032150cbbb6fd"
+content-hash = "64538ad7f46285aecec03ec39d419dc2e156f03022239d85249758ba8c82da84"
 
 [metadata.files]
 anki = [
