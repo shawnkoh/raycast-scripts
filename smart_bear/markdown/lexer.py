@@ -34,11 +34,11 @@ class Text:
 
 @define
 class Break:
-    raw_value: str
+    pass
 
 
 # Utilities
-eol = string("\n").map(Break)
+eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
 exclude_none = lambda l: [i for i in l if i is not None]
 

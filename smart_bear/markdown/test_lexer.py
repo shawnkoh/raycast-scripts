@@ -52,19 +52,19 @@ def test_lexer():
     expected = [
         QuestionPrefix("Q:"),
         Text(" Question 1"),
-        Break("\n"),
+        Break(),
         QuestionPrefix("Q:"),
         Text(" Question 2"),
-        Break("\n"),
+        Break(),
         AnswerPrefix("A:"),
         Text("Some"),
-        Break("\n"),
+        Break(),
         Text("Long answer"),
-        Break("\n"),
-        Break("\n"),
+        Break(),
+        Break(),
         Text("Unrelated"),
-        Break("\n"),
-        Break("\n"),
+        Break(),
+        Break(),
     ]
     assert lexer.parse(given) == expected
 

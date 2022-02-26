@@ -18,7 +18,6 @@ from smart_bear.markdown.parser import (
     answer,
     Content,
     Break,
-    checkinstance,
     text,
     content,
 )
@@ -42,7 +41,7 @@ def test_content():
         Content(
             [
                 Text("content"),
-                Break("\n"),
+                Break(),
                 Text("content"),
             ],
         ),
@@ -55,7 +54,7 @@ def test_question():
         Content(
             [
                 Text(" Question"),
-                Break("\n"),
+                Break(),
                 Text("Extended"),
             ]
         )
@@ -72,9 +71,9 @@ def test_question_answer():
         Content(
             [
                 Text(" Question"),
-                Break("\n"),
+                Break(),
                 Text("Extended"),
-                Break("\n"),
+                Break(),
             ]
         )
     )
@@ -90,7 +89,7 @@ def test_answer():
         Content(
             [
                 Text(" Answer"),
-                Break("\n"),
+                Break(),
                 Text("Extended"),
             ]
         )
@@ -108,9 +107,9 @@ def test_basic_prompt():
             Content(
                 [
                     Text(" Question"),
-                    Break("\n"),
+                    Break(),
                     Text("Extended"),
-                    Break("\n"),
+                    Break(),
                 ]
             ),
         ),
@@ -118,7 +117,7 @@ def test_basic_prompt():
             Content(
                 [
                     Text(" Answer"),
-                    Break("\n"),
+                    Break(),
                     Text("Extended"),
                 ]
             ),
