@@ -56,21 +56,25 @@ class Paragraph:
 # but a Paragraph cannot be part of a question
 
 
-def test_item(Class):
-    return parsy.test_item(Class, type(Class).__name__)
+def checkinstance(Class):
+    return parsy.test_item(lambda x: isinstance(x, Class), type(Class).__name__)
 
 
-text = test_item(Text)
-eol = test_item(Break)
-answer_prefix = test_item(AnswerPrefix)
-question_prefix = test_item(QuestionPrefix)
-lbrace = test_item(LeftBrace)
-rbrace = test_item(RightBrace)
+text = checkinstance(Text)
+eol = checkinstance(Break)
+answer_prefix = checkinstance(AnswerPrefix)
+question_prefix = checkinstance(QuestionPrefix)
+lbrace = checkinstance(LeftBrace)
+rbrace = checkinstance(RightBrace)
 
 content = (text | eol).at_least(1).map(Content)
 
 
-question = question_prefix >> content.map(Question)
+question = question_prefix >> (
+    (answer_prefix.should_fail("no answer_prefix") >> (text | eol))
+    .at_least(1)
+    .map(Content)
+)
 
 answer = answer_prefix >> content.map(Answer)
 
