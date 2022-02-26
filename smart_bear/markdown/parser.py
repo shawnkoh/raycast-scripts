@@ -94,6 +94,15 @@ cloze_prompt = (
     )
 )
 
-paragraph = (basic_prompt | cloze_prompt | content).at_least(1).map(Paragraph) << (
-    eol.at_least(2) | eol.optional() << eof
+paragraph_separator = eol.at_least(2)
+
+paragraph = (
+    (
+        paragraph_separator.should_fail("no separator")
+        >> (basic_prompt | cloze_prompt | content)
+    )
+    .at_least(1)
+    .map(Paragraph)
 )
+
+paragraphs = paragraph.sep_by(paragraph_separator)

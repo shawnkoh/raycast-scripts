@@ -20,6 +20,7 @@ from smart_bear.markdown.parser import (
     Break,
     text,
     content,
+    paragraphs,
 )
 from smart_bear.intelligence.test_utilities import assert_that
 
@@ -195,11 +196,61 @@ def test_cloze_prompt_fails():
         cloze_prompt.parse(tokens)
 
 
-def test_paragraph():
-    tokens = lexer.parse("Simple")
+def test_paragraph_simple():
+    tokens = lexer.parse("Simple\n")
+    expected = Paragraph(
+        [
+            Text("Simple"),
+            Break(),
+        ]
+    )
+    assert_that(paragraph.parse(tokens), expected)
+
+
+def test_paragraph_multi():
+    tokens = lexer.parse("Simple\n\nHello\n")
     expected = Paragraph(
         [
             Text("Simple"),
         ]
     )
-    assert_that(paragraph.parse(tokens), expected)
+    assert_that(paragraph.parse_partial(tokens)[0], expected)
+
+
+def test_paragraphs():
+    tokens = lexer.parse("Simple\n\nSimple")
+    expected = [
+        Paragraph(
+            [
+                Text("Simple"),
+            ]
+        ),
+        Paragraph(
+            [
+                Text("Simple"),
+            ]
+        ),
+    ]
+    pprint(tokens)
+    pprint(paragraphs.parse(tokens))
+    assert paragraphs.parse(tokens) == expected
+
+
+def test_paragraphs_eof():
+    tokens = lexer.parse("Simple\n\nSimple\n")
+    expected = [
+        Paragraph(
+            [
+                Text("Simple"),
+            ]
+        ),
+        Paragraph(
+            [
+                Text("Simple"),
+                Break(),
+            ]
+        ),
+    ]
+    pprint(tokens)
+    pprint(paragraphs.parse(tokens))
+    assert paragraphs.parse(tokens) == expected
