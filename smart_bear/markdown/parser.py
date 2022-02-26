@@ -9,6 +9,8 @@ from smart_bear.markdown.lexer import (
     Break,
     LeftBrace,
     LeftBracket,
+    LeftHTMLComment,
+    RightHTMLComment,
     QuestionPrefix,
     RightBrace,
     RightBracket,
@@ -85,10 +87,15 @@ rbrace = checkinstance(RightBrace)
 lbracket = checkinstance(LeftBracket)
 rbracket = checkinstance(RightBracket)
 
+leftHTMLComment = checkinstance(LeftHTMLComment)
+rightHTMLComment = checkinstance(RightHTMLComment)
+
 _raw_text = (
-    lbracket.map(lambda x: "[")
-    | rbracket.map(lambda x: "]")
+    lbracket.map(lambda _: "[")
+    | rbracket.map(lambda _: "]")
     | text.map(lambda x: x.value)
+    | leftHTMLComment.map(lambda _: "<!--")
+    | rightHTMLComment.map(lambda _: "<!--")
 )
 
 _converted_brackets = (

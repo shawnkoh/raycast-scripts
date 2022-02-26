@@ -47,6 +47,16 @@ class Break:
     pass
 
 
+@define
+class LeftHTMLComment:
+    pass
+
+
+@define
+class RightHTMLComment:
+    pass
+
+
 # Utilities
 eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
@@ -60,8 +70,20 @@ lbrace = string("{").map(lambda x: LeftBrace())
 rbrace = string("}").map(lambda x: RightBrace())
 lbracket = string("[").map(lambda x: LeftBracket())
 rbracket = string("]").map(lambda x: RightBracket())
+leftHTMLComment = string("<!--").map(lambda x: LeftHTMLComment())
+rightHTMLComment = string("--!>").map(lambda x: RightHTMLComment())
 
-not_text = question_prefix | answer_prefix | lbrace | rbrace | lbracket | rbracket | eol
+not_text = (
+    question_prefix
+    | answer_prefix
+    | lbrace
+    | rbrace
+    | lbracket
+    | rbracket
+    | eol
+    | leftHTMLComment
+    | rightHTMLComment
+)
 
 # TODO: Should we define (<any_char>\n?)+ as text instead?
 # abc\nabc = text
