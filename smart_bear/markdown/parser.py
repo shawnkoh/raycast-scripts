@@ -1,10 +1,13 @@
 from typing import List, Optional
 
+from more_itertools import collapse
+
 import parsy
 from attrs import define
-from parsy import fail, seq, success
+from parsy import fail, seq, success, string, generate
 
 from smart_bear.markdown.lexer import (
+    flatten_list,
     AnswerPrefix,
     BearID,
     Break,
@@ -109,9 +112,13 @@ bearID = checkinstance(BearID)
 _raw_text = (
     lbracket.map(lambda _: "[")
     | rbracket.map(lambda _: "]")
-    | text.map(lambda x: x.value)
     | leftHTMLComment.map(lambda _: "<!--")
     | rightHTMLComment.map(lambda _: "<!--")
+    | question_prefix.map(lambda _: "Q:")
+    | answer_prefix.map(lambda _: "A:")
+    | lbrace.map(lambda _: "{")
+    | rbrace.map(lambda _: "}")
+    | text.map(lambda x: x.value)
 )
 
 _converted_brackets = (
@@ -119,7 +126,7 @@ _converted_brackets = (
 ).map(Text)
 backlink = lbracket.times(2) >> _converted_brackets.map(Backlink) << rbracket.times(2)
 
-content = eol | backlink | text | _raw_text.at_least(1).concat().map(Text)
+content = eol | backlink | _raw_text.at_least(1).concat().map(Text)
 
 question = question_prefix >> (
     (answer_prefix.should_fail("no answer_prefix") >> content).at_least(1).map(Question)
@@ -137,14 +144,32 @@ basic_prompt = (
 
 # TODO: Investigate how to support recursive
 # TODO: Implement recursive logic using brackets logic
-cloze = lbrace >> content.at_least(1).map(Cloze) << rbrace
+# cloze = lbrace >> content.at_least(1).map(Cloze) << rbrace
+
+
+@generate
+def _braced():
+    return (yield lbrace >> simple.map(Cloze) << rbrace)
+
+
+def flatten(t):
+    return [item for sublist in t for item in sublist]
+
+
+simple = seq(
+    text,
+    (backlink | eol | text).many(),
+).map(lambda x: list(collapse(x)))
+
+cloze = simple | _braced
+
 
 paragraph_separator = eol.at_least(2)
 paragraph_separator_should_fail = paragraph_separator.should_fail("no separator")
 
 cloze_prompt = (
-    (paragraph_separator_should_fail >> (cloze | content))
-    .at_least(1)
+    cloze.at_least(1)
+    .map(lambda x: list(collapse(x)))
     .bind(
         lambda res: success(ClozePrompt(res))
         if any(isinstance(ele, Cloze) for ele in res)
@@ -152,18 +177,26 @@ cloze_prompt = (
     )
 )
 
-paragraph = ((paragraph_separator_should_fail >> (content)).at_least(1)).map(
-    Paragraph
-) << paragraph_separator.optional()
 
-block = basic_prompt | cloze_prompt | paragraph
+paragraph = (
+    seq(
+        (backlink | _raw_text.at_least(1).concat().map(Text)).map(lambda x: [x]),
+        (paragraph_separator_should_fail >> content).many(),
+    )
+    .map(flatten_list)
+    .map(Paragraph)
+)
+
+space = string(" ").map(Space)
+spacer = (eol | space).at_least(1).map(Spacer)
+
+block = basic_prompt | cloze_prompt | paragraph | spacer
 
 title = text.map(Title)
 
 parser = seq(
     title=title.optional() << eol.optional(),
     children=block.many(),
-    _skip=eol.many(),
     bearID=bearID.optional(),
     _ignore=eol.many(),
 ).combine_dict(Root)

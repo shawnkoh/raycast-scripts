@@ -1,4 +1,4 @@
-from pprint import pp, pprint
+from rich.pretty import pprint
 
 from pytest import raises
 from parsy import string
@@ -6,6 +6,7 @@ from parsy import string
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.parser import (
+    Spacer,
     title,
     Title,
     Answer,
@@ -144,6 +145,12 @@ def test_cloze():
     )
 
 
+def test_cloze_text():
+    tokens = lexer.parse("abc")
+    expected = [Text("abc")]
+    assert cloze.parse(tokens) == expected
+
+
 def test_cloze_space():
     given = lexer.parse("{ abc }")
     expected = Cloze(
@@ -244,8 +251,7 @@ def test_parser():
         """# Smart Bear
 Paragraph 1
 
-Paragraph 2
-"""
+Paragraph 2"""
     )
     expected = Root(
         title=Title(Text("# Smart Bear")),
@@ -255,10 +261,15 @@ Paragraph 2
                     Text("Paragraph 1"),
                 ]
             ),
+            Spacer(
+                [
+                    Break(),
+                    Break(),
+                ]
+            ),
             Paragraph(
                 [
                     Text("Paragraph 2"),
-                    Break(),
                 ]
             ),
         ],
