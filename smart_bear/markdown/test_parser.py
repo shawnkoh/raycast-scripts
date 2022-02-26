@@ -302,5 +302,6 @@ Paragraph 2
                 ]
             ),
         ],
+        bearID=None,
     )
     assert_that(parser.parse(tokens), expected)

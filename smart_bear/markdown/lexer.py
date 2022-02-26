@@ -57,6 +57,12 @@ class RightHTMLComment:
     pass
 
 
+# <!-- {BearID:3A72570E-59E0-4094-907F-CAC602C9A6CE-13835-00000A4715F28D3D} -->
+@define
+class BearID:
+    value: str
+
+
 # Utilities
 eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
@@ -71,10 +77,21 @@ rbrace = string("}").map(lambda x: RightBrace())
 lbracket = string("[").map(lambda x: LeftBracket())
 rbracket = string("]").map(lambda x: RightBracket())
 leftHTMLComment = string("<!--").map(lambda x: LeftHTMLComment())
-rightHTMLComment = string("--!>").map(lambda x: RightHTMLComment())
+rightHTMLComment = string("-->").map(lambda x: RightHTMLComment())
+bearID = (
+    leftHTMLComment
+    >> string(" ")
+    >> lbrace
+    >> string("BearID:")
+    >> (rbrace.should_fail("no rbrace") >> any_char).at_least(1).concat()
+    << rbrace
+    << string(" ")
+    << rightHTMLComment
+).map(BearID)
 
 not_text = (
-    question_prefix
+    bearID
+    | question_prefix
     | answer_prefix
     | lbrace
     | rbrace

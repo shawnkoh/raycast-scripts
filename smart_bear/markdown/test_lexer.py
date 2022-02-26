@@ -4,6 +4,8 @@ from parsy import any_char, seq, string
 
 from smart_bear.markdown.lexer import (
     AnswerPrefix,
+    bearID,
+    BearID,
     Break,
     LeftBrace,
     QuestionPrefix,
@@ -101,3 +103,11 @@ def test_repeat_two():
 
     pprint(lexer.parse(given))
     assert lexer.parse(given) == expected
+
+
+def test_bear_id():
+    given = (
+        "<!-- {BearID:1419719E-6881-497E-94E2-BB154943963C-30579-0000CA9CD9FF92FE} -->"
+    )
+    expected = BearID("1419719E-6881-497E-94E2-BB154943963C-30579-0000CA9CD9FF92FE")
+    assert bearID.parse(given) == expected

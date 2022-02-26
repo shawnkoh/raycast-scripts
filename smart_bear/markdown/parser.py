@@ -6,6 +6,7 @@ from parsy import fail, seq, success
 
 from smart_bear.markdown.lexer import (
     AnswerPrefix,
+    BearID,
     Break,
     LeftBrace,
     LeftBracket,
@@ -68,6 +69,7 @@ class Paragraph:
 class Root:
     title: Optional[Title]
     children: List[Paragraph]
+    bearID: Optional[BearID]
 
 
 # A question can be part of a Paragraph
@@ -89,6 +91,8 @@ rbracket = checkinstance(RightBracket)
 
 leftHTMLComment = checkinstance(LeftHTMLComment)
 rightHTMLComment = checkinstance(RightHTMLComment)
+
+bearID = checkinstance(BearID)
 
 _raw_text = (
     lbracket.map(lambda _: "[")
@@ -150,4 +154,7 @@ title = text.map(Title)
 parser = seq(
     title=title.optional() << eol.optional(),
     children=paragraphs,
+    _skip=eol.many(),
+    bearID=bearID.optional(),
+    _ignore=eol.many(),
 ).combine_dict(Root)
