@@ -15,20 +15,17 @@ from smart_bear.markdown.lexer import (
 
 from attrs import define
 
-
-@define
-class Content:
-    children: List[Text | Break]
+Content = Break | Text
 
 
 @define
 class Question:
-    children: Content
+    children: List[Content]
 
 
 @define
 class Answer:
-    children: Content
+    children: List[Content]
 
 
 @define
@@ -39,17 +36,17 @@ class BasicPrompt:
 
 @define
 class Cloze:
-    children: Content
+    children: List[Content]
 
 
 @define
 class ClozePrompt:
-    children: List[Content | Cloze]
+    children: List[Cloze | Content]
 
 
 @define
 class Paragraph:
-    children: List[Question | Content]
+    children: List[BasicPrompt | ClozePrompt | Content]
 
 
 # A question can be part of a Paragraph
@@ -67,14 +64,13 @@ question_prefix = checkinstance(QuestionPrefix)
 lbrace = checkinstance(LeftBrace)
 rbrace = checkinstance(RightBrace)
 
-content = (text | eol).at_least(1).map(Content)
-
+content = (eol | text).at_least(1)
 
 question = question_prefix >> (
-    (answer_prefix.should_fail("no answer_prefix") >> (text | eol))
+    (answer_prefix.should_fail("no answer_prefix") >> (eol | text))
     .at_least(1)
-    .map(Content)
-).map(Question)
+    .map(Question)
+)
 
 answer = answer_prefix >> content.map(Answer)
 
@@ -89,4 +85,4 @@ basic_prompt = (
 # TODO: Investigate how to support recursive
 cloze = lbrace >> content.map(Cloze) << rbrace
 
-cloze_prompt = (text | cloze).at_least(1).map(ClozePrompt)
+cloze_prompt = (cloze | text).at_least(1).map(ClozePrompt)

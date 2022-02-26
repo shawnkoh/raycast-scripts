@@ -1,7 +1,4 @@
-from parsy import any_char
 from smart_bear.markdown.lexer import (
-    AnswerPrefix,
-    QuestionPrefix,
     lexer,
 )
 from smart_bear.markdown.parser import (
@@ -36,28 +33,21 @@ def test_text():
 
 def test_content():
     tokens = lexer.parse("content\ncontent")
-    assert_that(
-        content.parse(tokens),
-        Content(
-            [
-                Text("content"),
-                Break(),
-                Text("content"),
-            ],
-        ),
-    )
+    assert content.parse(tokens) == [
+        Text("content"),
+        Break(),
+        Text("content"),
+    ]
 
 
 def test_question():
     tokens = lexer.parse("Q: Question\nExtended")
     expected = Question(
-        Content(
-            [
-                Text(" Question"),
-                Break(),
-                Text("Extended"),
-            ]
-        )
+        [
+            Text(" Question"),
+            Break(),
+            Text("Extended"),
+        ]
     )
     assert_that(
         question.parse(tokens),
@@ -68,14 +58,12 @@ def test_question():
 def test_question_answer():
     tokens = lexer.parse("Q: Question\nExtended\nA: Answer")
     expected = Question(
-        Content(
-            [
-                Text(" Question"),
-                Break(),
-                Text("Extended"),
-                Break(),
-            ]
-        )
+        [
+            Text(" Question"),
+            Break(),
+            Text("Extended"),
+            Break(),
+        ]
     )
     assert_that(
         question.parse_partial(tokens)[0],
@@ -86,13 +74,11 @@ def test_question_answer():
 def test_answer():
     tokens = lexer.parse("A: Answer\nExtended")
     expected = Answer(
-        Content(
-            [
-                Text(" Answer"),
-                Break(),
-                Text("Extended"),
-            ]
-        )
+        [
+            Text(" Answer"),
+            Break(),
+            Text("Extended"),
+        ]
     )
     assert_that(
         answer.parse(tokens),
@@ -104,23 +90,19 @@ def test_basic_prompt():
     given = lexer.parse("Q: Question\nExtended\nA: Answer\nExtended")
     expected = BasicPrompt(
         question=Question(
-            Content(
-                [
-                    Text(" Question"),
-                    Break(),
-                    Text("Extended"),
-                    Break(),
-                ]
-            ),
+            [
+                Text(" Question"),
+                Break(),
+                Text("Extended"),
+                Break(),
+            ]
         ),
         answer=Answer(
-            Content(
-                [
-                    Text(" Answer"),
-                    Break(),
-                    Text("Extended"),
-                ]
-            ),
+            [
+                Text(" Answer"),
+                Break(),
+                Text("Extended"),
+            ]
         ),
     )
     assert_that(
@@ -133,13 +115,11 @@ def test_basic_prompt_question_only():
     given = lexer.parse("Q: Question\nExtended")
     expected = BasicPrompt(
         question=Question(
-            Content(
-                [
-                    Text(" Question"),
-                    Break(),
-                    Text("Extended"),
-                ]
-            )
+            [
+                Text(" Question"),
+                Break(),
+                Text("Extended"),
+            ]
         ),
         answer=None,
     )
@@ -149,48 +129,62 @@ def test_basic_prompt_question_only():
     )
 
 
-# def test_cloze():
-#     given = "{abc}"
-#     expected = Cloze(
-#         Text("abc"),
-#     )
-#     assert cloze.parse(given) == expected
+def test_cloze():
+    given = lexer.parse("{abc}")
+    expected = Cloze(
+        [
+            Text("abc"),
+        ]
+    )
+    assert_that(
+        cloze.parse(given),
+        expected,
+    )
 
 
-# def test_cloze_space():
-#     given = "{ abc }"
-#     expected = Cloze(
-#         Text(" abc "),
-#     )
-#     assert cloze.parse(given) == expected
+def test_cloze_space():
+    given = lexer.parse("{ abc }")
+    expected = Cloze(
+        [
+            Text(" abc "),
+        ]
+    )
+    assert_that(
+        cloze.parse(given),
+        expected,
+    )
 
 
-# def test_cloze_lspace():
-#     given = "{ abc}"
-#     expected = Cloze(
-#         Text(" abc"),
-#     )
-#     assert cloze.parse(given) == expected
+def test_cloze_lspace():
+    given = lexer.parse("{ abc}")
+    expected = Cloze(
+        [
+            Text(" abc"),
+        ]
+    )
+    assert_that(cloze.parse(given), expected)
 
 
-# def test_cloze_rspace():
-#     given = "{abc }"
-#     expected = Cloze(
-#         Text("abc "),
-#     )
-#     assert cloze.parse(given) == expected
+def test_cloze_rspace():
+    given = lexer.parse("{abc }")
+    expected = Cloze(
+        [
+            Text("abc "),
+        ]
+    )
+    assert_that(cloze.parse(given), expected)
 
 
-# def test_cloze_prompt():
-#     given = "Some text {with clozes}"
-#     expected = ClozePrompt(
-#         children=[
-#             Content(
-#                 Text("Some text "),
-#             ),
-#             Cloze(
-#                 Text("with clozes"),
-#             ),
-#         ]
-#     )
-#     assert (cloze_prompt.parse(given)) == expected
+def test_cloze_prompt():
+    given = lexer.parse("Some text {with clozes}")
+    expected = ClozePrompt(
+        [
+            Text("Some text "),
+            Cloze(
+                [
+                    Text("with clozes"),
+                ]
+            ),
+        ]
+    )
+    assert_that(cloze_prompt.parse(given), expected)
