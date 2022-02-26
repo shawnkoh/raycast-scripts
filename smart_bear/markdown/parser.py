@@ -74,7 +74,7 @@ question = question_prefix >> (
     (answer_prefix.should_fail("no answer_prefix") >> (text | eol))
     .at_least(1)
     .map(Content)
-)
+).map(Question)
 
 answer = answer_prefix >> content.map(Answer)
 

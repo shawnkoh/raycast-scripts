@@ -64,24 +64,21 @@ def test_fuck():
     assert_that(_parser.parse(tokens), expected)
 
 
-# def test_question():
-#     given = "Q: Question\nExtended"
-#     tokens = lexer.parse(given)
-#     pprint(tokens)
-#     expected = Question(
-#         Content(
-#             [
-#                 Text(" Question"),
-#                 Break("\n"),
-#                 Text("Extended"),
-#             ]
-#         )
-#     )
-#     # pprint(question.parse_partial(tokens))
-#     assert_that(
-#         question.parse(tokens) << any_char.many(),
-#         expected,
-#     )
+def test_question():
+    tokens = lexer.parse("Q: Question\nExtended")
+    expected = Question(
+        Content(
+            [
+                Text(" Question"),
+                Break("\n"),
+                Text("Extended"),
+            ]
+        )
+    )
+    assert_that(
+        question.parse(tokens),
+        expected,
+    )
 
 
 # def test_question_answer():
