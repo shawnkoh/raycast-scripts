@@ -144,7 +144,7 @@ cloze_prompt = (
 
 paragraph = ((paragraph_separator_should_fail >> (content)).at_least(1)).map(
     Paragraph
-) << eol.times(2).optional()
+) << paragraph_separator.optional()
 
 block = basic_prompt | cloze_prompt | paragraph
 

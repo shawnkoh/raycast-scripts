@@ -220,8 +220,20 @@ def p():
 
 
 @run.command()
+def t():
+    url = "/Users/shawnkoh/repos/notes/bear/What is my ideal window management.md"
+    with open(url, "r") as file:
+        tokens = lexer.parse(file.read())
+        root = parser.parse(tokens)
+        if root[1]:
+            pprint(tokens)
+            pprint(url)
+            pprint(root)
+
+
+@run.command()
 def tt():
-    url = "/Users/shawnkoh/repos/notes/bear/sleep.md"
+    url = "/Users/shawnkoh/repos/notes/bear/What is my ideal window management.md"
     with open(url, "r") as file:
         tokens = lexer.parse(file.read())
         root = parser.parse_partial(tokens)
