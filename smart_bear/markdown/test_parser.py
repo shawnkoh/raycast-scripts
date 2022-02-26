@@ -129,15 +129,24 @@ def test_basic_prompt():
     )
 
 
-# def test_basic_prompt_question_only():
-#     given = "Q: Question\nExtended"
-#     expected = BasicPrompt(
-#         question=Question(
-#             Text(" Question\nExtended"),
-#         ),
-#         answer=None,
-#     )
-#     assert basic_prompt.parse(given) == expected
+def test_basic_prompt_question_only():
+    given = lexer.parse("Q: Question\nExtended")
+    expected = BasicPrompt(
+        question=Question(
+            Content(
+                [
+                    Text(" Question"),
+                    Break(),
+                    Text("Extended"),
+                ]
+            )
+        ),
+        answer=None,
+    )
+    assert_that(
+        basic_prompt.parse(given),
+        expected,
+    )
 
 
 # def test_cloze():
