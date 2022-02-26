@@ -95,6 +95,25 @@ def checkinstance(Class):
     return parsy.test_item(lambda x: isinstance(x, Class), Class.__name__)
 
 
+def _concatenate_texts(_list: list) -> list:
+    result = []
+    accumulator = None
+    for element in _list:
+        if isinstance(element, str):
+            if accumulator is None:
+                accumulator = element
+            else:
+                accumulator += element
+        else:
+            if accumulator is not None:
+                result.append(Text(accumulator))
+                accumulator = None
+            result.append(element)
+    if accumulator is not None:
+        result.append(Text(accumulator))
+    return result
+
+
 text = checkinstance(Text)
 eol = checkinstance(Break)
 answer_prefix = checkinstance(AnswerPrefix)
@@ -127,14 +146,18 @@ _converted_brackets = (
 ).map(Text)
 backlink = lbracket.times(2) >> _converted_brackets.map(Backlink) << rbracket.times(2)
 
+_content = eol | backlink | _raw_text
 # FIXME: This might be problematic because _raw_text can consume the others.
-content = eol | backlink | _raw_text.at_least(1).concat().map(Text)
+contents = _content.at_least(1).map(_concatenate_texts)
 
 question = question_prefix >> (
-    (answer_prefix.should_fail("no answer_prefix") >> content).at_least(1).map(Question)
+    (answer_prefix.should_fail("no answer_prefix") >> (eol | backlink | _raw_text))
+    .at_least(1)
+    .map(_concatenate_texts)
+    .map(Question)
 )
 
-answer = answer_prefix >> content.at_least(1).map(Answer)
+answer = answer_prefix >> contents.map(Answer)
 
 basic_prompt = (
     seq(
@@ -182,31 +205,12 @@ paragraph = (
         # ideally, we should do (backlink | raw_text).at_least(1)
         # but that will result in having a lot of non-raw text.
         # we could technically do a map and concat them later on?
-        (backlink | _raw_text).at_least(1).map(lambda x: _concatenate_texts(x)),
-        (paragraph_separator_should_fail >> content).many(),
+        (backlink | _raw_text).at_least(1).map(_concatenate_texts),
+        (paragraph_separator_should_fail >> _content).many().map(_concatenate_texts),
     )
     .map(flatten_list)
     .map(Paragraph)
 )
-
-
-def _concatenate_texts(_list: list) -> list:
-    result = []
-    accumulator = None
-    for element in _list:
-        if isinstance(element, str):
-            if accumulator is None:
-                accumulator = element
-            else:
-                accumulator += element
-        else:
-            if accumulator is not None:
-                result.append(Text(accumulator))
-                accumulator = None
-            result.append(element)
-    if accumulator is not None:
-        result.append(Text(accumulator))
-    return result
 
 
 space = string(" ").map(Space)

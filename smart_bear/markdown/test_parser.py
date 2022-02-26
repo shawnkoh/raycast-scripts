@@ -25,7 +25,7 @@ from smart_bear.markdown.parser import (
     basic_prompt,
     cloze,
     cloze_prompt,
-    content,
+    contents,
     paragraph,
     question,
     text,
@@ -42,9 +42,13 @@ def test_text():
     )
 
 
-def test_content():
+def test_contents():
     tokens = lexer.parse("content\ncontent")
-    assert content.parse_partial(tokens)[0] == Text("content")
+    assert contents.parse(tokens) == [
+        Text("content"),
+        Break(),
+        Text("content"),
+    ]
 
 
 def test_question():
