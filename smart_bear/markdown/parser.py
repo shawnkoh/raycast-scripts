@@ -78,14 +78,13 @@ class Paragraph:
     children: List[Content]
 
 
-Block = Divider | BasicPrompt | ClozePrompt | Paragraph | Spacer
+Block = BearID | Divider | BasicPrompt | ClozePrompt | Paragraph | Spacer
 
 
 @define
 class Root:
     title: Optional[Title]
     children: List[Block]
-    bearID: Optional[BearID]
 
 
 # A question can be part of a Paragraph
@@ -109,7 +108,7 @@ divider = checkinstance(Divider)
 leftHTMLComment = checkinstance(LeftHTMLComment)
 rightHTMLComment = checkinstance(RightHTMLComment)
 
-bearID = checkinstance(BearID)
+bear_id = checkinstance(BearID)
 
 _raw_text = (
     lbracket.map(lambda _: "[")
@@ -188,13 +187,11 @@ paragraph = (
 space = string(" ").map(Space)
 spacer = (eol | space).at_least(1).map(Spacer)
 
-block = divider | basic_prompt | cloze_prompt | paragraph | spacer
+block = bear_id | divider | basic_prompt | cloze_prompt | paragraph | spacer
 
 title = text.map(Title)
 
 parser = seq(
     title=title.optional() << eol.optional(),
     children=block.many(),
-    bearID=bearID.optional(),
-    _ignore=eol.many(),
 ).combine_dict(Root)
