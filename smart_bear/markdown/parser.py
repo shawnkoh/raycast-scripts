@@ -20,6 +20,16 @@ from smart_bear.markdown.lexer import (
 
 
 @define
+class Space:
+    pass
+
+
+@define
+class Spacer:
+    children: List[Break | Space]
+
+
+@define
 class Backlink:
     value: Text
 
@@ -64,7 +74,7 @@ class Paragraph:
     children: List[Content]
 
 
-Block = BasicPrompt | ClozePrompt | Content
+Block = BasicPrompt | ClozePrompt | Paragraph | Spacer
 
 
 @define
