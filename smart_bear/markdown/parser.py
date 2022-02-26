@@ -79,7 +79,7 @@ class Root:
 
 
 def checkinstance(Class):
-    return parsy.test_item(lambda x: isinstance(x, Class), type(Class).__name__)
+    return parsy.test_item(lambda x: isinstance(x, Class), Class.__name__)
 
 
 text = checkinstance(Text)
