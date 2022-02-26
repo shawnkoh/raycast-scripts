@@ -1,3 +1,5 @@
+from turtle import back
+from unittest import expectedFailure
 from rich.pretty import pprint
 
 from pytest import raises
@@ -6,6 +8,8 @@ from parsy import string
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.parser import (
+    backlink,
+    Backlink,
     Spacer,
     title,
     Title,
@@ -226,6 +230,17 @@ def test_paragraph_multi():
     assert_that(paragraph.parse_partial(tokens)[0], expected)
 
 
+def test_paragraph_backlink():
+    tokens = lexer.parse("* [[How]]")
+    expected = Paragraph(
+        [
+            Text("* "),
+            Backlink(Text("How")),
+        ]
+    )
+    assert_that(paragraph.parse(tokens), expected)
+
+
 def test_concat():
     given = ""
     expected = ""
@@ -275,3 +290,23 @@ Paragraph 2"""
         ],
     )
     assert_that(parser.parse(tokens), expected)
+
+
+def test_backlink():
+    tokens = lexer.parse("[[backlink]]")
+    expected = Backlink(
+        Text("backlink"),
+    )
+    assert_that(backlink.parse(tokens), expected)
+
+
+def test_backlink_fails():
+    tokens = lexer.parse("m[[backlink]]")
+    with raises(Exception) as _:
+        backlink.parse(tokens)
+
+
+def test_backlink_spaced_fails():
+    tokens = lexer.parse(" [[backlink]]")
+    with raises(Exception) as _:
+        backlink.parse(tokens)

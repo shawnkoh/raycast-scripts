@@ -127,6 +127,7 @@ _converted_brackets = (
 ).map(Text)
 backlink = lbracket.times(2) >> _converted_brackets.map(Backlink) << rbracket.times(2)
 
+# FIXME: This might be problematic because _raw_text can consume the others.
 content = eol | backlink | _raw_text.at_least(1).concat().map(Text)
 
 question = question_prefix >> (
@@ -177,12 +178,36 @@ cloze_prompt = (
 
 paragraph = (
     seq(
-        (backlink | _raw_text.at_least(1).concat().map(Text)).map(lambda x: [x]),
+        # problem is _raw_text is absorbing the backlinks.
+        # ideally, we should do (backlink | raw_text).at_least(1)
+        # but that will result in having a lot of non-raw text.
+        # we could technically do a map and concat them later on?
+        (backlink | _raw_text).at_least(1).map(lambda x: _concatenate_texts(x)),
         (paragraph_separator_should_fail >> content).many(),
     )
     .map(flatten_list)
     .map(Paragraph)
 )
+
+
+def _concatenate_texts(_list: list) -> list:
+    result = []
+    accumulator = None
+    for element in _list:
+        if isinstance(element, str):
+            if accumulator is None:
+                accumulator = element
+            else:
+                accumulator += element
+        else:
+            if accumulator is not None:
+                result.append(Text(accumulator))
+                accumulator = None
+            result.append(element)
+    if accumulator is not None:
+        result.append(Text(accumulator))
+    return result
+
 
 space = string(" ").map(Space)
 spacer = (eol | space).at_least(1).map(Spacer)
