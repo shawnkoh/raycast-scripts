@@ -1,10 +1,12 @@
-from pprint import pprint
+from pprint import pp, pprint
 
 from pytest import raises
 
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.parser import (
+    title,
+    Title,
     Answer,
     BasicPrompt,
     Break,
@@ -22,6 +24,8 @@ from smart_bear.markdown.parser import (
     paragraphs,
     question,
     text,
+    parser,
+    Root,
 )
 
 
@@ -252,3 +256,42 @@ def test_paragraphs_eof():
     pprint(tokens)
     pprint(paragraphs.parse(tokens))
     assert paragraphs.parse(tokens) == expected
+
+
+def test_title():
+    tokens = lexer.parse("Simple")
+    expected = Title(Text("Simple"))
+    assert_that(title.parse(tokens), expected)
+
+
+def test_title_eol():
+    tokens = lexer.parse("Simple\nSimple")
+    expected = Title(Text("Simple"))
+    assert_that(title.parse_partial(tokens)[0], expected)
+
+
+def test_parser():
+    tokens = lexer.parse(
+        """# Smart Bear
+Paragraph 1
+
+Paragraph 2
+"""
+    )
+    expected = Root(
+        title=Title(Text("# Smart Bear")),
+        children=[
+            Paragraph(
+                [
+                    Text("Paragraph 1"),
+                ]
+            ),
+            Paragraph(
+                [
+                    Text("Paragraph 2"),
+                    Break(),
+                ]
+            ),
+        ],
+    )
+    assert_that(parser.parse(tokens), expected)

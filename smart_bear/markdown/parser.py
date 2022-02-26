@@ -17,6 +17,11 @@ Content = Break | Text
 
 
 @define
+class Title:
+    value: Text
+
+
+@define
 class Question:
     children: List[Content]
 
@@ -45,6 +50,12 @@ class ClozePrompt:
 @define
 class Paragraph:
     children: List[BasicPrompt | ClozePrompt | Content]
+
+
+@define
+class Root:
+    title: Optional[Title]
+    children: List[Paragraph]
 
 
 # A question can be part of a Paragraph
@@ -103,3 +114,10 @@ paragraph = (
 )
 
 paragraphs = paragraph.sep_by(paragraph_separator)
+
+title = text.map(Title)
+
+parser = seq(
+    title=title.optional() << eol.optional(),
+    children=paragraphs,
+).combine_dict(Root)
