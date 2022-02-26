@@ -95,35 +95,39 @@ def test_answer():
             ]
         )
     )
-    assert answer.parse(tokens) == expected
+    assert_that(
+        answer.parse(tokens),
+        expected,
+    )
 
 
-# def test_basic_prompt():
-#     given = lexer.parse("Q: Question\nExtended\nA: Answer\nExtended")
-#     expected = BasicPrompt(
-#         question=Question(
-#             Content(
-#                 [
-#                     Text(" Question"),
-#                     Break("\n"),
-#                     Text("Extended"),
-#                 ]
-#             ),
-#         ),
-#         answer=Answer(
-#             Content(
-#                 [
-#                     Text(" Answer"),
-#                     Break("\n"),
-#                     Text("Extended"),
-#                 ]
-#             ),
-#         ),
-#     )
-#     assert_that(
-#         basic_prompt.parse(given),
-#         expected,
-#     )
+def test_basic_prompt():
+    given = lexer.parse("Q: Question\nExtended\nA: Answer\nExtended")
+    expected = BasicPrompt(
+        question=Question(
+            Content(
+                [
+                    Text(" Question"),
+                    Break("\n"),
+                    Text("Extended"),
+                    Break("\n"),
+                ]
+            ),
+        ),
+        answer=Answer(
+            Content(
+                [
+                    Text(" Answer"),
+                    Break("\n"),
+                    Text("Extended"),
+                ]
+            ),
+        ),
+    )
+    assert_that(
+        basic_prompt.parse(given),
+        expected,
+    )
 
 
 # def test_basic_prompt_question_only():
