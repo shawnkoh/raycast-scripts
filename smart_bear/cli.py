@@ -161,6 +161,7 @@ def add_tag_recursively(tag: str, filename: str, dry: bool):
     click.echo("\n")
     click.echo("\n".join(titles_without_urls))
 
+
 @run.command()
 @click.option("--tag", prompt=True, type=str, callback=_validate_tag)
 @click.option("--folder", prompt=True, type=click.Path(exists=True))
@@ -191,6 +192,7 @@ def export_tag(tag: str, folder: str):
             # Obsidian treats filenames as headers, and has first class support for backlinks.
             file.write(document.build_str(include_title=False, include_backlinks=False))
 
+
 @run.command()
 def open_today():
     a = arrow.now()
@@ -199,6 +201,7 @@ def open_today():
     url = x_callback_url.open_note(title=title)
     url.args["x-error"] = x_callback_url.create(title=title, tags=[tag])
     webbrowser.open(url.url)
+
 
 @run.command()
 def parse():
