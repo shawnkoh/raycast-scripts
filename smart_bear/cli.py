@@ -3,9 +3,9 @@ import glob
 import os
 import pathlib
 import re
+import shutil
 import webbrowser
 from pathlib import Path
-import shutil
 
 import arrow
 import click

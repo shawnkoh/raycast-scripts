@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from typing import Protocol
 
-
 SOURCE_ATTRIBUTE = "data-source"
 
 

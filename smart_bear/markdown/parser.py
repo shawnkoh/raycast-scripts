@@ -1,20 +1,17 @@
-from operator import contains
 from typing import List, Optional
-from parsy import seq, fail, success, generate, eof
+
 import parsy
+from attrs import define
+from parsy import fail, seq, success
+
 from smart_bear.markdown.lexer import (
-    lexer,
-    flatten_list,
-    exclude_none,
+    AnswerPrefix,
     Break,
     LeftBrace,
     QuestionPrefix,
-    AnswerPrefix,
     RightBrace,
     Text,
 )
-
-from attrs import define
 
 Content = Break | Text
 

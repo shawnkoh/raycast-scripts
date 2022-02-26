@@ -1,5 +1,5 @@
 from attrs import define
-from parsy import string, whitespace, eof, peek, any_char
+from parsy import any_char, eof, peek, string, whitespace
 
 
 @define

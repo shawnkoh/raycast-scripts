@@ -1,6 +1,7 @@
 from functools import cached_property
 
 import regex
+
 from smart_bear.core.prompts import BasicPrompt, ClozePrompt, Identifiable
 from smart_bear.markdown import md_parser, pretty_bear
 

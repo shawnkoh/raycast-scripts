@@ -3,7 +3,6 @@ import base64
 import regex
 import unmarkd
 from bs4 import BeautifulSoup
-
 from markdown import Markdown
 
 _markdown_to_html_parser = Markdown()

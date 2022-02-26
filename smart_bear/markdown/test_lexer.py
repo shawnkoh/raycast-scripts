@@ -1,19 +1,18 @@
 from pprint import pprint
-from attr import define
-from parsy import whitespace, eof, any_char, regex, string, seq, peek
+
+from parsy import any_char, seq, string
+
 from smart_bear.markdown.lexer import (
-    Break,
-    lbrace,
-    QuestionPrefix,
     AnswerPrefix,
+    Break,
     LeftBrace,
-    RightBrace,
+    QuestionPrefix,
     Text,
-    Separator,
-    lexer,
-    text,
     exclude_none,
     flatten_list,
+    lbrace,
+    lexer,
+    text,
 )
 
 

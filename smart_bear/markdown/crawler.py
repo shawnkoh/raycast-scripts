@@ -2,6 +2,7 @@ from typing import Callable
 
 import click
 import regex
+
 from smart_bear.core.document import Document
 from smart_bear.markdown import md_parser
 

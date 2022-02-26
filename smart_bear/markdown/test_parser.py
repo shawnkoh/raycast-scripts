@@ -1,30 +1,28 @@
+from pprint import pprint
+
 from pytest import raises
-from smart_bear.markdown.lexer import (
-    lexer,
-)
+
+from smart_bear.intelligence.test_utilities import assert_that
+from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.parser import (
-    paragraph,
-    Paragraph,
-    basic_prompt,
-    cloze_prompt,
-    ClozePrompt,
-    cloze,
+    Answer,
+    BasicPrompt,
+    Break,
     Cloze,
-    question,
+    ClozePrompt,
+    Paragraph,
     Question,
     Text,
-    BasicPrompt,
-    Answer,
     answer,
-    Content,
-    Break,
-    text,
+    basic_prompt,
+    cloze,
+    cloze_prompt,
     content,
+    paragraph,
     paragraphs,
+    question,
+    text,
 )
-from smart_bear.intelligence.test_utilities import assert_that
-
-from pprint import pprint
 
 
 def test_text():

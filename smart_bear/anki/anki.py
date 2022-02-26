@@ -5,14 +5,14 @@ import pathlib
 import click
 import psutil
 import regex
-from smart_bear.anki.prompts import BasicPrompt, ClozePrompt
-from smart_bear.markdown import md_parser
-
 from anki.collection import SearchNode
 from anki.decks import DeckDict
 from anki.models import NotetypeDict
 from anki.scheduler.v2 import Scheduler
 from anki.storage import _Collection
+
+from smart_bear.anki.prompts import BasicPrompt, ClozePrompt
+from smart_bear.markdown import md_parser
 
 # Change this if you're not on Mac.
 # TODO: Too dangerous to use regex, better to compile a list of names instead
