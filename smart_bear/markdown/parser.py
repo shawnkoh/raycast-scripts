@@ -49,7 +49,8 @@ class ClozePrompt:
 
 @define
 class Paragraph:
-    children: List[BasicPrompt | ClozePrompt | Content]
+    # TODO: This is problematic for paragraphs with a single { or }
+    children: Question | Answer | ClozePrompt | List[Content]
 
 
 @define
@@ -92,8 +93,11 @@ basic_prompt = (
 # TODO: Investigate how to support recursive
 cloze = lbrace >> content.at_least(1).map(Cloze) << rbrace
 
+paragraph_separator = eol.at_least(2)
+paragraph_separator_should_fail = paragraph_separator.should_fail("no separator")
+
 cloze_prompt = (
-    (cloze | content)
+    (paragraph_separator_should_fail >> (cloze | content))
     .at_least(1)
     .bind(
         lambda res: success(ClozePrompt(res))
@@ -102,16 +106,12 @@ cloze_prompt = (
     )
 )
 
-paragraph_separator = eol.at_least(2)
-
 paragraph = (
-    (
-        paragraph_separator.should_fail("no separator")
-        >> (basic_prompt | cloze_prompt | content)
-    )
-    .at_least(1)
-    .map(Paragraph)
-)
+    question
+    | answer
+    | cloze_prompt
+    | (paragraph_separator_should_fail >> (content)).at_least(1)
+).map(Paragraph)
 
 paragraphs = paragraph.sep_by(paragraph_separator)
 
