@@ -7,6 +7,7 @@ from attrs import define
 from parsy import fail, seq, success, string, generate
 
 from smart_bear.markdown.lexer import (
+    Divider,
     flatten_list,
     AnswerPrefix,
     BearID,
@@ -77,7 +78,7 @@ class Paragraph:
     children: List[Content]
 
 
-Block = BasicPrompt | ClozePrompt | Paragraph | Spacer
+Block = Divider | BasicPrompt | ClozePrompt | Paragraph | Spacer
 
 
 @define
@@ -103,6 +104,7 @@ lbrace = checkinstance(LeftBrace)
 rbrace = checkinstance(RightBrace)
 lbracket = checkinstance(LeftBracket)
 rbracket = checkinstance(RightBracket)
+divider = checkinstance(Divider)
 
 leftHTMLComment = checkinstance(LeftHTMLComment)
 rightHTMLComment = checkinstance(RightHTMLComment)
@@ -152,10 +154,6 @@ def _braced():
     return (yield lbrace >> simple.map(Cloze) << rbrace)
 
 
-def flatten(t):
-    return [item for sublist in t for item in sublist]
-
-
 simple = seq(
     text,
     (backlink | eol | text).many(),
@@ -190,7 +188,7 @@ paragraph = (
 space = string(" ").map(Space)
 spacer = (eol | space).at_least(1).map(Spacer)
 
-block = basic_prompt | cloze_prompt | paragraph | spacer
+block = divider | basic_prompt | cloze_prompt | paragraph | spacer
 
 title = text.map(Title)
 

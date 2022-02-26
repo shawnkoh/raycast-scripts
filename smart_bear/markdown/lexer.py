@@ -57,6 +57,11 @@ class RightHTMLComment:
     pass
 
 
+@define
+class Divider:
+    pass
+
+
 # <!-- {BearID:3A72570E-59E0-4094-907F-CAC602C9A6CE-13835-00000A4715F28D3D} -->
 @define
 class BearID:
@@ -88,6 +93,7 @@ bearID = (
     << string(" ")
     << rightHTMLComment
 ).map(BearID)
+divider = string("---").map(lambda _: Divider())
 
 not_text = (
     bearID
@@ -100,6 +106,7 @@ not_text = (
     | eol
     | leftHTMLComment
     | rightHTMLComment
+    | divider
 )
 
 # TODO: Should we define (<any_char>\n?)+ as text instead?
