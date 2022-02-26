@@ -126,7 +126,9 @@ class Document(Identifiable):
             cloze_prompts[prompt.id] = prompt
         return cloze_prompts
 
-    def build_str(self, include_title: bool = True, include_backlinks: bool = True) -> str:
+    def build_str(
+        self, include_title: bool = True, include_backlinks: bool = True
+    ) -> str:
         self.title
         self.references
         self.backlink_blocks

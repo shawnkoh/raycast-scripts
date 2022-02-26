@@ -6,6 +6,7 @@ import re
 import shutil
 import webbrowser
 from pathlib import Path
+from attrs import asdict
 
 import arrow
 import click
@@ -18,6 +19,9 @@ from smart_bear.beeminder.beeminder import Beeminder
 from smart_bear.core.document import Document
 from smart_bear.markdown import md_parser
 from smart_bear.markdown.crawler import Crawler, link_map
+from smart_bear.markdown.parser import parser
+from smart_bear.markdown.lexer import lexer
+from rich.pretty import pprint
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
@@ -205,4 +209,9 @@ def open_today():
 
 @run.command()
 def parse():
-    ()
+    urls = get_urls()
+    url = urls[0]
+    with open(url, "r") as file:
+        tokens = lexer.parse(file.read())
+        root = parser.parse(tokens)
+        pprint(root)
