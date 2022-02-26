@@ -37,26 +37,26 @@ def test_text_discard_answer():
 
 def test_lbrace():
     given = "{abc"
-    expected = LeftBrace("{")
+    expected = LeftBrace()
     assert (lbrace << any_char.many()).parse(given) == expected
 
 
 def test_lbrace_space():
     given = "{ abc"
-    expected = LeftBrace("{")
+    expected = LeftBrace()
     assert (lbrace << any_char.many()).parse(given) == expected
 
 
 def test_lexer():
     given = "Q: Question 1\nQ: Question 2\nA:Some\nLong answer\n\nUnrelated\n\n"
     expected = [
-        QuestionPrefix("Q:"),
+        QuestionPrefix(),
         Text(" Question 1"),
         Break(),
-        QuestionPrefix("Q:"),
+        QuestionPrefix(),
         Text(" Question 2"),
         Break(),
-        AnswerPrefix("A:"),
+        AnswerPrefix(),
         Text("Some"),
         Break(),
         Text("Long answer"),

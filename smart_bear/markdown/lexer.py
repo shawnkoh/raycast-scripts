@@ -9,22 +9,22 @@ class Separator:
 
 @define
 class QuestionPrefix:
-    raw_value: str
+    pass
 
 
 @define
 class AnswerPrefix:
-    raw_value: str
+    pass
 
 
 @define
 class LeftBrace:
-    raw_value: str
+    pass
 
 
 @define
 class RightBrace:
-    raw_value: str
+    pass
 
 
 @define
@@ -44,10 +44,10 @@ exclude_none = lambda l: [i for i in l if i is not None]
 
 
 # Lexical Tokens
-question_prefix = string("Q:").map(QuestionPrefix)
-answer_prefix = string("A:").map(AnswerPrefix)
-lbrace = string("{").map(LeftBrace)
-rbrace = string("}").map(RightBrace)
+question_prefix = string("Q:").map(lambda x: QuestionPrefix())
+answer_prefix = string("A:").map(lambda x: AnswerPrefix())
+lbrace = string("{").map(lambda x: LeftBrace())
+rbrace = string("}").map(lambda x: RightBrace())
 
 not_text = question_prefix | answer_prefix | lbrace | rbrace | eol
 
