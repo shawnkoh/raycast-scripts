@@ -22,7 +22,6 @@ from smart_bear.markdown.parser import (
     cloze_prompt,
     content,
     paragraph,
-    paragraphs,
     question,
     text,
     parser,
@@ -226,45 +225,6 @@ def test_concat():
     _parser = string("[").many().concat() + string("]").many().concat()
     pprint(_parser.parse(given))
     assert given == expected
-
-
-def test_paragraphs():
-    tokens = lexer.parse("Simple\n\nSimple")
-    expected = [
-        Paragraph(
-            [
-                Text("Simple"),
-            ]
-        ),
-        Paragraph(
-            [
-                Text("Simple"),
-            ]
-        ),
-    ]
-    pprint(tokens)
-    pprint(paragraphs.parse(tokens))
-    assert paragraphs.parse(tokens) == expected
-
-
-def test_paragraphs_eof():
-    tokens = lexer.parse("Simple\n\nSimple\n")
-    expected = [
-        Paragraph(
-            [
-                Text("Simple"),
-            ]
-        ),
-        Paragraph(
-            [
-                Text("Simple"),
-                Break(),
-            ]
-        ),
-    ]
-    pprint(tokens)
-    pprint(paragraphs.parse(tokens))
-    assert paragraphs.parse(tokens) == expected
 
 
 def test_title():

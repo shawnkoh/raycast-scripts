@@ -1,5 +1,6 @@
 import datetime
 import glob
+from lib2to3.pgen2 import token
 import os
 import pathlib
 import re
@@ -219,10 +220,24 @@ def p():
 
 
 @run.command()
+def tt():
+    url = "/Users/shawnkoh/repos/notes/bear/sleep.md"
+    with open(url, "r") as file:
+        tokens = lexer.parse(file.read())
+        root = parser.parse_partial(tokens)
+        if root[1]:
+            pprint(tokens)
+            pprint(url)
+            pprint(root)
+
+
+@run.command()
 def pp():
     urls = get_urls()
     for url in urls:
         with open(url, "r") as file:
             tokens = lexer.parse(file.read())
             root = parser.parse_partial(tokens)
-            pprint(root)
+            if root[1]:
+                pprint(url)
+                pprint(root)

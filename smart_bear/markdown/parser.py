@@ -61,14 +61,16 @@ class ClozePrompt:
 
 @define
 class Paragraph:
-    # TODO: This is problematic for paragraphs with a single { or }
-    children: Question | Answer | ClozePrompt | List[Content]
+    children: List[Content]
+
+
+Block = BasicPrompt | ClozePrompt | Content
 
 
 @define
 class Root:
     title: Optional[Title]
-    children: List[Paragraph]
+    children: List[Block]
     bearID: Optional[BearID]
 
 
@@ -140,20 +142,17 @@ cloze_prompt = (
     )
 )
 
-paragraph = (
-    question
-    | answer
-    | cloze_prompt
-    | (paragraph_separator_should_fail >> (content)).at_least(1)
-).map(Paragraph)
+paragraph = ((paragraph_separator_should_fail >> (content)).at_least(1)).map(
+    Paragraph
+) << eol.times(2).optional()
 
-paragraphs = paragraph.sep_by(paragraph_separator)
+block = basic_prompt | cloze_prompt | paragraph
 
 title = text.map(Title)
 
 parser = seq(
     title=title.optional() << eol.optional(),
-    children=paragraphs,
+    children=block.many(),
     _skip=eol.many(),
     bearID=bearID.optional(),
     _ignore=eol.many(),
