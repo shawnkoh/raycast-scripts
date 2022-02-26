@@ -1,7 +1,10 @@
+from pytest import raises
 from smart_bear.markdown.lexer import (
     lexer,
 )
 from smart_bear.markdown.parser import (
+    paragraph,
+    Paragraph,
     basic_prompt,
     cloze_prompt,
     ClozePrompt,
@@ -33,11 +36,7 @@ def test_text():
 
 def test_content():
     tokens = lexer.parse("content\ncontent")
-    assert content.parse(tokens) == [
-        Text("content"),
-        Break(),
-        Text("content"),
-    ]
+    assert content.parse_partial(tokens)[0] == Text("content")
 
 
 def test_question():
@@ -188,3 +187,19 @@ def test_cloze_prompt():
         ]
     )
     assert_that(cloze_prompt.parse(given), expected)
+
+
+def test_cloze_prompt_fails():
+    tokens = lexer.parse("Some text")
+    with raises(Exception) as _:
+        cloze_prompt.parse(tokens)
+
+
+def test_paragraph():
+    tokens = lexer.parse("Simple")
+    expected = Paragraph(
+        [
+            Text("Simple"),
+        ]
+    )
+    assert_that(paragraph.parse(tokens), expected)
