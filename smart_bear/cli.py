@@ -8,6 +8,7 @@ import shutil
 import webbrowser
 from pathlib import Path
 from attrs import asdict
+from tqdm import tqdm
 
 import arrow
 import click
@@ -211,7 +212,7 @@ def open_today():
 @run.command()
 def p():
     urls = get_urls()
-    for url in urls:
+    for url in tqdm(urls):
         with open(url, "r") as file:
             print(url)
             tokens = lexer.parse(file.read())
@@ -246,7 +247,7 @@ def tt():
 @run.command()
 def pp():
     urls = get_urls()
-    for url in urls:
+    for url in tqdm(urls):
         with open(url, "r") as file:
             tokens = lexer.parse(file.read())
             root = parser.parse_partial(tokens)
