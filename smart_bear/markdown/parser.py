@@ -8,6 +8,8 @@ from parsy import fail, seq, success, string, generate
 
 from smart_bear.markdown.lexer import (
     Divider,
+    Hashtag,
+    Tag,
     flatten_list,
     AnswerPrefix,
     BearID,
@@ -38,7 +40,7 @@ class Backlink:
     value: Text
 
 
-Content = Break | Backlink | Text
+Content = Tag | Break | Backlink | Text
 
 
 @define
@@ -123,6 +125,8 @@ rbrace = checkinstance(RightBrace)
 lbracket = checkinstance(LeftBracket)
 rbracket = checkinstance(RightBracket)
 divider = checkinstance(Divider)
+hashtag = checkinstance(Hashtag)
+tag = checkinstance(Tag)
 
 leftHTMLComment = checkinstance(LeftHTMLComment)
 rightHTMLComment = checkinstance(RightHTMLComment)
@@ -138,6 +142,8 @@ _raw_text = (
     | answer_prefix.map(lambda _: "A:")
     | lbrace.map(lambda _: "{")
     | rbrace.map(lambda _: "}")
+    | tag.map(lambda x: "#" + x.value)
+    | hashtag.map(lambda x: "#")
     | text.map(lambda x: x.value)
 )
 
@@ -146,12 +152,15 @@ _converted_brackets = (
 ).map(Text)
 backlink = lbracket.times(2) >> _converted_brackets.map(Backlink) << rbracket.times(2)
 
-_content = eol | backlink | _raw_text
+_content = eol | backlink | tag | _raw_text
 # FIXME: This might be problematic because _raw_text can consume the others.
 contents = _content.at_least(1).map(_concatenate_texts)
 
 question = question_prefix >> (
-    (answer_prefix.should_fail("no answer_prefix") >> (eol | backlink | _raw_text))
+    (
+        answer_prefix.should_fail("no answer_prefix")
+        >> (eol | backlink | tag | _raw_text)
+    )
     .at_least(1)
     .map(_concatenate_texts)
     .map(Question)
@@ -218,7 +227,9 @@ spacer = (eol | space).at_least(1).map(Spacer)
 
 block = bear_id | divider | basic_prompt | cloze_prompt | paragraph | spacer
 
-title = text.map(Title)
+title = (
+    (eol.should_fail("no eol") >> _raw_text).at_least(1).concat().map(Text).map(Title)
+)
 
 parser = seq(
     title=title.optional() << eol.optional(),

@@ -62,6 +62,17 @@ class Divider:
     pass
 
 
+@define
+class Hashtag:
+    pass
+
+
+# i think best solution for now - keep it in lexer.
+@define
+class Tag:
+    value: str
+
+
 # <!-- {BearID:3A72570E-59E0-4094-907F-CAC602C9A6CE-13835-00000A4715F28D3D} -->
 @define
 class BearID:
@@ -72,6 +83,7 @@ class BearID:
 eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
 exclude_none = lambda l: [i for i in l if i is not None]
+space = string(" ")
 
 
 # Lexical Tokens
@@ -94,6 +106,11 @@ bearID = (
     << rightHTMLComment
 ).map(BearID)
 divider = string("---").map(lambda _: Divider())
+hashtag = string("#").map(lambda _: Hashtag())
+tag = (
+    hashtag.times(1)
+    >> ((space | hashtag | eol).should_fail("no eol") >> any_char).at_least(1).concat()
+).map(Tag)
 
 not_text = (
     bearID
@@ -107,6 +124,8 @@ not_text = (
     | leftHTMLComment
     | rightHTMLComment
     | divider
+    | tag
+    | hashtag
 )
 
 # TODO: Should we define (<any_char>\n?)+ as text instead?
