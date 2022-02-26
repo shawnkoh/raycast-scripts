@@ -208,10 +208,21 @@ def open_today():
 
 
 @run.command()
-def parse():
+def p():
     urls = get_urls()
-    url = urls[0]
-    with open(url, "r") as file:
-        tokens = lexer.parse(file.read())
-        root = parser.parse(tokens)
-        pprint(root)
+    for url in urls:
+        with open(url, "r") as file:
+            print(url)
+            tokens = lexer.parse(file.read())
+            root = parser.parse(tokens)
+            pprint(root)
+
+
+@run.command()
+def pp():
+    urls = get_urls()
+    for url in urls:
+        with open(url, "r") as file:
+            tokens = lexer.parse(file.read())
+            root = parser.parse_partial(tokens)
+            pprint(root)

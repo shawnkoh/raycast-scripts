@@ -28,8 +28,18 @@ class RightBrace:
 
 
 @define
+class LeftBracket:
+    pass
+
+
+@define
+class RightBracket:
+    pass
+
+
+@define
 class Text:
-    raw_value: str
+    value: str
 
 
 @define
@@ -48,8 +58,10 @@ question_prefix = string("Q:").map(lambda x: QuestionPrefix())
 answer_prefix = string("A:").map(lambda x: AnswerPrefix())
 lbrace = string("{").map(lambda x: LeftBrace())
 rbrace = string("}").map(lambda x: RightBrace())
+lbracket = string("[").map(lambda x: LeftBracket())
+rbracket = string("]").map(lambda x: RightBracket())
 
-not_text = question_prefix | answer_prefix | lbrace | rbrace | eol
+not_text = question_prefix | answer_prefix | lbrace | rbrace | lbracket | rbracket | eol
 
 # TODO: Should we define (<any_char>\n?)+ as text instead?
 # abc\nabc = text

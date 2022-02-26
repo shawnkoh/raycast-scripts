@@ -1,6 +1,7 @@
 from pprint import pp, pprint
 
 from pytest import raises
+from parsy import string
 
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import lexer
@@ -217,6 +218,14 @@ def test_paragraph_multi():
         ]
     )
     assert_that(paragraph.parse_partial(tokens)[0], expected)
+
+
+def test_concat():
+    given = ""
+    expected = ""
+    _parser = string("[").many().concat() + string("]").many().concat()
+    pprint(_parser.parse(given))
+    assert given == expected
 
 
 def test_paragraphs():

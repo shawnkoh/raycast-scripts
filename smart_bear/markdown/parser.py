@@ -8,16 +8,25 @@ from smart_bear.markdown.lexer import (
     AnswerPrefix,
     Break,
     LeftBrace,
+    LeftBracket,
     QuestionPrefix,
     RightBrace,
+    RightBracket,
     Text,
 )
 
-Content = Break | Text
+
+@define
+class Backlink:
+    value: Text
+
+
+Content = Break | Backlink | Text
 
 
 @define
 class Title:
+    # FIXME: This must be trimmed to disallow space at end. Unsure about start
     value: Text
 
 
@@ -73,8 +82,21 @@ answer_prefix = checkinstance(AnswerPrefix)
 question_prefix = checkinstance(QuestionPrefix)
 lbrace = checkinstance(LeftBrace)
 rbrace = checkinstance(RightBrace)
+lbracket = checkinstance(LeftBracket)
+rbracket = checkinstance(RightBracket)
 
-content = eol | text
+_raw_text = (
+    lbracket.map(lambda x: "[")
+    | rbracket.map(lambda x: "]")
+    | text.map(lambda x: x.value)
+)
+
+_converted_brackets = (
+    (rbracket.times(2).should_fail("no 2 rbracket") >> _raw_text).at_least(1).concat()
+).map(Text)
+backlink = lbracket.times(2) >> _converted_brackets.map(Backlink) << rbracket.times(2)
+
+content = eol | backlink | text | _raw_text.at_least(1).concat().map(Text)
 
 question = question_prefix >> (
     (answer_prefix.should_fail("no answer_prefix") >> content).at_least(1).map(Question)
@@ -91,6 +113,7 @@ basic_prompt = (
 )
 
 # TODO: Investigate how to support recursive
+# TODO: Implement recursive logic using brackets logic
 cloze = lbrace >> content.at_least(1).map(Cloze) << rbrace
 
 paragraph_separator = eol.at_least(2)
