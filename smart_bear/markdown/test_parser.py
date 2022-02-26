@@ -6,7 +6,7 @@ from pytest import raises
 from parsy import string
 
 from smart_bear.intelligence.test_utilities import assert_that
-from smart_bear.markdown.lexer import lexer
+from smart_bear.markdown.lexer import Tag, lexer
 from smart_bear.markdown.parser import (
     backlink,
     Backlink,
@@ -314,3 +314,13 @@ def test_backlink_spaced_fails():
     tokens = lexer.parse(" [[backlink]]")
     with raises(Exception) as _:
         backlink.parse(tokens)
+
+
+def test_paragraph_tag():
+    tokens = lexer.parse("#g2")
+    expected = Paragraph(
+        [
+            Tag("g2"),
+        ],
+    )
+    assert_that(paragraph.parse(tokens), expected)

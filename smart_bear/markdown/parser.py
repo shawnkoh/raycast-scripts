@@ -214,7 +214,7 @@ paragraph = (
         # ideally, we should do (backlink | raw_text).at_least(1)
         # but that will result in having a lot of non-raw text.
         # we could technically do a map and concat them later on?
-        (backlink | _raw_text).at_least(1).map(_concatenate_texts),
+        (tag | backlink | _raw_text).at_least(1).map(_concatenate_texts),
         (paragraph_separator_should_fail >> _content).many().map(_concatenate_texts),
     )
     .map(flatten_list)

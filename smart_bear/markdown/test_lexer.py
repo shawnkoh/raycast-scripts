@@ -1,9 +1,12 @@
 from pprint import pprint
 
 from parsy import any_char, seq, string
+from smart_bear.intelligence.test_utilities import assert_that
 
 from smart_bear.markdown.lexer import (
+    tag,
     AnswerPrefix,
+    Tag,
     bearID,
     BearID,
     Break,
@@ -111,3 +114,9 @@ def test_bear_id():
     )
     expected = BearID("1419719E-6881-497E-94E2-BB154943963C-30579-0000CA9CD9FF92FE")
     assert bearID.parse(given) == expected
+
+
+def test_tag():
+    given = "#g2"
+    expected = Tag("g2")
+    assert tag.parse(given) == expected
