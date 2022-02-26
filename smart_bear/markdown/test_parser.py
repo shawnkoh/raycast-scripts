@@ -49,21 +49,6 @@ def test_content():
     )
 
 
-def test_fuck():
-    tokens = lexer.parse("Q: Question")
-    expected = Question(
-        Content(
-            [
-                Text(" Question"),
-            ]
-        )
-    )
-    no_answer_prefix = checkinstance(AnswerPrefix).should_fail("no answer prefix")
-    _content = (no_answer_prefix >> checkinstance(Text)).at_least(1).map(Content)
-    _parser = checkinstance(QuestionPrefix) >> _content.map(Question)
-    assert_that(_parser.parse(tokens), expected)
-
-
 def test_question():
     tokens = lexer.parse("Q: Question\nExtended")
     expected = Question(
@@ -81,19 +66,22 @@ def test_question():
     )
 
 
-# def test_question_answer():
-#     tokens = lexer.parse("Q: Question\nExtended\nA: Answer")
-#     expected = Question(
-#         Content(
-#             [
-#                 Text(" Question"),
-#                 Break("\n"),
-#                 Text("Extended"),
-#                 Break("\n"),
-#             ]
-#         )
-#     )
-#     assert_that(question.parse(tokens), expected)
+def test_question_answer():
+    tokens = lexer.parse("Q: Question\nExtended\nA: Answer")
+    expected = Question(
+        Content(
+            [
+                Text(" Question"),
+                Break("\n"),
+                Text("Extended"),
+                Break("\n"),
+            ]
+        )
+    )
+    assert_that(
+        question.parse_partial(tokens)[0],
+        expected,
+    )
 
 
 def test_answer():
