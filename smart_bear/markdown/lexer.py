@@ -13,7 +13,9 @@ class Space:
     pass
 
 
-Separator = List[Space] | Break
+@define
+class Separator:
+    value: List[Space] | Break
 
 
 @define
@@ -93,7 +95,7 @@ eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
 exclude_none = lambda l: [i for i in l if i is not None]
 space = string(" ").map(lambda x: Space())
-separator = space.many() | eol
+separator = (space.many() | eol).map(Separator)
 
 
 # Lexical Tokens

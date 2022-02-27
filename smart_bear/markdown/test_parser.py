@@ -57,7 +57,7 @@ def test_question():
     tokens = lexer.parse("Q: Question\nExtended")
     expected = Question(
         [
-            Text(" Question"),
+            Text("Question"),
             Break(),
             Text("Extended"),
         ]
@@ -72,7 +72,7 @@ def test_question_answer():
     tokens = lexer.parse("Q: Question\nExtended\nA: Answer")
     expected = Question(
         [
-            Text(" Question"),
+            Text("Question"),
             Break(),
             Text("Extended"),
             Break(),
@@ -88,7 +88,7 @@ def test_answer():
     tokens = lexer.parse("A: Answer\nExtended")
     expected = Answer(
         [
-            Text(" Answer"),
+            Text("Answer"),
             Break(),
             Text("Extended"),
         ]
@@ -104,7 +104,7 @@ def test_basic_prompt():
     expected = BasicPrompt(
         question=Question(
             [
-                Text(" Question"),
+                Text("Question"),
                 Break(),
                 Text("Extended"),
                 Break(),
@@ -112,7 +112,7 @@ def test_basic_prompt():
         ),
         answer=Answer(
             [
-                Text(" Answer"),
+                Text("Answer"),
                 Break(),
                 Text("Extended"),
             ]
@@ -129,7 +129,7 @@ def test_basic_prompt_question_only():
     expected = BasicPrompt(
         question=Question(
             [
-                Text(" Question"),
+                Text("Question"),
                 Break(),
                 Text("Extended"),
             ]
@@ -360,3 +360,9 @@ def test_fenced_code_block_info_string():
         ],
     )
     assert_that(fenced_code_block.parse(tokens), expected)
+
+
+def test_cloze_prompt_fails():
+    tokens = lexer.parse("A throwing {cloze}\n\nprompt")
+    with raises(Exception) as _:
+        cloze_prompt.parse(tokens)

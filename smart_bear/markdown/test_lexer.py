@@ -4,6 +4,8 @@ from parsy import any_char, seq, string
 from smart_bear.intelligence.test_utilities import assert_that
 
 from smart_bear.markdown.lexer import (
+    Separator,
+    Space,
     tag,
     AnswerPrefix,
     Tag,
@@ -52,15 +54,15 @@ def test_lbrace_space():
 
 
 def test_lexer():
-    given = "Q: Question 1\nQ: Question 2\nA:Some\nLong answer\n\nUnrelated\n\n"
+    given = "Q: Question 1\nQ: Question 2\nA: Some\nLong answer\n\nUnrelated\n\n"
     expected = [
-        QuestionPrefix(),
-        Text(" Question 1"),
+        QuestionPrefix(Separator([Space()])),
+        Text("Question 1"),
         Break(),
-        QuestionPrefix(),
-        Text(" Question 2"),
+        QuestionPrefix(Separator([Space()])),
+        Text("Question 2"),
         Break(),
-        AnswerPrefix(),
+        AnswerPrefix(Separator([Space()])),
         Text("Some"),
         Break(),
         Text("Long answer"),
