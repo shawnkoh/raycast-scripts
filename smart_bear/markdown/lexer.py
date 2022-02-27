@@ -79,6 +79,11 @@ class BearID:
     value: str
 
 
+@define
+class CodeFence:
+    pass
+
+
 # Utilities
 eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
@@ -111,6 +116,7 @@ tag = (
     hashtag.times(1)
     >> ((space | hashtag | eol).should_fail("no eol") >> any_char).at_least(1).concat()
 ).map(Tag)
+code_fence = string("```").map(lambda _: CodeFence())
 
 not_text = (
     bearID
@@ -126,6 +132,7 @@ not_text = (
     | divider
     | tag
     | hashtag
+    | code_fence
 )
 
 # TODO: Should we define (<any_char>\n?)+ as text instead?

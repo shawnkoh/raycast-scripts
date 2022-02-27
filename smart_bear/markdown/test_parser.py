@@ -6,6 +6,8 @@ from parsy import string
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import Tag, lexer
 from smart_bear.markdown.parser import (
+    fenced_code_block,
+    FencedCodeBlock,
     backlink_block,
     BacklinkBlock,
     backlink,
@@ -336,3 +338,25 @@ def test_backlink_block():
         )
     )
     assert_that(backlink_block.parse(tokens), expected)
+
+
+def test_fenced_code_block():
+    tokens = lexer.parse("```\nBlah\n```")
+    expected = FencedCodeBlock(
+        info_string=None,
+        children=[
+            Text("Blah"),
+        ],
+    )
+    assert_that(fenced_code_block.parse(tokens), expected)
+
+
+def test_fenced_code_block_info_string():
+    tokens = lexer.parse("```swift\nBlah\n```")
+    expected = FencedCodeBlock(
+        info_string=Text("swift"),
+        children=[
+            Text("Blah"),
+        ],
+    )
+    assert_that(fenced_code_block.parse(tokens), expected)

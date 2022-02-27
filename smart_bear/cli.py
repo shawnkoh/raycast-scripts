@@ -1,13 +1,12 @@
 import datetime
 import glob
-from lib2to3.pgen2 import token
 import os
 import pathlib
 import re
 import shutil
 import webbrowser
 from pathlib import Path
-from attrs import asdict
+from rich.console import Console
 from tqdm import tqdm
 
 import arrow
@@ -207,6 +206,18 @@ def open_today():
     url = x_callback_url.open_note(title=title)
     url.args["x-error"] = x_callback_url.create(title=title, tags=[tag])
     webbrowser.open(url.url)
+
+
+@run.command()
+def f():
+    urls = get_urls()
+    with open("report.txt", "wt") as report_file:
+        console = Console(file=report_file)
+        for url in tqdm(urls):
+            with open(url, "r") as file:
+                tokens = lexer.parse(file.read())
+                root = parser.parse(tokens)
+                pprint(root, console=console)
 
 
 @run.command()

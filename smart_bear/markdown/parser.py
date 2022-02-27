@@ -22,6 +22,7 @@ from smart_bear.markdown.lexer import (
     RightBrace,
     RightBracket,
     Text,
+    CodeFence,
 )
 
 
@@ -85,6 +86,12 @@ class BacklinkBlock:
     value: Paragraph
 
 
+@define
+class FencedCodeBlock:
+    info_string: Optional[Text]
+    children: List[Text | Break]
+
+
 Block = (
     BearID | Divider | BasicPrompt | ClozePrompt | BacklinkBlock | Paragraph | Spacer
 )
@@ -134,6 +141,7 @@ rbracket = checkinstance(RightBracket)
 divider = checkinstance(Divider)
 hashtag = checkinstance(Hashtag)
 tag = checkinstance(Tag)
+code_fence = checkinstance(CodeFence)
 
 leftHTMLComment = checkinstance(LeftHTMLComment)
 rightHTMLComment = checkinstance(RightHTMLComment)
@@ -142,7 +150,7 @@ bear_id = checkinstance(BearID)
 
 _raw_text = (
     text.map(lambda x: x.value)
-    | hashtag.map(lambda x: "#")
+    | hashtag.map(lambda _: "#")
     | lbracket.map(lambda _: "[")
     | rbracket.map(lambda _: "]")
     | lbrace.map(lambda _: "{")
@@ -150,6 +158,7 @@ _raw_text = (
     | question_prefix.map(lambda _: "Q:")
     | answer_prefix.map(lambda _: "A:")
     | tag.map(lambda x: "#" + x.value)
+    | code_fence.map(lambda _: "```")
     | leftHTMLComment.map(lambda _: "<!--")
     | rightHTMLComment.map(lambda _: "<!--")
 )
@@ -215,12 +224,22 @@ cloze_prompt = (
 )
 
 
+fenced_code_block = seq(
+    _prefix=code_fence,
+    info_string=text.optional(),
+    _skip=eol,
+    children=(
+        (
+            (eol >> code_fence).should_fail("suffix")
+            >> (eol | _raw_text.many().concat().map(Text))
+        ).many()
+    ),
+    _suffix=eol >> code_fence,
+).combine_dict(FencedCodeBlock)
+
+
 paragraph = (
     seq(
-        # problem is _raw_text is absorbing the backlinks.
-        # ideally, we should do (backlink | raw_text).at_least(1)
-        # but that will result in having a lot of non-raw text.
-        # we could technically do a map and concat them later on?
         (tag | backlink | _raw_text).at_least(1).map(_concatenate_texts),
         (paragraph_separator_should_fail >> _content).many().map(_concatenate_texts),
     )
@@ -247,6 +266,7 @@ backlink_block = _backlink_block_prefix >> paragraph.map(BacklinkBlock)
 block = (
     divider
     | basic_prompt
+    | fenced_code_block
     | cloze_prompt
     | backlink_block
     | paragraph
