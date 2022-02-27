@@ -80,7 +80,14 @@ class Paragraph:
     children: List[Content]
 
 
-Block = BearID | Divider | BasicPrompt | ClozePrompt | Paragraph | Spacer
+@define
+class BacklinkBlock:
+    value: Paragraph
+
+
+Block = (
+    BearID | Divider | BasicPrompt | ClozePrompt | BacklinkBlock | Paragraph | Spacer
+)
 
 
 @define
@@ -225,7 +232,27 @@ paragraph = (
 space = string(" ").map(Space)
 spacer = (eol | space).at_least(1).map(Spacer)
 
-block = bear_id | divider | basic_prompt | cloze_prompt | paragraph | spacer
+_backlink_block_prefix = (
+    hashtag.times(2)
+    >> text.bind(
+        lambda x: success(x.value)
+        if x.value == " Backlinks"
+        else fail("no backlink block prefix")
+    )
+    >> eol
+)
+
+backlink_block = _backlink_block_prefix >> paragraph.map(BacklinkBlock)
+
+block = (
+    divider
+    | basic_prompt
+    | cloze_prompt
+    | backlink_block
+    | paragraph
+    | spacer
+    | bear_id
+)
 
 title = (
     (eol.should_fail("no eol") >> _raw_text).at_least(1).concat().map(Text).map(Title)

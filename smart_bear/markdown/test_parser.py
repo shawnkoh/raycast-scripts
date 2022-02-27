@@ -1,5 +1,3 @@
-from turtle import back
-from unittest import expectedFailure
 from rich.pretty import pprint
 
 from pytest import raises
@@ -8,6 +6,8 @@ from parsy import string
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import Tag, lexer
 from smart_bear.markdown.parser import (
+    backlink_block,
+    BacklinkBlock,
     backlink,
     Backlink,
     Spacer,
@@ -324,3 +324,15 @@ def test_paragraph_tag():
         ],
     )
     assert_that(paragraph.parse(tokens), expected)
+
+
+def test_backlink_block():
+    tokens = lexer.parse("## Backlinks\nSome Stuff")
+    expected = BacklinkBlock(
+        Paragraph(
+            [
+                Text("Some Stuff"),
+            ]
+        )
+    )
+    assert_that(backlink_block.parse(tokens), expected)
