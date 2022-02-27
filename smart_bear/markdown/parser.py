@@ -194,30 +194,24 @@ basic_prompt = (
     | question.map(lambda x: BasicPrompt(question=x, answer=None))
 )
 
-# TODO: Investigate how to support recursive
-# TODO: Implement recursive logic using brackets logic
-# cloze = lbrace >> content.at_least(1).map(Cloze) << rbrace
 
-
-@generate
-def _braced():
-    return (yield lbrace >> simple.map(Cloze) << rbrace)
-
-
-simple = seq(
-    text,
-    (backlink | eol | text).many(),
-).map(lambda x: list(collapse(x)))
-
-cloze = simple | _braced
-
+cloze = (
+    lbrace
+    >> (
+        ((lbrace | rbrace).should_fail("no brace") >> _content)
+        .at_least(1)
+        .map(_concatenate_texts)
+    )
+    << rbrace
+).map(Cloze)
 
 paragraph_separator = eol.at_least(2)
 paragraph_separator_should_fail = paragraph_separator.should_fail("no separator")
 
 cloze_prompt = (
-    cloze.at_least(1)
-    .map(lambda x: list(collapse(x)))
+    (eol.times(2).should_fail("no separator") >> (cloze | _content))
+    .at_least(1)
+    .map(_concatenate_texts)
     .bind(
         lambda res: success(ClozePrompt(res))
         if any(isinstance(ele, Cloze) for ele in res)

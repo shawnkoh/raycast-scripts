@@ -158,7 +158,8 @@ def test_cloze():
 def test_cloze_text():
     tokens = lexer.parse("abc")
     expected = [Text("abc")]
-    assert cloze.parse(tokens) == expected
+    with raises(Exception) as _:
+        cloze.parse(tokens)
 
 
 def test_cloze_space():
