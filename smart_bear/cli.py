@@ -18,7 +18,7 @@ from smart_bear.anki.prompts import extract_prompts
 from smart_bear.bear import x_callback_url
 from smart_bear.beeminder.beeminder import Beeminder
 from smart_bear.core.document import Document
-from smart_bear.markdown import md_parser
+from smart_bear.markdown import md_parser, visitor
 from smart_bear.markdown.crawler import Crawler, link_map
 from smart_bear.markdown.parser import parser
 from smart_bear.markdown.lexer import lexer
@@ -209,7 +209,7 @@ def open_today():
 
 
 @run.command()
-def f():
+def p():
     urls = get_urls()
     with open("report.txt", "wt") as report_file:
         console = Console(file=report_file)
@@ -218,41 +218,7 @@ def f():
                 tokens = lexer.parse(file.read())
                 root = parser.parse(tokens)
                 pprint(root, console=console)
-
-
-@run.command()
-def p():
-    urls = get_urls()
-    for url in tqdm(urls):
-        with open(url, "r") as file:
-            print(url)
-            tokens = lexer.parse(file.read())
-            root = parser.parse(tokens)
-            pprint(root)
-
-
-@run.command()
-def t():
-    url = "/Users/shawnkoh/repos/notes/bear/What is my ideal window management.md"
-    with open(url, "r") as file:
-        tokens = lexer.parse(file.read())
-        root = parser.parse(tokens)
-        if root[1]:
-            pprint(tokens)
-            pprint(url)
-            pprint(root)
-
-
-@run.command()
-def tt():
-    url = "/Users/shawnkoh/repos/notes/bear/What is my ideal window management.md"
-    with open(url, "r") as file:
-        tokens = lexer.parse(file.read())
-        root = parser.parse_partial(tokens)
-        if root[1]:
-            pprint(tokens)
-            pprint(url)
-            pprint(root)
+                visitor.visit(root)
 
 
 @run.command()
