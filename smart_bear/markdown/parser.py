@@ -174,15 +174,20 @@ contents = _content.at_least(1).map(_concatenate_texts)
 
 question = question_prefix >> (
     (
-        answer_prefix.should_fail("no answer_prefix")
-        >> (eol | backlink | tag | _raw_text)
+        (eol.times(2) | question_prefix | answer_prefix).should_fail("question_prefix")
+        >> _content
     )
     .at_least(1)
     .map(_concatenate_texts)
     .map(Question)
 )
 
-answer = answer_prefix >> contents.map(Answer)
+answer = answer_prefix >> (
+    ((eol.times(2) | question_prefix).should_fail("answer_prefix") >> _content)
+    .at_least(1)
+    .map(_concatenate_texts)
+    .map(Answer)
+)
 
 basic_prompt = (
     seq(
