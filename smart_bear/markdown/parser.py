@@ -7,6 +7,8 @@ from attrs import define
 from parsy import fail, seq, success, string, generate
 
 from smart_bear.markdown.lexer import (
+    space,
+    Space,
     Divider,
     Hashtag,
     Tag,
@@ -24,11 +26,6 @@ from smart_bear.markdown.lexer import (
     Text,
     CodeFence,
 )
-
-
-@define
-class Space:
-    pass
 
 
 @define
@@ -253,7 +250,6 @@ paragraph = (
 )
 
 
-space = string(" ").map(Space)
 spacer = (eol | space).at_least(1).map(Spacer)
 
 _backlink_block_prefix = (

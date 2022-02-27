@@ -1,20 +1,29 @@
+from typing import List
 from attrs import define
 from parsy import any_char, eof, peek, string, whitespace
 
 
 @define
-class Separator:
-    raw_value: str
+class Break:
+    pass
+
+
+@define
+class Space:
+    pass
+
+
+Separator = List[Space] | Break
 
 
 @define
 class QuestionPrefix:
-    pass
+    suffix: Separator
 
 
 @define
 class AnswerPrefix:
-    pass
+    suffix: Separator
 
 
 @define
@@ -40,11 +49,6 @@ class RightBracket:
 @define
 class Text:
     value: str
-
-
-@define
-class Break:
-    pass
 
 
 @define
@@ -88,12 +92,17 @@ class CodeFence:
 eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
 exclude_none = lambda l: [i for i in l if i is not None]
-space = string(" ")
+space = string(" ").map(lambda x: Space())
+separator = space.many() | eol
 
 
 # Lexical Tokens
-question_prefix = string("Q:").map(lambda x: QuestionPrefix())
-answer_prefix = string("A:").map(lambda x: AnswerPrefix())
+question_prefix = (
+    peek((space | eol).many()) >> string("Q:") >> separator.map(QuestionPrefix)
+)
+answer_prefix = (
+    peek((space | eol).many()) >> string("A:") >> separator.map(AnswerPrefix)
+)
 lbrace = string("{").map(lambda x: LeftBrace())
 rbrace = string("}").map(lambda x: RightBrace())
 lbracket = string("[").map(lambda x: LeftBracket())
