@@ -151,7 +151,7 @@ class FencedCodeBlock:
 
 
 Block = (
-    BearID | Divider | BasicPrompt | ClozePrompt | BacklinkBlock | Paragraph | Spacer
+    BearID | Divider | BasicPrompt | ClozePrompt | FencedCodeBlock | BacklinkBlock | Paragraph | Spacer
 )
 
 

@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Protocol
+from typing import List, Protocol
 from attrs import define
 
 SOURCE_ATTRIBUTE = "data-source"
@@ -16,6 +16,7 @@ class Identifiable(Protocol):
 class BasicPrompt(Identifiable):
     question_md: str
     answer_md: str | None
+    tags: List[str]
     source_attribute = SOURCE_ATTRIBUTE
 
     @property
@@ -27,6 +28,7 @@ class BasicPrompt(Identifiable):
 class ClozePrompt(Identifiable):
     stripped_md: str
     clozed_md: str
+    tags: List[str]
     source_attribute = SOURCE_ATTRIBUTE
 
     @property

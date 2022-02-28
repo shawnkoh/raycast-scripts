@@ -2,6 +2,7 @@ from typing import Sequence
 from smart_bear.markdown import parser
 from smart_bear.anki import anki
 from functional import seq
+from rich.pretty import pprint
 
 IGNORE_TAG = "smart-bear/ignore-prompts"
 
@@ -15,11 +16,23 @@ def will_ignore(root: parser.Root) -> bool:
     )
 
 
+def tags(root: parser.Root) -> Sequence[str]:
+    return (
+        seq(root.children)
+        .filter(lambda x: isinstance(x, parser.Paragraph))
+        .flat_map(lambda x: seq(x.children).filter(lambda x: isinstance(x, parser.Tag)))
+        .map(lambda x: x.value)
+    )
+
+
 def basic_prompts(root: parser.Root) -> Sequence[anki.BasicPrompt]:
+    _tags = tags(root)
+
     def convert(prompt: parser.BasicPrompt) -> anki.BasicPrompt:
         return anki.BasicPrompt(
             question_md=prompt.question.stringify(),
             answer_md=prompt.answer.stringify() if prompt.answer else None,
+            tags=_tags,
         )
 
     return (
@@ -30,6 +43,8 @@ def basic_prompts(root: parser.Root) -> Sequence[anki.BasicPrompt]:
 
 
 def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
+    _tags = tags(root)
+
     def stripped(prompt: parser.ClozePrompt) -> str:
         def stringify(x) -> str:
             match x:
@@ -49,7 +64,8 @@ def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
     def convert(prompt: parser.ClozePrompt) -> anki.ClozePrompt:
         return anki.ClozePrompt(
             stripped_md=stripped(prompt),
-            clozed_md=clozed(prompt)
+            clozed_md=clozed(prompt),
+            tags=_tags,
         )
 
     return (

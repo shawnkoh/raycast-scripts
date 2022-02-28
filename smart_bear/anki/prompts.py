@@ -46,7 +46,7 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
                 answer_md = md_parser.html_to_markdown(answer_field)
 
         # FIXME: Why cant i use cls?
-        return BasicPrompt(question_md, answer_md)
+        return BasicPrompt(question_md, answer_md, tags=note.tags)
 
     @cached_property
     def question_field(self):
@@ -70,6 +70,7 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
     def override(self, note):
         note.fields[0] = self.question_field
         note.fields[1] = self.answer_field
+        note.tags = self.tags
 
 
 class ClozePrompt(prompts.ClozePrompt, Ankifiable):
@@ -89,7 +90,7 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
             stripped_md = md_parser.strip_anki_cloze(md)
 
         # FIXME: Why cant i use cls?
-        return ClozePrompt(stripped_md, clozed_md)
+        return ClozePrompt(stripped_md, clozed_md, tags=note.tags)
 
     @cached_property
     def field(self):
@@ -102,6 +103,7 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 
     def override(self, note):
         note.fields[0] = self.field
+        note.tags = self.tags
 
 
 def extract_prompts(urls):
