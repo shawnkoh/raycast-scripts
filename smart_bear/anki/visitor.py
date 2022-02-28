@@ -3,6 +3,17 @@ from smart_bear.markdown import parser
 from smart_bear.anki import anki
 from functional import seq
 
+IGNORE_TAG = "smart-bear/ignore-prompts"
+
+
+def will_ignore(root: parser.Root) -> bool:
+    def is_ignore(tag) -> bool:
+        return isinstance(tag, parser.Tag) and tag.value == IGNORE_TAG
+    return (
+        seq(root.children)
+        .exists(lambda x: isinstance(x, parser.Paragraph) and seq(x.children).exists(is_ignore))
+    )
+
 
 def basic_prompts(root: parser.Root) -> Sequence[anki.BasicPrompt]:
     def convert(prompt: parser.BasicPrompt) -> anki.BasicPrompt:

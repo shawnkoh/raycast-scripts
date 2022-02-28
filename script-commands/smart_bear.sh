@@ -22,18 +22,16 @@ python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bea
 git add -A && git commit -m "Commit exported changes from Bear" ;
 
 cd ~/repos/raycast-scripts ;
-poetry run smart_bear prettify-markdowns ;
 
-/usr/local/bin/node ~/.config/yarn/global/node_modules/@andymatuschak/note-link-janitor/dist/index.js ~/repos/notes/bear ;
+node ~/.config/yarn/global/node_modules/@andymatuschak/note-link-janitor/dist/index.js ~/repos/notes/bear ;
 
 python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
 
 cd ~/repos/raycast-scripts ;
-poetry run python script-commands/detect-duplicate-titles.py ;
-poetry run smart_bear sync-anki ;
-poetry run smart_bear update-beeminder ;
+# poetry run python script-commands/detect-duplicate-titles.py ;
+poetry run smart_bear anki ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit Smart Bear" ;
 

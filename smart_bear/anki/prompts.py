@@ -126,5 +126,5 @@ def extract_prompts(urls):
             lambda x: assign(import_cloze_prompts, x)
         )
 
-    pseq(tqdm(urls)).map(parse).for_each(iter)
+    (pseq(tqdm(urls)).map(parse).filter_not(visitor.will_ignore).for_each(iter))
     return import_basic_prompts, import_cloze_prompts
