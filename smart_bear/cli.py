@@ -2,6 +2,7 @@ import datetime
 import glob
 import os
 import pathlib
+from functional import pseq
 import re
 import shutil
 import webbrowser
@@ -214,11 +215,23 @@ def p():
     urls = get_urls()
     with open("report.txt", "wt") as report_file:
         console = Console(file=report_file)
-        for url in tqdm(urls):
+
+        def read(url) -> str:
+            r = None
             with open(url, "r") as file:
-                tokens = lexer.parse(file.read())
-                root = parser.parse(tokens)
-                pprint(root, console=console)
+                r = file.read()
+            return r
+
+        def parse(body: str) -> Root:
+            tokens = lexer.parse(body)
+            root = parser.parse(tokens)
+            return root
+
+        with console.capture() as capture:
+            pseq(tqdm(urls)).map(read).map(parse).for_each(
+                lambda x: pprint(x, console=console)
+            )
+        report_file.write(capture.get())
 
 
 @run.command()
