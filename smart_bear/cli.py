@@ -24,7 +24,6 @@ from smart_bear.markdown.crawler import Crawler, link_map
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.markdown.lexer import lexer
 from rich.pretty import pprint
-from functional import seq
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
