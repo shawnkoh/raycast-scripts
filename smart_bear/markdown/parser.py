@@ -205,13 +205,18 @@ cloze = (
     << rbrace
 ).map(Cloze)
 
-paragraph_separator = eol.at_least(2)
-paragraph_separator_should_fail = paragraph_separator.should_fail("no separator")
+block_separator = eol.at_least(2)
+paragraph_separator_should_fail = block_separator.should_fail("no separator")
 
 cloze_prompt = (
-    (eol.times(2).should_fail("no separator") >> (cloze | _content))
-    .at_least(1)
-    .map(_concatenate_texts)
+    seq(
+        (cloze | tag | backlink | _raw_text).at_least(1).map(_concatenate_texts),
+        # FIXME: We might have to use the same separator as paragraph
+        (eol.times(2).should_fail("no separator") >> (cloze | _content))
+        .many()
+        .map(_concatenate_texts),
+    )
+    .map(lambda x: list(collapse(x)))
     .bind(
         lambda res: success(ClozePrompt(res))
         if any(isinstance(ele, Cloze) for ele in res)
