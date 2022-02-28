@@ -44,9 +44,7 @@ def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
         return seq(prompt.children).map(stringify).reduce(lambda x, y: x + y)
 
     def clozed(prompt: parser.ClozePrompt) -> str:
-        return (
-            seq(prompt.children).map(lambda x: x.stringify()).reduce(lambda x, y: x + y)
-        )
+        return prompt.stringify()
 
     def convert(prompt: parser.ClozePrompt) -> anki.ClozePrompt:
         return anki.ClozePrompt(

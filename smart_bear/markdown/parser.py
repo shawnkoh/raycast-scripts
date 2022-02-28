@@ -47,7 +47,7 @@ class Backlink:
     value: Text
 
     def stringify(self) -> str:
-        return f"[[{self.value}]]"
+        return f"[[{self.value.stringify()}]]"
 
 
 Inline = Tag | Backlink | Text
@@ -112,9 +112,24 @@ class ClozePrompt:
     children: List[Cloze | Content]
 
     def stringify(self) -> str:
+        count = -1
+
+        def anki_cloze(content: Cloze | Content) -> str:
+            nonlocal count
+            match content:
+                case Cloze():
+                    value = (
+                        functional.seq(content.children)
+                        .map(lambda x: x.stringify())
+                        .reduce(lambda x, y: x + y)
+                    )
+                    count += 1
+                    return f"{{{{c{count}::{value}}}}}"
+                case _:
+                    return content.stringify()
         return (
             functional.seq(self.children)
-            .map(lambda x: x.stringify())
+            .map(anki_cloze)
             .reduce(lambda x, y: x + y)
         )
 
