@@ -217,7 +217,9 @@ contents = _content.at_least(1).map(_concatenate_texts)
 
 question = question_prefix >> (
     (
-        (eol.times(2) | question_prefix | answer_prefix).should_fail("question_prefix")
+        (eol.times(2) | eol >> question_prefix | eol >> answer_prefix).should_fail(
+            "question_prefix"
+        )
         >> _content
     )
     .at_least(1)
@@ -226,7 +228,7 @@ question = question_prefix >> (
 )
 
 answer = answer_prefix >> (
-    ((eol.times(2) | question_prefix).should_fail("answer_prefix") >> _content)
+    ((eol.times(2) | eol >> question_prefix).should_fail("answer_prefix") >> _content)
     .at_least(1)
     .map(_concatenate_texts)
     .map(Answer)
@@ -234,7 +236,7 @@ answer = answer_prefix >> (
 
 basic_prompt = (
     seq(
-        question=question,
+        question=question << eol,
         answer=answer.optional(),
     ).combine_dict(BasicPrompt)
     | question.map(lambda x: BasicPrompt(question=x, answer=None))

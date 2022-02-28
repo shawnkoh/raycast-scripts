@@ -77,7 +77,6 @@ def test_question_answer():
             Text("Question"),
             Break(),
             Text("Extended"),
-            Break(),
         ]
     )
     assert_that(
@@ -109,7 +108,6 @@ def test_basic_prompt():
                 Text("Question"),
                 Break(),
                 Text("Extended"),
-                Break(),
             ]
         ),
         answer=Answer(
