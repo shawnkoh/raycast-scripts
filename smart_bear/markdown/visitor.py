@@ -15,4 +15,3 @@ def visit(root: Root):
         .filter(lambda x: isinstance(x, ClozePrompt))
         .for_each(lambda x: pprint(x))
     )
-    pass

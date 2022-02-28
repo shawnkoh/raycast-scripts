@@ -5,92 +5,126 @@ from parsy import any_char, eof, peek, string, whitespace
 
 @define
 class Break:
-    pass
+    def stringify(self):
+        return "\n"
 
 
 @define
 class Space:
-    pass
+    def stringify(self):
+        " "
 
 
 @define
 class Separator:
     value: List[Space] | Break
 
+    def stringify(self):
+        match self.value:
+            case Break():
+                return self.value.stringify()
+            case _:
+                return self.value.join(lambda x: x.stringify())
+
 
 @define
 class QuestionPrefix:
     suffix: Separator
+
+    def stringify(self):
+        f"A:{self.suffix.stringify()}"
 
 
 @define
 class AnswerPrefix:
     suffix: Separator
 
+    def stringify(self):
+        f"A:{self.suffix.stringify()}"
+
 
 @define
 class LeftBrace:
-    pass
+    def stringify(self):
+        "{"
 
 
 @define
 class RightBrace:
-    pass
+    def stringify(self):
+        "}"
 
 
 @define
 class LeftBracket:
-    pass
+    def stringify(self):
+        "["
 
 
 @define
 class RightBracket:
-    pass
+    def stringify(self):
+        "]"
 
 
 @define
 class Text:
     value: str
 
+    def stringify(self):
+        self.value
+
 
 @define
 class LeftHTMLComment:
-    pass
+    def stringify(self):
+        "<!--"
 
 
 @define
 class RightHTMLComment:
-    pass
+    def stringify(self):
+        "-->"
 
 
 @define
 class Divider:
-    pass
+    def stringify(self):
+        "---"
 
 
 @define
 class Hashtag:
-    pass
+    def stringify(self):
+        "#"
 
 
 @define
 class Tag:
     value: str
 
+    def stringify(self):
+        f"#{self.value}"
+
 
 @define
 class BearID:
     value: str
 
+    def stringify(self):
+        f"<!-- {{BearID:{self.value}}} -->"
+
 
 @define
 class CodeFence:
-    pass
+    def stringify(self):
+        "```"
 
 
 @define
 class BacklinkBlockPrefix:
-    pass
+    def stringify(self):
+        "## Backlinks"
 
 
 # Utilities

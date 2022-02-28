@@ -39,7 +39,9 @@ class Backlink:
     value: Text
 
 
-Content = Tag | Break | Backlink | Text
+Inline = Tag | Backlink | Text
+
+Content = Break | Inline
 
 
 @define
