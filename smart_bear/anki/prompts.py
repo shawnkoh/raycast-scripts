@@ -3,11 +3,9 @@ from functools import cached_property
 from typing import Protocol
 from functional import pseq, seq
 from tqdm import tqdm
-from rich.pretty import pprint
 from smart_bear.anki import visitor
 
 from smart_bear.core import prompts
-from smart_bear.core.document import Document
 from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown import md_parser
 from smart_bear.markdown.parser import Root, parser

@@ -1,6 +1,6 @@
 from typing import List
 from attrs import define
-from parsy import any_char, eof, peek, string, whitespace
+from parsy import any_char, peek, string
 import functional
 
 
