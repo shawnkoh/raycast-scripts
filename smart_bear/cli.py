@@ -12,17 +12,19 @@ from tqdm import tqdm
 import arrow
 import click
 from dotenv import dotenv_values
+from smart_bear.anki import visitor
 
 from smart_bear.anki.anki import Anki
-from smart_bear.anki.prompts import extract_prompts
+from smart_bear.anki.prompts import BasicPrompt, extract_prompts
 from smart_bear.bear import x_callback_url
 from smart_bear.beeminder.beeminder import Beeminder
 from smart_bear.core.document import Document
-from smart_bear.markdown import md_parser, visitor
+from smart_bear.markdown import md_parser
 from smart_bear.markdown.crawler import Crawler, link_map
-from smart_bear.markdown.parser import parser
+from smart_bear.markdown.parser import Root, parser
 from smart_bear.markdown.lexer import lexer
 from rich.pretty import pprint
+from functional import seq
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
@@ -76,7 +78,7 @@ def study():
 
 
 @run.command()
-def sync_anki():
+def anki():
     date = datetime.date.today().strftime("%Y-%m-%d")
     time = datetime.datetime.now().strftime("%H:%M:%S")
     anki_deleted_notes_export_path = f"{ANKI_DELETED_NOTES_EXPORT_PATH}{date}.md"
@@ -218,7 +220,6 @@ def p():
                 tokens = lexer.parse(file.read())
                 root = parser.parse(tokens)
                 pprint(root, console=console)
-                visitor.visit(root)
 
 
 @run.command()

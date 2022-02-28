@@ -1,10 +1,16 @@
 from abc import abstractmethod
 from functools import cached_property
 from typing import Protocol
+from functional import seq
+from tqdm import tqdm
+from rich.pretty import pprint
+from smart_bear.anki import visitor
 
 from smart_bear.core import prompts
 from smart_bear.core.document import Document
+from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown import md_parser
+from smart_bear.markdown.parser import Root, parser
 
 
 class Ankifiable(Protocol):
@@ -41,7 +47,8 @@ class BasicPrompt(prompts.BasicPrompt, Ankifiable):
             if not answer_md:
                 answer_md = md_parser.html_to_markdown(answer_field)
 
-        return cls(question_md, answer_md, source_attribute)
+        # FIXME: Why cant i use cls?
+        return BasicPrompt(question_md, answer_md)
 
     @cached_property
     def question_field(self):
@@ -83,7 +90,8 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
         if not stripped_md:
             stripped_md = md_parser.strip_anki_cloze(md)
 
-        return cls(stripped_md, clozed_md, source_attribute)
+        # FIXME: Why cant i use cls?
+        return ClozePrompt(stripped_md, clozed_md)
 
     @cached_property
     def field(self):
@@ -101,14 +109,24 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
 def extract_prompts(urls):
     import_basic_prompts = dict()
     import_cloze_prompts = dict()
-    for url in urls:
-        document = Document(url)
-        for id, prompt in document.basic_prompts.items():
-            # antipattern!
-            prompt.__class__ = BasicPrompt
-            import_basic_prompts[id] = prompt
-        for id, prompt in document.clozed_prompts.items():
-            # antipattern!
-            prompt.__class__ = ClozePrompt
-            import_cloze_prompts[id] = prompt
+
+    def parse(url) -> Root:
+        root = None
+        with open(url) as file:
+            tokens = lexer.parse(file.read())
+            root = parser.parse(tokens)
+        return root
+
+    def iter(root: Root):
+        def assign(d, x):
+            d[x.id] = x
+
+        seq(visitor.basic_prompts(root)).for_each(
+            lambda x: assign(import_basic_prompts, x)
+        )
+        seq(visitor.cloze_prompts(root)).for_each(
+            lambda x: assign(import_cloze_prompts, x)
+        )
+
+    seq(tqdm(urls)).map(parse).for_each(iter)
     return import_basic_prompts, import_cloze_prompts

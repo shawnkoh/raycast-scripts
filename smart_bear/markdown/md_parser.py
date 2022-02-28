@@ -4,6 +4,8 @@ import regex
 import unmarkd
 from bs4 import BeautifulSoup
 from markdown import Markdown
+from parsy import seq, string, any_char, decimal_digit
+from rich.pretty import pprint
 
 _markdown_to_html_parser = Markdown()
 
@@ -18,7 +20,6 @@ _basic_prompt_regex = regex.compile(
 )
 _cloze_prompt_regex = regex.compile(r"\{((?>[^{}]|(?R))*)\}")
 
-_anki_cloze_regex = regex.compile(r"(\{\{c\d+::((?>[^{}]|(?1))*)\}\})")
 
 _reference_regex = regex.compile(r"(?m)^## References\n(.+(\n.)?)*")
 
@@ -112,12 +113,28 @@ def extract_cloze_prompts(source) -> dict:
     return result
 
 
+anki_cloze = (
+    string("{{c")
+    >> decimal_digit.at_least(1)
+    >> string("::")
+    >> (string("}}").should_fail("cloze") >> any_char).at_least(1).concat()
+    << string("}}")
+)
+
+
 def strip_anki_cloze(md) -> str:
-    return regex.sub(md, _anki_cloze_regex, r"\2")
+    result = (anki_cloze | any_char).at_least(1).concat().parse(md)
+    return result
 
 
 def replace_anki_cloze_with_smart_cloze(md) -> str:
-    return regex.sub(md, _anki_cloze_regex, r"{\2}")
+    result = (
+        (anki_cloze.map(lambda x: f"{{{{{x}}}}}") | any_char)
+        .at_least(1)
+        .concat()
+        .parse(md)
+    )
+    return result
 
 
 def insert_data(html, attribute, data):
