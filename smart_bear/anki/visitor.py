@@ -1,11 +1,10 @@
-from typing import List
+from typing import Sequence
 from smart_bear.markdown import parser
 from smart_bear.anki import anki
 from functional import seq
-from rich.pretty import pprint
 
 
-def basic_prompts(root: parser.Root) -> List[anki.BasicPrompt]:
+def basic_prompts(root: parser.Root) -> Sequence[anki.BasicPrompt]:
     def convert(prompt: parser.BasicPrompt) -> anki.BasicPrompt:
         return anki.BasicPrompt(
             question_md=prompt.question.stringify(),
@@ -16,11 +15,10 @@ def basic_prompts(root: parser.Root) -> List[anki.BasicPrompt]:
         seq(root.children)
         .filter(lambda x: isinstance(x, parser.BasicPrompt))
         .map(lambda x: convert(x))
-        .to_list()
     )
 
 
-def cloze_prompts(root: parser.Root) -> List[anki.ClozePrompt]:
+def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
     def stripped(prompt: parser.ClozePrompt) -> str:
         def stringify(x) -> str:
             match x:
@@ -49,5 +47,4 @@ def cloze_prompts(root: parser.Root) -> List[anki.ClozePrompt]:
         seq(root.children)
         .filter(lambda x: isinstance(x, parser.ClozePrompt))
         .map(lambda x: convert(x))
-        .to_list()
     )

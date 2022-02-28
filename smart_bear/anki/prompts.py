@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from functools import cached_property
 from typing import Protocol
-from functional import pseq
+from functional import pseq, seq
 from tqdm import tqdm
 from rich.pretty import pprint
 from smart_bear.anki import visitor
@@ -121,10 +121,10 @@ def extract_prompts(urls):
         def assign(d, x):
             d[x.id] = x
 
-        pseq(visitor.basic_prompts(root)).for_each(
+        seq(visitor.basic_prompts(root)).for_each(
             lambda x: assign(import_basic_prompts, x)
         )
-        pseq(visitor.cloze_prompts(root)).for_each(
+        seq(visitor.cloze_prompts(root)).for_each(
             lambda x: assign(import_cloze_prompts, x)
         )
 
