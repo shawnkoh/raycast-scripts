@@ -6,6 +6,8 @@ from parsy import string
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import Tag, lexer
 from smart_bear.markdown.parser import (
+    not_catch_all,
+    block,
     fenced_code_block,
     FencedCodeBlock,
     backlink_block,
@@ -217,11 +219,10 @@ def test_cloze_prompt_fails():
 
 
 def test_paragraph_simple():
-    tokens = lexer.parse("Simple\n")
+    tokens = lexer.parse("Simple")
     expected = Paragraph(
         [
             Text("Simple"),
-            Break(),
         ]
     )
     assert_that(paragraph.parse(tokens), expected)
@@ -407,18 +408,17 @@ def test_fenced_code_block_something():
     assert_that(fenced_code_block.parse(tokens), expected)
 
 
-# def test_parser_code_fence():
-#     tokens = lexer.parse("Abc\n```\n")
-#     expected = Root(
-#         title=None,
-#         children=[
-#             Paragraph(
-#                 [
-#                     Text("Abc"),
-#                     Break(),
-#                     Text("```"),
-#                 ]
-#             ),
-#         ],
-#     )
-#     assert_that(parser.parse(tokens), expected)
+def test_parser_code_fence():
+    tokens = lexer.parse("Abc\n```\n")
+    expected = Root(
+        title=Title(Text("Abc")),
+        children=[
+            Paragraph(
+                [
+                    Text("```"),
+                ]
+            ),
+            Spacer([Break()]),
+        ],
+    )
+    assert_that(parser.parse(tokens), expected)

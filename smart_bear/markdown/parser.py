@@ -4,7 +4,7 @@ from more_itertools import collapse
 
 import parsy
 from attrs import define
-from parsy import fail, seq, success, string, generate
+from parsy import fail, seq, success, string, generate, eof
 
 from smart_bear.markdown.lexer import (
     space,
@@ -222,12 +222,11 @@ cloze_prompt = (
 
 fenced_code_block = seq(
     _prefix=code_fence,
-    info_string=text.optional(),
-    _skip=eol,
+    info_string=text.optional() << eol,
     children=(
         (
             (eol >> code_fence).should_fail("suffix")
-            >> (eol | _raw_text.many().concat().map(Text))
+            >> (eol | _raw_text.at_least(1).concat().map(Text))
         ).many()
     ),
     _suffix=eol >> code_fence,
@@ -237,7 +236,7 @@ fenced_code_block = seq(
 paragraph = (
     seq(
         (tag | backlink | _raw_text).at_least(1).map(_concatenate_texts),
-        ((eol.times(2) | eol >> code_fence).should_fail("sep") >> _content)
+        ((eol.times(2) | eol >> code_fence | eol >> eof).should_fail("sep") >> _content)
         .many()
         .map(_concatenate_texts),
     )
@@ -271,7 +270,6 @@ not_catch_all = (
     | paragraph
 )
 
-# TODO: Check for eol?
 catch_all = (
     (not_catch_all.should_fail("not_catch_all") >> (tag | backlink | _raw_text))
     .at_least(1)
