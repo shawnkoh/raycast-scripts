@@ -196,13 +196,13 @@ basic_prompt = (
 
 
 cloze = (
-    lbrace
+    lbrace.times(2)
     >> (
-        ((lbrace | rbrace).should_fail("no brace") >> _content)
+        ((lbrace.times(2) | rbrace.times(2)).should_fail("no brace") >> _content)
         .at_least(1)
         .map(_concatenate_texts)
     )
-    << rbrace
+    << rbrace.times(2)
 ).map(Cloze)
 
 block_separator = eol.at_least(2)

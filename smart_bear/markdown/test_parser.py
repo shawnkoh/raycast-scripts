@@ -145,7 +145,7 @@ def test_basic_prompt_question_only():
 
 
 def test_cloze():
-    given = lexer.parse("{abc}")
+    given = lexer.parse("{{abc}}")
     expected = Cloze(
         [
             Text("abc"),
@@ -165,7 +165,7 @@ def test_cloze_text():
 
 
 def test_cloze_space():
-    given = lexer.parse("{ abc }")
+    given = lexer.parse("{{ abc }}")
     expected = Cloze(
         [
             Text(" abc "),
@@ -178,7 +178,7 @@ def test_cloze_space():
 
 
 def test_cloze_lspace():
-    given = lexer.parse("{ abc}")
+    given = lexer.parse("{{ abc}}")
     expected = Cloze(
         [
             Text(" abc"),
@@ -188,7 +188,7 @@ def test_cloze_lspace():
 
 
 def test_cloze_rspace():
-    given = lexer.parse("{abc }")
+    given = lexer.parse("{{abc }}")
     expected = Cloze(
         [
             Text("abc "),
@@ -198,7 +198,7 @@ def test_cloze_rspace():
 
 
 def test_cloze_prompt():
-    given = lexer.parse("Some text {with clozes}")
+    given = lexer.parse("Some text {{with clozes}}")
     expected = ClozePrompt(
         [
             Text("Some text "),
@@ -209,6 +209,7 @@ def test_cloze_prompt():
             ),
         ]
     )
+    pprint(cloze_prompt.parse_partial(given))
     assert_that(cloze_prompt.parse(given), expected)
 
 
@@ -422,3 +423,21 @@ def test_parser_code_fence():
         ],
     )
     assert_that(parser.parse(tokens), expected)
+
+def test_fenced_cloze_block():
+    tokens = lexer.parse("What\n```swift\nenum {\n\tdelete(Task.ID)\n}\n```")
+    expected = [
+        Paragraph([Text("What")]),
+        Spacer([Break()]),
+        FencedCodeBlock(
+            info_string=Text("swift"), 
+            children=[
+                Text("enum {"),
+                Break(),
+                Text("\tdelete(Task.ID)"),
+                Break(),
+                Text("}"),
+            ],
+        ),
+    ]
+    assert block.many().parse(tokens) == expected
