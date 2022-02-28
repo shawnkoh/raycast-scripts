@@ -73,13 +73,11 @@ class Hashtag:
     pass
 
 
-# i think best solution for now - keep it in lexer.
 @define
 class Tag:
     value: str
 
 
-# <!-- {BearID:3A72570E-59E0-4094-907F-CAC602C9A6CE-13835-00000A4715F28D3D} -->
 @define
 class BearID:
     value: str
@@ -87,6 +85,11 @@ class BearID:
 
 @define
 class CodeFence:
+    pass
+
+
+@define
+class BacklinkBlockPrefix:
     pass
 
 
@@ -128,6 +131,7 @@ tag = (
     >> ((space | hashtag | eol).should_fail("no eol") >> any_char).at_least(1).concat()
 ).map(Tag)
 code_fence = string("```").map(lambda _: CodeFence())
+backlink_block_prefix = string("## Backlinks").map(lambda _: BacklinkBlockPrefix())
 
 not_text = (
     bearID
@@ -142,14 +146,11 @@ not_text = (
     | rightHTMLComment
     | divider
     | tag
+    | backlink_block_prefix
     | hashtag
     | code_fence
 )
 
-# TODO: Should we define (<any_char>\n?)+ as text instead?
-# abc\nabc = text
-# abc\n = text
-# abc\n\n = text + eol
 text = (not_text.should_fail("text") >> any_char).at_least(1).concat().map(Text)
 statement = not_text | text
 

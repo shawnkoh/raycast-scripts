@@ -7,6 +7,7 @@ from attrs import define
 from parsy import fail, seq, success, string, generate, eof
 
 from smart_bear.markdown.lexer import (
+    BacklinkBlockPrefix,
     space,
     Space,
     Divider,
@@ -80,7 +81,7 @@ class Paragraph:
 
 @define
 class BacklinkBlock:
-    value: Paragraph
+    value: Optional[Paragraph]
 
 
 @define
@@ -252,17 +253,9 @@ paragraph = (
 
 spacer = (eol | space).at_least(1).map(Spacer)
 
-_backlink_block_prefix = (
-    hashtag.times(2)
-    >> text.bind(
-        lambda x: success(x.value)
-        if x.value == " Backlinks"
-        else fail("no backlink block prefix")
-    )
-    >> eol
-)
+backlink_block_prefix = checkinstance(BacklinkBlockPrefix)
 
-backlink_block = _backlink_block_prefix >> paragraph.map(BacklinkBlock)
+backlink_block = backlink_block_prefix >> eol >> paragraph.optional().map(BacklinkBlock)
 
 not_catch_all = (
     spacer
