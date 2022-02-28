@@ -367,3 +367,58 @@ def test_cloze_prompt_fails():
     tokens = lexer.parse("A throwing {cloze}\n\nprompt")
     with raises(Exception) as _:
         cloze_prompt.parse(tokens)
+
+
+def test_fenced_code_block_with_prefix():
+    raw = "# Title\n# Something\n```elm\nsomething\n```"
+    tokens = lexer.parse(raw)
+    expected = Root(
+        title=Title(Text("# Title")),
+        children=[
+            Paragraph(
+                [
+                    Text("# Something"),
+                ]
+            ),
+            Spacer(
+                [
+                    Break(),
+                ]
+            ),
+            FencedCodeBlock(
+                info_string=Text("elm"),
+                children=[
+                    Text("something"),
+                ],
+            ),
+        ],
+    )
+    assert_that(parser.parse(tokens), expected)
+
+
+def test_fenced_code_block_something():
+    tokens = lexer.parse("```elm\nsomething\n```")
+    expected = FencedCodeBlock(
+        info_string=Text("elm"),
+        children=[
+            Text("something"),
+        ],
+    )
+    assert_that(fenced_code_block.parse(tokens), expected)
+
+
+# def test_parser_code_fence():
+#     tokens = lexer.parse("Abc\n```\n")
+#     expected = Root(
+#         title=None,
+#         children=[
+#             Paragraph(
+#                 [
+#                     Text("Abc"),
+#                     Break(),
+#                     Text("```"),
+#                 ]
+#             ),
+#         ],
+#     )
+#     assert_that(parser.parse(tokens), expected)

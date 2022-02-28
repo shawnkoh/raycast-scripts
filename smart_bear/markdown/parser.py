@@ -237,7 +237,9 @@ fenced_code_block = seq(
 paragraph = (
     seq(
         (tag | backlink | _raw_text).at_least(1).map(_concatenate_texts),
-        (paragraph_separator_should_fail >> _content).many().map(_concatenate_texts),
+        ((eol.times(2) | eol >> code_fence).should_fail("sep") >> _content)
+        .many()
+        .map(_concatenate_texts),
     )
     .map(flatten_list)
     .map(Paragraph)
@@ -258,16 +260,27 @@ _backlink_block_prefix = (
 
 backlink_block = _backlink_block_prefix >> paragraph.map(BacklinkBlock)
 
-block = (
-    divider
+not_catch_all = (
+    spacer
+    | divider
     | basic_prompt
     | fenced_code_block
     | cloze_prompt
     | backlink_block
-    | paragraph
-    | spacer
     | bear_id
+    | paragraph
 )
+
+# TODO: Check for eol?
+catch_all = (
+    (not_catch_all.should_fail("not_catch_all") >> (tag | backlink | _raw_text))
+    .at_least(1)
+    .map(_concatenate_texts)
+    .map(Paragraph)
+)
+
+block = not_catch_all | catch_all
+
 
 title = (
     (eol.should_fail("no eol") >> _raw_text).at_least(1).concat().map(Text).map(Title)
