@@ -1,130 +1,135 @@
 from typing import List
 from attrs import define
 from parsy import any_char, eof, peek, string, whitespace
+import functional
 
 
 @define
 class Break:
-    def stringify(self):
+    def stringify(self) -> str:
         return "\n"
 
 
 @define
 class Space:
-    def stringify(self):
-        " "
+    def stringify(self) -> str:
+        return " "
 
 
 @define
 class Separator:
     value: List[Space] | Break
 
-    def stringify(self):
+    def stringify(self) -> str:
         match self.value:
             case Break():
                 return self.value.stringify()
             case _:
-                return self.value.join(lambda x: x.stringify())
+                return (
+                    functional.seq(self.children)
+                    .map(lambda x: x.stringify())
+                    .reduce(lambda x, y: x + y)
+                )
 
 
 @define
 class QuestionPrefix:
     suffix: Separator
 
-    def stringify(self):
-        f"A:{self.suffix.stringify()}"
+    def stringify(self) -> str:
+        return f"A:{self.suffix.stringify()}"
 
 
 @define
 class AnswerPrefix:
     suffix: Separator
 
-    def stringify(self):
-        f"A:{self.suffix.stringify()}"
+    def stringify(self) -> str:
+        return f"A:{self.suffix.stringify()}"
 
 
 @define
 class LeftBrace:
-    def stringify(self):
-        "{"
+    def stringify(self) -> str:
+        return "{"
 
 
 @define
 class RightBrace:
-    def stringify(self):
-        "}"
+    def stringify(self) -> str:
+        return "}"
 
 
 @define
 class LeftBracket:
-    def stringify(self):
-        "["
+    def stringify(self) -> str:
+        return "["
 
 
 @define
 class RightBracket:
-    def stringify(self):
-        "]"
+    def stringify(self) -> str:
+        return "]"
 
 
 @define
 class Text:
     value: str
 
-    def stringify(self):
-        self.value
+    def stringify(self) -> str:
+        return self.value
 
 
 @define
 class LeftHTMLComment:
-    def stringify(self):
-        "<!--"
+    def stringify(self) -> str:
+        return "<!--"
 
 
 @define
 class RightHTMLComment:
-    def stringify(self):
-        "-->"
+    def stringify(self) -> str:
+        return "-->"
 
 
 @define
 class Divider:
-    def stringify(self):
-        "---"
+    def stringify(self) -> str:
+        return "---"
 
 
 @define
 class Hashtag:
-    def stringify(self):
-        "#"
+    def stringify(self) -> str:
+        return "#"
 
 
 @define
 class Tag:
     value: str
 
-    def stringify(self):
-        f"#{self.value}"
+    def stringify(self) -> str:
+        return f"#{self.value}"
 
 
 @define
 class BearID:
     value: str
 
-    def stringify(self):
-        f"<!-- {{BearID:{self.value}}} -->"
+    def stringify(self) -> str:
+        return f"<!-- {{BearID:{self.value}}} -->"
 
 
 @define
 class CodeFence:
-    def stringify(self):
-        "```"
+    def stringify(self) -> str:
+        return "```"
 
 
 @define
 class BacklinkBlockPrefix:
-    def stringify(self):
-        "## Backlinks"
+    def stringify(self) -> str:
+        return "## Backlinks"
 
 
 # Utilities

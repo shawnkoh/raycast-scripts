@@ -7,11 +7,11 @@ def visit(root: Root):
     (
         seq(root.children)
         .filter(lambda x: isinstance(x, BasicPrompt))
-        .for_each(lambda x: pprint(x))
+        .for_each(lambda x: pprint(x.question.stringify()))
     )
 
     (
         seq(root.children)
         .filter(lambda x: isinstance(x, ClozePrompt))
-        .for_each(lambda x: pprint(x))
+        .for_each(lambda x: print(x.stringify()))
     )

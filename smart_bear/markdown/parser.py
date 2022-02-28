@@ -5,6 +5,7 @@ from more_itertools import collapse
 import parsy
 from attrs import define
 from parsy import fail, seq, success, string, generate, eof
+import functional
 
 from smart_bear.markdown.lexer import (
     BacklinkBlockPrefix,
@@ -33,10 +34,20 @@ from smart_bear.markdown.lexer import (
 class Spacer:
     children: List[Break | Space]
 
+    def stringify(self) -> str:
+        return (
+            functional.seq(self.children)
+            .map(lambda x: x.stringify())
+            .reduce(lambda x, y: x + y)
+        )
+
 
 @define
 class Backlink:
     value: Text
+
+    def stringify(self) -> str:
+        return f"[[{self.value}]]"
 
 
 Inline = Tag | Backlink | Text
@@ -49,15 +60,32 @@ class Title:
     # FIXME: This must be trimmed to disallow space at end. Unsure about start
     value: Text
 
+    def stringify(self):
+        return self.value.stringify()
+
 
 @define
 class Question:
     children: List[Content]
 
+    def stringify(self) -> str:
+        return (
+            functional.seq(self.children)
+            .map(lambda x: x.stringify())
+            .reduce(lambda x, y: x + y)
+        )
+
 
 @define
 class Answer:
     children: List[Content]
+
+    def stringify(self) -> str:
+        return (
+            functional.seq(self.children)
+            .map(lambda x: x.stringify())
+            .reduce(lambda x, y: x + y)
+        )
 
 
 @define
@@ -70,10 +98,25 @@ class BasicPrompt:
 class Cloze:
     children: List[Content]
 
+    def stringify(self) -> str:
+        value = (
+            functional.seq(self.children)
+            .map(lambda x: x.stringify())
+            .reduce(lambda x, y: x + y)
+        )
+        return f"{{{{{value}}}}}"
+
 
 @define
 class ClozePrompt:
     children: List[Cloze | Content]
+
+    def stringify(self) -> str:
+        return (
+            functional.seq(self.children)
+            .map(lambda x: x.stringify())
+            .reduce(lambda x, y: x + y)
+        )
 
 
 @define
