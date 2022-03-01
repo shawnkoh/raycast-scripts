@@ -3,7 +3,7 @@ import base64
 import unmarkd
 from bs4 import BeautifulSoup
 from markdown import Markdown
-from parsy import seq, string, any_char, decimal_digit
+from parsy import any_char, decimal_digit, string
 
 _markdown_to_html_parser = Markdown()
 

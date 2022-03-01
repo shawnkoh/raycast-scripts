@@ -1,33 +1,32 @@
 from typing import List, Optional
 
-from more_itertools import collapse
-
+import functional
 import parsy
 from attrs import define
-from parsy import fail, seq, success, string, generate, eof
-import functional
+from more_itertools import collapse
+from parsy import eof, fail, seq, success
 
 from smart_bear.markdown.lexer import (
-    BacklinkBlockPrefix,
-    HeadingPrefix,
-    space,
-    Space,
-    Divider,
-    Hashtag,
-    Tag,
-    flatten_list,
     AnswerPrefix,
+    BacklinkBlockPrefix,
     BearID,
     Break,
+    CodeFence,
+    Divider,
+    Hashtag,
+    HeadingPrefix,
     LeftBrace,
     LeftBracket,
     LeftHTMLComment,
-    RightHTMLComment,
     QuestionPrefix,
     RightBrace,
     RightBracket,
+    RightHTMLComment,
+    Space,
+    Tag,
     Text,
-    CodeFence,
+    flatten_list,
+    space,
 )
 
 

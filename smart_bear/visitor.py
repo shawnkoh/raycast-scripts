@@ -1,8 +1,11 @@
 from typing import Sequence
-from smart_bear.markdown import parser
+
+from functional import pseq, seq
+from tqdm import tqdm
+
 from smart_bear.anki import anki
-from functional import seq
-from rich.pretty import pprint
+from smart_bear.markdown import parser
+from smart_bear.markdown.lexer import lexer
 
 IGNORE_TAG = "smart-bear/ignore-prompts"
 
@@ -73,3 +76,28 @@ def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
         .filter(lambda x: isinstance(x, parser.ClozePrompt))
         .map(lambda x: convert(x))
     )
+
+def extract_prompts(urls):
+    import_basic_prompts = dict()
+    import_cloze_prompts = dict()
+
+    def parse(url) -> parser.Root:
+        root = None
+        with open(url) as file:
+            tokens = lexer.parse(file.read())
+            root = parser.parse(tokens)
+        return root
+
+    def iter(root: parser.Root):
+        def assign(d, x):
+            d[x.id] = x
+
+        seq(basic_prompts(root)).for_each(
+            lambda x: assign(import_basic_prompts, x)
+        )
+        seq(cloze_prompts(root)).for_each(
+            lambda x: assign(import_cloze_prompts, x)
+        )
+
+    (pseq(tqdm(urls)).map(parse).filter_not(will_ignore).for_each(iter))
+    return import_basic_prompts, import_cloze_prompts

@@ -1,14 +1,9 @@
 from abc import abstractmethod
 from functools import cached_property
 from typing import Protocol
-from functional import pseq, seq
-from tqdm import tqdm
-from smart_bear.anki import visitor
 
 from smart_bear.core import prompts
-from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown import md_parser
-from smart_bear.markdown.parser import Root, parser
 
 
 class Ankifiable(Protocol):
@@ -104,29 +99,3 @@ class ClozePrompt(prompts.ClozePrompt, Ankifiable):
     def override(self, note):
         note.fields[0] = self.field
         note.tags = self.tags
-
-
-def extract_prompts(urls):
-    import_basic_prompts = dict()
-    import_cloze_prompts = dict()
-
-    def parse(url) -> Root:
-        root = None
-        with open(url) as file:
-            tokens = lexer.parse(file.read())
-            root = parser.parse(tokens)
-        return root
-
-    def iter(root: Root):
-        def assign(d, x):
-            d[x.id] = x
-
-        seq(visitor.basic_prompts(root)).for_each(
-            lambda x: assign(import_basic_prompts, x)
-        )
-        seq(visitor.cloze_prompts(root)).for_each(
-            lambda x: assign(import_cloze_prompts, x)
-        )
-
-    (pseq(tqdm(urls)).map(parse).filter_not(visitor.will_ignore).for_each(iter))
-    return import_basic_prompts, import_cloze_prompts

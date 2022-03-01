@@ -1,23 +1,21 @@
 import datetime
 import glob
 import os
-import pathlib
-from functional import pseq
 import webbrowser
 from pathlib import Path
-from rich.console import Console
-from tqdm import tqdm
 
 import arrow
 import click
-from smart_bear.anki import visitor
+from functional import pseq
+from rich.console import Console
+from rich.pretty import pprint
+from tqdm import tqdm
 
 from smart_bear.anki.anki import Anki
-from smart_bear.anki.prompts import extract_prompts
 from smart_bear.bear import x_callback_url
-from smart_bear.markdown.parser import Root, parser
 from smart_bear.markdown.lexer import lexer
-from rich.pretty import pprint
+from smart_bear.markdown.parser import Root, parser
+from smart_bear.visitor import extract_prompts
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")

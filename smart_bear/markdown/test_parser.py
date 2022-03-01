@@ -1,44 +1,40 @@
-import hypothesis
-from hypothesis import strategies as st
-from rich.pretty import pprint
-
-from pytest import raises
 from parsy import string
+from pytest import raises
+from rich.pretty import pprint
 
 from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import HeadingPrefix, Tag, lexer
 from smart_bear.markdown.parser import (
-    heading,
-    Heading,
-    not_catch_all,
-    block,
-    fenced_code_block,
-    FencedCodeBlock,
-    backlink_block,
-    BacklinkBlock,
-    backlink,
-    Backlink,
-    Spacer,
-    title,
-    Title,
     Answer,
+    Backlink,
+    BacklinkBlock,
     BasicPrompt,
     Break,
     Cloze,
     ClozePrompt,
+    FencedCodeBlock,
+    Heading,
     Paragraph,
     Question,
+    Root,
+    Spacer,
     Text,
+    Title,
     answer,
+    backlink,
+    backlink_block,
     basic_prompt,
+    block,
     cloze,
     cloze_prompt,
     contents,
+    fenced_code_block,
+    heading,
     paragraph,
+    parser,
     question,
     text,
-    parser,
-    Root,
+    title,
 )
 
 

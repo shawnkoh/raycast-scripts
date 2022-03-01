@@ -1,7 +1,8 @@
 from typing import List
+
+import functional
 from attrs import define, field
 from parsy import any_char, peek, string
-import functional
 
 
 @define

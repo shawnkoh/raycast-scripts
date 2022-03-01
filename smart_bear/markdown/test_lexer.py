@@ -1,30 +1,29 @@
-from rich.pretty import pprint
-
-from parsy import any_char, seq, string
-from smart_bear.intelligence.test_utilities import assert_that
 import hypothesis
 from hypothesis import strategies as st
+from parsy import any_char, seq, string
+from rich.pretty import pprint
 
+from smart_bear.intelligence.test_utilities import assert_that
 from smart_bear.markdown.lexer import (
-    RightBrace,
-    rbrace,
-    heading_prefix,
-    HeadingPrefix,
-    Separator,
-    Space,
-    tag,
     AnswerPrefix,
-    Tag,
-    bearID,
     BearID,
     Break,
+    HeadingPrefix,
     LeftBrace,
     QuestionPrefix,
+    RightBrace,
+    Separator,
+    Space,
+    Tag,
     Text,
+    bearID,
     exclude_none,
     flatten_list,
+    heading_prefix,
     lbrace,
     lexer,
+    rbrace,
+    tag,
     text,
 )
 
