@@ -1,11 +1,15 @@
+import hypothesis
+from hypothesis import strategies as st
 from rich.pretty import pprint
 
 from pytest import raises
 from parsy import string
 
 from smart_bear.intelligence.test_utilities import assert_that
-from smart_bear.markdown.lexer import Tag, lexer
+from smart_bear.markdown.lexer import HeadingPrefix, Tag, lexer
 from smart_bear.markdown.parser import (
+    heading,
+    Heading,
     not_catch_all,
     block,
     fenced_code_block,
@@ -375,10 +379,11 @@ def test_fenced_code_block_with_prefix():
     expected = Root(
         title=Title(Text("# Title")),
         children=[
-            Paragraph(
-                [
-                    Text("# Something"),
-                ]
+            Heading(
+                prefix=HeadingPrefix(1),
+                children=[
+                    Text("Something"),
+                ],
             ),
             Spacer(
                 [
@@ -422,13 +427,14 @@ def test_parser_code_fence():
     )
     assert_that(parser.parse(tokens), expected)
 
+
 def test_fenced_cloze_block():
     tokens = lexer.parse("What\n```swift\nenum {\n\tdelete(Task.ID)\n}\n```")
     expected = [
         Paragraph([Text("What")]),
         Spacer([Break()]),
         FencedCodeBlock(
-            info_string=Text("swift"), 
+            info_string=Text("swift"),
             children=[
                 Text("enum {"),
                 Break(),
@@ -439,3 +445,14 @@ def test_fenced_cloze_block():
         ),
     ]
     assert block.many().parse(tokens) == expected
+
+
+def test_heading():
+    tokens = lexer.parse("## Header")
+    expected = Heading(
+        prefix=HeadingPrefix(depth=2),
+        children=[
+            Text("Header"),
+        ],
+    )
+    assert_that(heading.parse(tokens), expected)

@@ -9,6 +9,7 @@ import functional
 
 from smart_bear.markdown.lexer import (
     BacklinkBlockPrefix,
+    HeadingPrefix,
     space,
     Space,
     Divider,
@@ -150,8 +151,14 @@ class FencedCodeBlock:
     children: List[Text | Break]
 
 
+@define
+class Heading:
+    prefix: HeadingPrefix
+    children: List[Inline]
+
+
 Block = (
-    BearID | Divider | BasicPrompt | ClozePrompt | FencedCodeBlock | BacklinkBlock | Paragraph | Spacer
+    BearID | Divider | BasicPrompt | ClozePrompt | FencedCodeBlock | Heading | BacklinkBlock | Paragraph | Spacer
 )
 
 
@@ -203,6 +210,7 @@ code_fence = checkinstance(CodeFence)
 
 leftHTMLComment = checkinstance(LeftHTMLComment)
 rightHTMLComment = checkinstance(RightHTMLComment)
+heading_prefix = checkinstance(HeadingPrefix)
 
 bear_id = checkinstance(BearID)
 
@@ -215,6 +223,7 @@ _raw_text = (
     | rbrace.map(lambda _: "}")
     | question_prefix.map(lambda _: "Q:")
     | answer_prefix.map(lambda _: "A:")
+    | heading_prefix.map(lambda x: x.stringify())
     | tag.map(lambda x: "#" + x.value)
     | code_fence.map(lambda _: "```")
     | leftHTMLComment.map(lambda _: "<!--")
@@ -226,7 +235,8 @@ _converted_brackets = (
 ).map(Text)
 backlink = lbracket.times(2) >> _converted_brackets.map(Backlink) << rbracket.times(2)
 
-_content = eol | backlink | tag | _raw_text
+_inline = backlink | tag | _raw_text
+_content = eol | _inline
 # FIXME: This might be problematic because _raw_text can consume the others.
 contents = _content.at_least(1).map(_concatenate_texts)
 
@@ -319,6 +329,11 @@ backlink_block_prefix = checkinstance(BacklinkBlockPrefix)
 
 backlink_block = backlink_block_prefix >> eol >> paragraph.optional().map(BacklinkBlock)
 
+heading = seq(
+    prefix=heading_prefix,
+    children=_inline.many().map(_concatenate_texts),
+).combine_dict(Heading)
+
 not_catch_all = (
     spacer
     | divider
@@ -326,6 +341,7 @@ not_catch_all = (
     | fenced_code_block
     | cloze_prompt
     | backlink_block
+    | heading
     | bear_id
     | paragraph
 )

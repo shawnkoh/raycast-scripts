@@ -1,9 +1,15 @@
-from pprint import pprint
+from rich.pretty import pprint
 
 from parsy import any_char, seq, string
 from smart_bear.intelligence.test_utilities import assert_that
+import hypothesis
+from hypothesis import strategies as st
 
 from smart_bear.markdown.lexer import (
+    RightBrace,
+    rbrace,
+    heading_prefix,
+    HeadingPrefix,
     Separator,
     Space,
     tag,
@@ -32,25 +38,23 @@ def test_text():
 def test_text_discard_question():
     given = "I am a text Q: Some random question"
     expected = Text("I am a text ")
-    assert (text << any_char.many()).parse(given) == expected
+    assert text.parse_partial(given)[0] == expected
 
 
 def test_text_discard_answer():
     given = "I am a text A: Discarded answer"
     expected = Text("I am a text ")
-    assert (text << any_char.many()).parse(given) == expected
+    assert text.parse_partial(given)[0] == expected
 
 
-def test_lbrace():
-    given = "{abc"
-    expected = LeftBrace()
-    assert (lbrace << any_char.many()).parse(given) == expected
+@hypothesis.given(st.text().map(lambda x: "{" + x))
+def test_lbrace(raw):
+    assert_that(lbrace.parse_partial(raw)[0], LeftBrace())
 
 
-def test_lbrace_space():
-    given = "{ abc"
-    expected = LeftBrace()
-    assert (lbrace << any_char.many()).parse(given) == expected
+@hypothesis.given(st.text().map(lambda x: "}" + x))
+def test_rbrace(raw):
+    assert_that(rbrace.parse_partial(raw)[0], RightBrace())
 
 
 def test_lexer():
@@ -118,7 +122,20 @@ def test_bear_id():
     assert bearID.parse(given) == expected
 
 
-def test_tag():
-    given = "#g2"
-    expected = Tag("g2")
-    assert tag.parse(given) == expected
+@hypothesis.given(
+    st.text(
+        st.characters(blacklist_characters="#", blacklist_categories=["Z", "Cc"]),
+        min_size=1,
+    )
+)
+def test_tag(s):
+    assert tag.parse("#" + s) == Tag(s)
+
+
+@hypothesis.given(
+    st.integers(1, 6).map(lambda x: "#" * x + " "),
+    st.text(),
+)
+def test_heading_prefix(tags, text):
+    tag = tags + text
+    assert heading_prefix.parse_partial(tag)[0] == HeadingPrefix(depth=len(tags) - 1)

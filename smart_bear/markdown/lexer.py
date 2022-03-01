@@ -1,5 +1,5 @@
 from typing import List
-from attrs import define
+from attrs import define, field
 from parsy import any_char, peek, string
 import functional
 
@@ -74,7 +74,12 @@ class RightBracket:
 
 @define
 class Text:
-    value: str
+    value: str = field()
+
+    @value.validator
+    def check(self, attribute, val):
+        if "".__eq__(val):
+            raise ValueError("No empty strings")
 
     def stringify(self) -> str:
         return self.value
@@ -132,6 +137,15 @@ class BacklinkBlockPrefix:
         return "## Backlinks"
 
 
+@define
+class HeadingPrefix:
+    # 1-6
+    depth: int
+
+    def stringify(self) -> str:
+        return "#" * self.depth + " "
+
+
 # Utilities
 eol = string("\n").map(lambda x: Break())
 flatten_list = lambda ls: sum(ls, [])
@@ -165,6 +179,12 @@ bearID = (
 ).map(BearID)
 divider = string("---").map(lambda _: Divider())
 hashtag = string("#").map(lambda _: Hashtag())
+heading_prefix = (
+    peek(eol.optional())
+    >> hashtag.times(1, 6).map(len).map(HeadingPrefix)
+    << space
+)
+
 tag = (
     hashtag.times(1)
     >> ((space | hashtag | eol).should_fail("no eol") >> any_char).at_least(1).concat()
@@ -186,6 +206,7 @@ not_text = (
     | divider
     | tag
     | backlink_block_prefix
+    | heading_prefix
     | hashtag
     | code_fence
 )
