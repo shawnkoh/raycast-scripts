@@ -87,7 +87,7 @@ def extract_prompts(urls):
         root = None
         with open(url) as file:
             tokens = lexer.parse(file.read())
-            root = parser.parse(tokens)
+            root = parser.parser.parse(tokens)
         return root
 
     def iter(root: parser.Root):
