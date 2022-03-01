@@ -181,9 +181,7 @@ bearID = (
 divider = string("---").map(lambda _: Divider())
 hashtag = string("#").map(lambda _: Hashtag())
 heading_prefix = (
-    peek(eol.optional())
-    >> hashtag.times(1, 6).map(len).map(HeadingPrefix)
-    << space
+    peek(eol.optional()) >> hashtag.times(1, 6).map(len).map(HeadingPrefix) << space
 )
 
 tag = (

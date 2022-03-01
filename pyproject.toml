@@ -37,6 +37,9 @@ pytest-clarity = "^1.0.1"
 isort = "^5.10.1"
 rich = "^11.2.0"
 
+[tool.black]
+target-version = ["py310"]
+
 [tool.isort]
 profile = "black"
 

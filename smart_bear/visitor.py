@@ -13,9 +13,9 @@ IGNORE_TAG = "smart-bear/ignore-prompts"
 def will_ignore(root: parser.Root) -> bool:
     def is_ignore(tag) -> bool:
         return isinstance(tag, parser.Tag) and tag.value == IGNORE_TAG
-    return (
-        seq(root.children)
-        .exists(lambda x: isinstance(x, parser.Paragraph) and seq(x.children).exists(is_ignore))
+
+    return seq(root.children).exists(
+        lambda x: isinstance(x, parser.Paragraph) and seq(x.children).exists(is_ignore)
     )
 
 
@@ -59,6 +59,7 @@ def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
                     )
                 case _:
                     return x.stringify()
+
         return seq(prompt.children).map(stringify).reduce(lambda x, y: x + y)
 
     def clozed(prompt: parser.ClozePrompt) -> str:
@@ -77,6 +78,7 @@ def cloze_prompts(root: parser.Root) -> Sequence[anki.ClozePrompt]:
         .map(lambda x: convert(x))
     )
 
+
 def extract_prompts(urls):
     import_basic_prompts = dict()
     import_cloze_prompts = dict()
@@ -92,12 +94,8 @@ def extract_prompts(urls):
         def assign(d, x):
             d[x.id] = x
 
-        seq(basic_prompts(root)).for_each(
-            lambda x: assign(import_basic_prompts, x)
-        )
-        seq(cloze_prompts(root)).for_each(
-            lambda x: assign(import_cloze_prompts, x)
-        )
+        seq(basic_prompts(root)).for_each(lambda x: assign(import_basic_prompts, x))
+        seq(cloze_prompts(root)).for_each(lambda x: assign(import_cloze_prompts, x))
 
     (pseq(tqdm(urls)).map(parse).filter_not(will_ignore).for_each(iter))
     return import_basic_prompts, import_cloze_prompts

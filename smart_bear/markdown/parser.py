@@ -127,11 +127,8 @@ class ClozePrompt:
                     return f"{{{{c{count}::{value}}}}}"
                 case _:
                     return content.stringify()
-        return (
-            functional.seq(self.children)
-            .map(anki_cloze)
-            .reduce(lambda x, y: x + y)
-        )
+
+        return functional.seq(self.children).map(anki_cloze).reduce(lambda x, y: x + y)
 
 
 @define
@@ -157,7 +154,15 @@ class Heading:
 
 
 Block = (
-    BearID | Divider | BasicPrompt | ClozePrompt | FencedCodeBlock | Heading | BacklinkBlock | Paragraph | Spacer
+    BearID
+    | Divider
+    | BasicPrompt
+    | ClozePrompt
+    | FencedCodeBlock
+    | Heading
+    | BacklinkBlock
+    | Paragraph
+    | Spacer
 )
 
 
