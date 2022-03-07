@@ -194,11 +194,11 @@ backlink_block_prefix = string("## Backlinks").map(lambda _: BacklinkBlockPrefix
 not_text = (
     question_prefix
     | answer_prefix
+    | eol
     | lbrace
     | rbrace
     | lbracket
     | rbracket
-    | eol
     | divider
     | tag
     | backlink_block_prefix

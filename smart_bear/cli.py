@@ -156,13 +156,58 @@ def benchmark():
     urls_benchmark = timeit(lambda: get_urls, number=1000) / 1000
     pprint("urls_benchmark: " + str(urls_benchmark))
     urls = get_urls()
-    # read_benchmark = timeit(lambda: pseq(urls).map(_read).to_list(), number=10) / 10
-    # pprint("read_benchmark: " + str(read_benchmark))
-    notes = pseq(urls).map(_read).to_list()
-    lexer_benchmark = (
-        timeit(lambda: pseq(notes).map(lexer.parse).to_list(), number=1) / 1
+    seq_read_benchmark = (
+        timeit(lambda: seq(urls).map(_read).for_each(lambda _: _), number=10) / 10
     )
-    pprint("lexer_benchmark: " + str(lexer_benchmark))
+    pprint("seq_read_benchmark: " + str(seq_read_benchmark))
+    pseq_read_benchmark = (
+        timeit(lambda: pseq(urls).map(_read).for_each(lambda _: _), number=10) / 10
+    )
+    pprint("pseq_read_benchmark: " + str(pseq_read_benchmark))
+    notes = seq(urls).map(_read).to_list()
+    seq_lexer_benchmark = (
+        timeit(lambda: seq(notes).map(lexer.parse).for_each(lambda _: _), number=3) / 3
+    )
+    pprint("seq_lexer_benchmark: " + str(seq_lexer_benchmark))
+    pseq_lexer_benchmark = (
+        timeit(lambda: pseq(notes).map(lexer.parse).for_each(lambda _: _), number=3) / 3
+    )
+    pprint("pseq_lexer_benchmark: " + str(pseq_lexer_benchmark))
+    seq_full_benchmark = (
+        timeit(lambda: seq(urls).map(_read).map(_parse).for_each(lambda _: _), number=3)
+        / 3
+    )
+    pprint("seq_full_benchmark: " + str(seq_full_benchmark))
+    pseq_full_benchmark = (
+        timeit(
+            lambda: pseq(urls).map(_read).map(_parse).for_each(lambda _: _), number=3
+        )
+        / 3
+    )
+    pprint("pseq_full_benchmark: " + str(pseq_full_benchmark))
+    pseq(urls).map(_read).map(_parse).for_each(lambda _: _)
+    hybrid_full_benchmark = (
+        timeit(
+            lambda: seq(urls)
+            .flat_map(_read)
+            .map(lambda x: pseq(x).map(_parse).for_each(lambda _: _))
+            .for_each(lambda _: _),
+            number=3,
+        )
+        / 3
+    )
+    pprint("hybrid_full_benchmark: " + str(hybrid_full_benchmark))
+
+    pseq_parse_benchmark = (
+        timeit(
+            lambda: pseq(notes).map(_parse).for_each(lambda _: _),
+            number=3,
+        )
+        / 3
+    )
+    pprint("pseq_parse_benchmark: " + str(pseq_parse_benchmark))
+    extract_prompts_benchmark = timeit(lambda: extract_prompts(urls), number=3) / 3
+    pprint("extract_prompts_benchmark: " + str(extract_prompts_benchmark))
 
 
 def _read(url) -> str:
