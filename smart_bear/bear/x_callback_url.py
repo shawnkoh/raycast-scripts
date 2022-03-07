@@ -40,7 +40,7 @@ def open_note(
         if value is None:
             args.pop(key)
         elif type(value) == bool:
-            args[key] = "yes" if value == True else "no"
+            args[key] = "yes" if value is True else "no"
 
     url = furl(BASE_URL)
     url.path = "open-note"
@@ -76,7 +76,7 @@ def create(
         if value is None:
             args.pop(key)
         elif type(value) == bool:
-            args[key] = "yes" if value == True else "no"
+            args[key] = "yes" if value is True else "no"
 
     url = furl(BASE_URL)
     url.path = "create"
@@ -113,9 +113,22 @@ def add_text(
         if value is None:
             args.pop(key)
         elif type(value) == bool:
-            args[key] = "yes" if value == True else "no"
+            args[key] = "yes" if value is True else "no"
 
     url = furl(BASE_URL)
     url.path = "add-text"
+    url.args = args
+    return url
+
+
+def trash(id: str, show_window: bool = False) -> furl:
+    args = locals().copy()
+    for key, value in locals().items():
+        if value is None:
+            args.pop(key)
+        elif type(value) == bool:
+            args[key] = "yes" if value is True else "no"
+    url = furl(BASE_URL)
+    url.path = "trash"
     url.args = args
     return url

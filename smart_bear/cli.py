@@ -16,6 +16,7 @@ from smart_bear.bear import x_callback_url
 from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
+from smart_bear.markdown.nuke import uuid_if_sync_conflict
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
@@ -140,3 +141,18 @@ def pp():
             if root[1]:
                 pprint(url)
                 pprint(root)
+
+
+@run.command()
+def nuke_sync_conflicts():
+    urls = get_urls()
+
+    def read(url) -> str:
+        r = None
+        with open(url, "r") as file:
+            r = file.read()
+        return r
+
+    pseq(tqdm(urls)).map(read).map(uuid_if_sync_conflict).filter(lambda x: x).for_each(
+        lambda x: webbrowser.open(x_callback_url.trash(x).url)
+    )

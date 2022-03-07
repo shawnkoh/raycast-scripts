@@ -168,7 +168,7 @@ lbracket = string("[").map(lambda x: LeftBracket())
 rbracket = string("]").map(lambda x: RightBracket())
 leftHTMLComment = string("<!--").map(lambda x: LeftHTMLComment())
 rightHTMLComment = string("-->").map(lambda x: RightHTMLComment())
-bearID = (
+bear_id = (
     leftHTMLComment
     >> string(" ")
     >> lbrace
@@ -192,7 +192,7 @@ code_fence = string("```").map(lambda _: CodeFence())
 backlink_block_prefix = string("## Backlinks").map(lambda _: BacklinkBlockPrefix())
 
 not_text = (
-    bearID
+    bear_id
     | question_prefix
     | answer_prefix
     | lbrace

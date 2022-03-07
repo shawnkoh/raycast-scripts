@@ -16,7 +16,7 @@ from smart_bear.markdown.lexer import (
     Space,
     Tag,
     Text,
-    bearID,
+    bear_id,
     exclude_none,
     flatten_list,
     heading_prefix,
@@ -118,7 +118,7 @@ def test_bear_id():
         "<!-- {BearID:1419719E-6881-497E-94E2-BB154943963C-30579-0000CA9CD9FF92FE} -->"
     )
     expected = BearID("1419719E-6881-497E-94E2-BB154943963C-30579-0000CA9CD9FF92FE")
-    assert bearID.parse(given) == expected
+    assert bear_id.parse(given) == expected
 
 
 @hypothesis.given(
