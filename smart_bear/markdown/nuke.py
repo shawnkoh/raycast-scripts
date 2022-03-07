@@ -1,5 +1,7 @@
 from typing import Optional
-from parsy import string, any_char, eof
+
+from parsy import any_char, eof, string
+
 from smart_bear.markdown.lexer import BearID, bear_id, exclude_none
 
 

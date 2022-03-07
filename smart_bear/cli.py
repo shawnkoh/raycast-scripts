@@ -3,6 +3,7 @@ import glob
 import os
 import webbrowser
 from pathlib import Path
+from timeit import timeit
 
 import arrow
 import click
@@ -14,9 +15,9 @@ from tqdm import tqdm
 from smart_bear.anki.anki import Anki
 from smart_bear.bear import x_callback_url
 from smart_bear.markdown.lexer import lexer
+from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
-from smart_bear.markdown.nuke import uuid_if_sync_conflict
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
@@ -148,6 +149,15 @@ def missing_titles():
     pseq(tqdm(urls)).map(_read).map(_parse).filter(lambda x: x.title is None).for_each(
         lambda x: pprint(x)
     )
+
+
+@run.command()
+def benchmark():
+    get_urls_benchmark = timeit(lambda: get_urls, number=1000) / 1000
+    pprint("get_urls: " + str(get_urls_benchmark))
+    urls = get_urls()
+    read_benchmark = timeit(lambda: pseq(urls).map(_read).to_list(), number=10) / 10
+    pprint("pseq(urls).map(_read): " + str(read_benchmark))
 
 
 def _read(url) -> str:
