@@ -113,19 +113,8 @@ def p():
     with open("report.txt", "wt") as report_file:
         console = Console(file=report_file)
 
-        def read(url) -> str:
-            r = None
-            with open(url, "r") as file:
-                r = file.read()
-            return r
-
-        def parse(body: str) -> Root:
-            tokens = lexer.parse(body)
-            root = parser.parse(tokens)
-            return root
-
         with console.capture() as capture:
-            pseq(tqdm(urls)).map(read).map(parse).for_each(
+            pseq(tqdm(urls)).map(_read).map(_parse).for_each(
                 lambda x: pprint(x, console=console)
             )
         report_file.write(capture.get())
@@ -147,12 +136,28 @@ def pp():
 def nuke_sync_conflicts():
     urls = get_urls()
 
-    def read(url) -> str:
-        r = None
-        with open(url, "r") as file:
-            r = file.read()
-        return r
-
-    pseq(tqdm(urls)).map(read).map(uuid_if_sync_conflict).filter(lambda x: x).for_each(
+    pseq(tqdm(urls)).map(_read).map(uuid_if_sync_conflict).filter(lambda x: x).for_each(
         lambda x: webbrowser.open(x_callback_url.trash(x).url)
     )
+
+
+@run.command()
+def missing_titles():
+    urls = get_urls()
+
+    pseq(tqdm(urls)).map(_read).map(_parse).filter(lambda x: x.title is None).for_each(
+        lambda x: pprint(x)
+    )
+
+
+def _read(url) -> str:
+    r = None
+    with open(url, "r") as file:
+        r = file.read()
+    return r
+
+
+def _parse(body: str) -> Root:
+    tokens = lexer.parse(body)
+    root = parser.parse(tokens)
+    return root
