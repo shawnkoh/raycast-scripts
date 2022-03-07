@@ -192,22 +192,22 @@ code_fence = string("```").map(lambda _: CodeFence())
 backlink_block_prefix = string("## Backlinks").map(lambda _: BacklinkBlockPrefix())
 
 not_text = (
-    bear_id
-    | question_prefix
+    question_prefix
     | answer_prefix
     | lbrace
     | rbrace
     | lbracket
     | rbracket
     | eol
-    | leftHTMLComment
-    | rightHTMLComment
     | divider
     | tag
     | backlink_block_prefix
     | heading_prefix
     | hashtag
     | code_fence
+    | bear_id
+    | leftHTMLComment
+    | rightHTMLComment
 )
 
 text = (not_text.should_fail("text") >> any_char).at_least(1).concat().map(Text)

@@ -7,7 +7,7 @@ from timeit import timeit
 
 import arrow
 import click
-from functional import pseq
+from functional import seq, pseq
 from rich.console import Console
 from rich.pretty import pprint
 from tqdm import tqdm
@@ -153,11 +153,16 @@ def missing_titles():
 
 @run.command()
 def benchmark():
-    get_urls_benchmark = timeit(lambda: get_urls, number=1000) / 1000
-    pprint("get_urls: " + str(get_urls_benchmark))
+    urls_benchmark = timeit(lambda: get_urls, number=1000) / 1000
+    pprint("urls_benchmark: " + str(urls_benchmark))
     urls = get_urls()
-    read_benchmark = timeit(lambda: pseq(urls).map(_read).to_list(), number=10) / 10
-    pprint("pseq(urls).map(_read): " + str(read_benchmark))
+    # read_benchmark = timeit(lambda: pseq(urls).map(_read).to_list(), number=10) / 10
+    # pprint("read_benchmark: " + str(read_benchmark))
+    notes = pseq(urls).map(_read).to_list()
+    lexer_benchmark = (
+        timeit(lambda: pseq(notes).map(lexer.parse).to_list(), number=1) / 1
+    )
+    pprint("lexer_benchmark: " + str(lexer_benchmark))
 
 
 def _read(url) -> str:
