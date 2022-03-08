@@ -61,7 +61,7 @@ def markdown_to_html(source):
     return markdown(
         source,
         extras=[
-            # "break-on-newline",
+            "break-on-newline",
             "code-friendly",
             "cuddled-lists",
             "fenced-code-blocks",
