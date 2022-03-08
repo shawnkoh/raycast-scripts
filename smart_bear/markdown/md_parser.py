@@ -2,11 +2,8 @@ import base64
 
 import unmarkd
 from bs4 import BeautifulSoup
-from markdown import Markdown
+from markdown2 import markdown
 from parsy import any_char, decimal_digit, string
-
-_markdown_to_html_parser = Markdown()
-
 
 anki_cloze = (
     string("{{c")
@@ -61,7 +58,17 @@ def extract_data(html, attribute):
 
 
 def markdown_to_html(source):
-    return _markdown_to_html_parser.reset().convert(source)
+    return markdown(
+        source,
+        extras=[
+            # "break-on-newline",
+            "code-friendly",
+            "cuddled-lists",
+            "fenced-code-blocks",
+            "smarty-pants",
+            "strike",
+        ],
+    )
 
 
 def html_to_markdown(html):

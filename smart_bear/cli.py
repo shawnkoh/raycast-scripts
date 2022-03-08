@@ -18,6 +18,7 @@ from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
+from smart_bear.markdown.md_parser import markdown_to_html
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
