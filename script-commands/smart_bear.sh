@@ -31,7 +31,7 @@ git add -A && git commit -m "Commit imported changes to Bear" ;
 
 cd ~/repos/smart-bear ;
 # poetry run python script-commands/detect-duplicate-titles.py ;
-poetry run smart_bear anki ;
+poetry run smart-bear anki ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit Smart Bear" ;
 
