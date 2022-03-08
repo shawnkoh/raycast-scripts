@@ -10,7 +10,6 @@ safe-bear = "smart_bear.safecli:app"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-Markdown = "^3.3.4"
 beautifulsoup4 = "^4.10.0"
 lxml = "^4.6.3"
 regex = "^2021.10.23"
