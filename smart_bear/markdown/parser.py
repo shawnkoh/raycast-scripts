@@ -112,7 +112,7 @@ class ClozePrompt:
     children: List[Cloze | Content]
 
     def stringify(self) -> str:
-        count = -1
+        count = 0
 
         def anki_cloze(content: Cloze | Content) -> str:
             nonlocal count
