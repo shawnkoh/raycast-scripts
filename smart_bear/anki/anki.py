@@ -24,9 +24,13 @@ _multi_line_regex = regex.compile(r"\n\n+")
 
 def close_anki_process(process_name: str = ANKI_PROCESS_NAME):
     for process in psutil.process_iter():
-        if process.name() == process_name:
-            process.kill()
-            return
+        try:
+            # NB: Unsure why this throws, but just ignore it.
+            if process.name() == process_name:
+                process.kill()
+                return
+        except psutil.ZombieProcess:
+            continue
 
 
 class Anki:
