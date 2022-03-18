@@ -32,7 +32,7 @@ MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
 
 def get_urls():
-    return glob.glob(f"{MARKDOWN_PATH}/*.md")
+    return glob.glob(f"{MARKDOWN_PATH}/*.md") + glob.glob("/Users/shawnkoh/repos/windows/*.md")
 
 
 @click.group()
