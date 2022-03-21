@@ -65,6 +65,19 @@ class Title:
 
 
 @define
+class FencedCodeBlock:
+    info_string: Optional[Text]
+    children: List[Text | Break]
+
+    def stringify(self) -> str:
+        return (self.info_string.stringify() if self.info_string else "") + (
+            functional.seq(self.children)
+            .map(lambda x: x.stringify())
+            .reduce(lambda x, y: x + y)
+        )
+
+
+@define
 class Question:
     children: List[Content]
 
@@ -78,7 +91,7 @@ class Question:
 
 @define
 class Answer:
-    children: List[Content]
+    children: List[Content | FencedCodeBlock]
 
     def stringify(self) -> str:
         return (
@@ -139,12 +152,6 @@ class Paragraph:
 @define
 class BacklinkBlock:
     value: Optional[Paragraph]
-
-
-@define
-class FencedCodeBlock:
-    info_string: Optional[Text]
-    children: List[Text | Break]
 
 
 @define
@@ -256,11 +263,29 @@ question = question_prefix >> (
     .map(Question)
 )
 
+
+fenced_code_block = seq(
+    _prefix=code_fence,
+    info_string=text.optional() << eol,
+    children=(
+        (
+            (eol >> code_fence).should_fail("suffix")
+            >> (eol | _raw_text.at_least(1).concat().map(Text))
+        ).many()
+    ),
+    _suffix=eol >> code_fence,
+).combine_dict(FencedCodeBlock)
+
 answer = answer_prefix >> (
-    ((eol.times(2) | eol >> question_prefix).should_fail("answer_prefix") >> _content)
-    .at_least(1)
-    .map(_concatenate_texts)
-    .map(Answer)
+    (
+        seq(eol, fenced_code_block)
+        | (
+            (eol.times(2) | eol >> question_prefix).should_fail("answer_prefix")
+            >> _content
+        )
+        .at_least(1)
+        .map(_concatenate_texts)
+    ).map(Answer)
 )
 
 basic_prompt = (
@@ -300,19 +325,6 @@ cloze_prompt = (
         else fail("no cloze")
     )
 )
-
-
-fenced_code_block = seq(
-    _prefix=code_fence,
-    info_string=text.optional() << eol,
-    children=(
-        (
-            (eol >> code_fence).should_fail("suffix")
-            >> (eol | _raw_text.at_least(1).concat().map(Text))
-        ).many()
-    ),
-    _suffix=eol >> code_fence,
-).combine_dict(FencedCodeBlock)
 
 
 paragraph = (
