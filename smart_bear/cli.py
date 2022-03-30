@@ -2,9 +2,11 @@ import datetime
 import glob
 import os
 import webbrowser
+import pyperclip
 from pathlib import Path
 from timeit import timeit
 import typer
+from typing import Optional
 
 import arrow
 import click
@@ -175,25 +177,36 @@ def _parse(body: str) -> Root:
 
 
 @app.command()
-def blocks(hours_busy: float = 0):
+def blocks(hours_busy: Optional[float] = typer.Argument(None)):
+    if hours_busy is None:
+        hours_busy = 0
     now = arrow.now()
     end = now.shift(days=1)
     end = end.replace(hour=0, minute=0, second=0, microsecond=0)
     seconds_left = end.int_timestamp - now.int_timestamp
     seconds_busy = hours_busy * 60 * 60
-
-    pprint(
-        str(
-            work_blocks(
-                seconds=seconds_left - seconds_busy,
-                work=45,
-                short_break=5,
-                long_break=15,
-                work_per_long_break=3,
-            )
-        )
-        + " working blocks to midnight"
+    work = work_blocks(
+        seconds=seconds_left - seconds_busy,
+        work=45,
+        short_break=5,
+        long_break=15,
+        work_per_long_break=3,
     )
+    max = work_blocks(
+        seconds=seconds_left,
+        work=45,
+        short_break=5,
+        long_break=15,
+        work_per_long_break=3,
+    )
+
+    circledcirc = "⊚"
+    bigcirc = "○"
+    focus = circledcirc * work
+    schedule_bullets = circledcirc * work + bigcirc * (max - work)
+    pprint(f"Today: {schedule_bullets} ({work}/{max})")
+    pyperclip.copy(focus)
+    pprint("Copied focus blocks to clipboard")
 
 
 def work_blocks(
