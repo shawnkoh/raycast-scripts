@@ -5,7 +5,7 @@ description = ""
 authors = ["Shawn Koh <shawn@shawnkoh.sg>"]
 
 [tool.poetry.scripts]
-smart-bear = "smart_bear.cli:run"
+smart-bear = "smart_bear.cli:app"
 safe-bear = "smart_bear.safecli:app"
 
 [tool.poetry.dependencies]

@@ -4,6 +4,7 @@ import os
 import webbrowser
 from pathlib import Path
 from timeit import timeit
+import typer
 
 import arrow
 import click
@@ -18,7 +19,6 @@ from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
-from smart_bear.markdown.md_parser import markdown_to_html
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
@@ -30,17 +30,16 @@ CLOZE_MODEL_ID = 1635539433589
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
+app = typer.Typer()
+
 
 def get_urls():
-    return glob.glob(f"{MARKDOWN_PATH}/*.md") + glob.glob("/Users/shawnkoh/repos/windows/*.md")
+    return glob.glob(f"{MARKDOWN_PATH}/*.md") + glob.glob(
+        "/Users/shawnkoh/repos/windows/*.md"
+    )
 
 
-@click.group()
-def run():
-    pass
-
-
-@run.command()
+@app.command()
 def study():
     anki = Anki(
         collection_path=COLLECTION_PATH,
@@ -55,7 +54,7 @@ def study():
     anki.collection.save()
 
 
-@run.command()
+@app.command()
 def anki():
     date = datetime.date.today().strftime("%Y-%m-%d")
     time = datetime.datetime.now().strftime("%H:%M:%S")
@@ -99,7 +98,7 @@ def anki():
             file.write(stats)
 
 
-@run.command()
+@app.command()
 def open_today():
     a = arrow.now()
     title = a.format("YYYY-MM-DD")
@@ -109,7 +108,7 @@ def open_today():
     webbrowser.open(url.url)
 
 
-@run.command()
+@app.command()
 def p():
     urls = get_urls()
     with open("report.txt", "wt") as report_file:
@@ -122,7 +121,7 @@ def p():
         report_file.write(capture.get())
 
 
-@run.command()
+@app.command()
 def pp():
     urls = get_urls()
     for url in tqdm(urls):
@@ -134,7 +133,7 @@ def pp():
                 pprint(root)
 
 
-@run.command()
+@app.command()
 def nuke_sync_conflicts():
     urls = get_urls()
 
@@ -143,7 +142,7 @@ def nuke_sync_conflicts():
     )
 
 
-@run.command()
+@app.command()
 def missing_titles():
     urls = get_urls()
 
@@ -152,7 +151,7 @@ def missing_titles():
     )
 
 
-@run.command()
+@app.command()
 def benchmark():
     urls = get_urls()
     notes = seq(urls).map(_read).to_list()
@@ -173,3 +172,52 @@ def _parse(body: str) -> Root:
     tokens = lexer.parse(body)
     root = parser.parse(tokens)
     return root
+
+
+@app.command()
+def blocks(hours_busy: float = 0):
+    now = arrow.now()
+    end = now.shift(days=1)
+    end = end.replace(hour=0, minute=0, second=0, microsecond=0)
+    seconds_left = end.int_timestamp - now.int_timestamp
+    seconds_busy = hours_busy * 60 * 60
+
+    pprint(
+        str(
+            work_blocks(
+                seconds=seconds_left - seconds_busy,
+                work=45,
+                short_break=5,
+                long_break=15,
+                work_per_long_break=3,
+            )
+        )
+        + " working blocks to midnight"
+    )
+
+
+def work_blocks(
+    seconds: int, work: int, short_break: int, long_break: int, work_per_long_break: int
+) -> int:
+    seconds_per_minute = 60
+    work *= seconds_per_minute
+    short_break *= seconds_per_minute
+    long_break *= seconds_per_minute
+
+    work_count = 0
+    long_break_quota = work_per_long_break
+    index = seconds
+    while index >= work:
+        index -= work
+        work_count += 1
+        if long_break_quota == 1:
+            index -= long_break
+            long_break_quota = work_per_long_break
+        else:
+            index -= short_break
+            long_break_quota -= 1
+    return work_count
+
+
+if __name__ == "__main__":
+    app()
