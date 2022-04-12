@@ -1,6 +1,7 @@
 import datetime
 import glob
 import os
+import sched
 import webbrowser
 import pyperclip
 from pathlib import Path
@@ -202,10 +203,10 @@ def blocks(hours_busy: Optional[float] = typer.Argument(None)):
 
     circledcirc = "⊚"
     bigcirc = "○"
-    focus = circledcirc * work
-    schedule_bullets = circledcirc * work + bigcirc * (max - work)
-    pprint(f"Today: {schedule_bullets} ({work}/{max})")
-    pyperclip.copy(focus)
+    schedule_bullets = f"{bigcirc * work} | {circledcirc * (max - work)}"
+    schedule = f"Today: {schedule_bullets} ({work}/{max})"
+    pprint(schedule)
+    pyperclip.copy(schedule)
     pprint("Copied focus blocks to clipboard")
 
 
