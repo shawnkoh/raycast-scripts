@@ -3,20 +3,22 @@ from attrs import define
 from parsy import *
 
 
-def checkinstance(Class):
-    return test_item(lambda x: isinstance(x, Class), Class.__name__)
-
 @define
 class Title:
     value: str
 
-backlink_prefix = checkinstance(BacklinkPrefix)
-backlink_suffix = checkinstance(BacklinkSuffix)
-text = checkinstance(Text)
-
 @define
 class Backlink:
     value: str
+
+
+def checkinstance(Class):
+    return test_item(lambda x: isinstance(x, Class), Class.__name__)
+
+
+backlink_prefix = checkinstance(BacklinkPrefix)
+backlink_suffix = checkinstance(BacklinkSuffix)
+text = checkinstance(Text)
 
 @generate
 def backlink():
@@ -36,7 +38,3 @@ def title():
         string("# ")
         >> any_char.at_least(1).concat().map(Title)
     ).parse(value)
-
-def parse(text: str):
-    tokens = lexer.parse(text)
-    print(tokens)
