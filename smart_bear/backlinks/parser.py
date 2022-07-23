@@ -41,21 +41,25 @@ eol = checkinstance(EOL)
 @generate
 def title_block():
     value = yield inline_text.map(lambda x: x.value)
-    return (
+    result = (
         string("# ")
-        >> any_char.at_least(1).concat().map(TitleBlock)
+        >> any_char
+        .at_least(1)
+        .concat()
+        .map(TitleBlock)
     ).parse(value)
+    yield eol
+    return result
 
 
 from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
-# TODO: We ned to check for > 2 eol
-# lexer needs to tag block breaks like this
 backlinks_block = (
     backlinks_heading
     >> (inline_text | eol)
     .until(eol * 2 | eof)
-).map(BacklinksBlock)
+    .map(BacklinksBlock)
+)
 
 parser = seq(
     title_block,
