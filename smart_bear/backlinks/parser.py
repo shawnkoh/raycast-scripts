@@ -1,3 +1,4 @@
+from typing import List
 from .lexer import Text, lexer, BacklinkPrefix, BacklinkSuffix
 from attrs import define
 from parsy import *
@@ -10,6 +11,10 @@ class Title:
 @define
 class Backlink:
     value: str
+
+@define
+class BacklinksBlock:
+    children: List[Text]
 
 
 def checkinstance(Class):
@@ -38,3 +43,8 @@ def title():
         string("# ")
         >> any_char.at_least(1).concat().map(Title)
     ).parse(value)
+
+
+from .lexer import BacklinksHeading
+backlinks_heading = checkinstance(BacklinksHeading)
+backlinks_block = backlinks_heading >> text.many().map(BacklinksBlock)

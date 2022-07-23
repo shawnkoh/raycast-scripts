@@ -1,4 +1,5 @@
 from hypothesis import given
+from smart_bear.backlinks.lexer import BacklinksHeading
 from smart_bear.intelligence.test_utilities import assert_that
 
 
@@ -19,3 +20,10 @@ def test_backlink():
 
     given = [BacklinkPrefix(), Text("abc"), BacklinkSuffix()]
     assert_that(backlink.parse(given), Backlink("abc"))
+
+def test_backlinks_block():
+    from .parser import BacklinksBlock, backlinks_block
+    from .lexer import Text
+    given = [BacklinksHeading(), Text("some backlink")]
+
+    assert backlinks_block.parse(given) == BacklinksBlock([Text("some backlink")])
