@@ -56,15 +56,8 @@ eol = string("\n").result(EOL())
 backlinks_heading = string("## Backlinks\n").map(lambda _: BacklinksHeading())
 
 inline_special = backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
-inline_text = (
-    any_char
-    .until(eol | parsy.eof, min=1)
-    .concat()
-    .map(InlineText)
-)
-# if i consume other, then i can simply do [:-1] to get everything else except the last.
+
 # TODO: What about eof?
-# TODO: what if ls is empty?
 
 
 def _join(ls):

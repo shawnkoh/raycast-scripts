@@ -12,7 +12,7 @@ class Backlink:
 # MARK: Final Output
 
 @define
-class Title:
+class TitleBlock:
     value: str
 
 @define
@@ -40,11 +40,11 @@ def backlink():
 eol = checkinstance(EOL)
 
 @generate
-def title():
+def title_block():
     value = yield inline_text.map(lambda x: x.value)
     return (
         string("# ")
-        >> any_char.at_least(1).concat().map(Title)
+        >> any_char.at_least(1).concat().map(TitleBlock)
     ).parse(value)
 
 
@@ -60,6 +60,6 @@ backlinks_block = (
 )
 
 parser = seq(
-    title,
+    title_block,
     (backlinks_block | inline_text).many(),
 )
