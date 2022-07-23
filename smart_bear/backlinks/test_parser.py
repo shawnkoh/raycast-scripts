@@ -24,6 +24,8 @@ def test_backlink():
 def test_backlinks_block():
     from .parser import BacklinksBlock, backlinks_block
     from .lexer import InlineText
-    given = [BacklinksHeading(), InlineText("some backlink")]
+    inline_text = InlineText("some backlink")
+    given = [BacklinksHeading(), inline_text]
+    expected = BacklinksBlock([inline_text])
 
-    assert backlinks_block.parse(given) == BacklinksBlock([InlineText("some backlink")])
+    assert backlinks_block.parse(given) == expected

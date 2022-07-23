@@ -1,5 +1,5 @@
 from typing import List
-from .lexer import InlineText, lexer, BacklinkPrefix, BacklinkSuffix
+from .lexer import EOL, InlineText, lexer, BacklinkPrefix, BacklinkSuffix
 from attrs import define
 from parsy import *
 
@@ -37,7 +37,7 @@ def backlink():
     yield backlink_suffix
     return Backlink(body.value)
 
-eol = string("\n")
+eol = checkinstance(EOL)
 
 @generate
 def title():
@@ -52,7 +52,12 @@ from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
 # TODO: We ned to check for > 2 eol
 # lexer needs to tag block breaks like this
-backlinks_block = backlinks_heading >> inline_text.many().map(BacklinksBlock)
+backlinks_block = (
+    backlinks_heading 
+    >> inline_text
+    .until(eol * 2 | eof)
+    .map(BacklinksBlock)
+)
 
 parser = seq(
     title,
