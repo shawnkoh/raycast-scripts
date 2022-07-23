@@ -1,5 +1,4 @@
 from .lexer import *
-import hypothesis
 
     
 def test_backlinks_heading():

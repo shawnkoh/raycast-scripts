@@ -29,3 +29,12 @@ def test_backlinks_block():
     expected = BacklinksBlock([inline_text])
 
     assert backlinks_block.parse(given) == expected
+
+def test_parser():
+    from .parser import parser, TitleBlock, BacklinksBlock
+    given = [
+        TitleBlock("Bear Kingdom"),
+        BacklinksBlock([
+            
+        ])
+    ]
