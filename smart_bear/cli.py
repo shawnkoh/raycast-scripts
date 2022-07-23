@@ -110,6 +110,11 @@ def open_today():
     url.args["x-error"] = x_callback_url.create(title=title, tags=[tag])
     webbrowser.open(url.url)
 
+@app.command()
+def backlinks():
+    from .backlinks.lexer import lexer
+    print(lexer.parse("# text"))
+
 
 @app.command()
 def p():
