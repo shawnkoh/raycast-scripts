@@ -1,4 +1,5 @@
 from attrs import define
+from more_itertools import consume
 from parsy import any_char, string
 import parsy
 
@@ -9,7 +10,7 @@ import parsy
 # [[ok stuff]]
 
 @define
-class Text:
+class InlineText:
     value: str
 
 @define
@@ -51,16 +52,21 @@ backlink_prefix = string("[[").map(lambda _: BacklinkPrefix())
 backlink_suffix = string("]]").map(lambda _: BacklinkSuffix())
 quote_tick = string("`").map(lambda _: QuoteTick())
 inline_code = string("```").map(lambda _: InlineCode())
-eol = string("\n")
+eol = string("\n").result(EOL())
 
 backlinks_heading = string("## Backlinks\n").map(lambda _: BacklinksHeading())
 
 non_text = backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
-text = any_char.at_least(1).concat().map(Text)
+inline_text = (
+    any_char
+    .until(eol | parsy.eof, min=1)
+    .concat()
+    .map(InlineText)
+)
 
-line = (non_text | text).until(eol | parsy.eof, min=1)
+line = (non_text | inline_text)
 
-lexer = line.many()
+lexer = (line | eol).many()
 
 # TODO: Need to distinct between grammar that short-circuits a paragraph
 # and a paragraph.

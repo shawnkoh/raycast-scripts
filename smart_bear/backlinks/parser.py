@@ -1,20 +1,23 @@
 from typing import List
-from .lexer import Text, lexer, BacklinkPrefix, BacklinkSuffix
+from .lexer import InlineText, lexer, BacklinkPrefix, BacklinkSuffix
 from attrs import define
 from parsy import *
 
+# MARK: Intermediaries
+
+@define
+class Backlink:
+    value: str
+
+# MARK: Final Output
 
 @define
 class Title:
     value: str
 
 @define
-class Backlink:
-    value: str
-
-@define
 class BacklinksBlock:
-    children: List[Text]
+    children: List[InlineText]
 
 
 def checkinstance(Class):
@@ -23,12 +26,12 @@ def checkinstance(Class):
 
 backlink_prefix = checkinstance(BacklinkPrefix)
 backlink_suffix = checkinstance(BacklinkSuffix)
-text = checkinstance(Text)
+inline_text = checkinstance(InlineText)
 
 @generate
 def backlink():
     yield backlink_prefix
-    body: Text = yield text
+    body: InlineText = yield inline_text
     if body.value[0] == " " or body.value[-1] == " ":
         return fail("backlink must not have space at start or end")
     yield backlink_suffix
@@ -38,7 +41,7 @@ eol = string("\n")
 
 @generate
 def title():
-    value = yield text.map(lambda x: x.value)
+    value = yield inline_text.map(lambda x: x.value)
     return (
         string("# ")
         >> any_char.at_least(1).concat().map(Title)
@@ -47,4 +50,11 @@ def title():
 
 from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
-backlinks_block = backlinks_heading >> text.many().map(BacklinksBlock)
+# TODO: We ned to check for > 2 eol
+# lexer needs to tag block breaks like this
+backlinks_block = backlinks_heading >> inline_text.many().map(BacklinksBlock)
+
+parser = seq(
+    title,
+    (backlinks_block | inline_text).many(),
+)
