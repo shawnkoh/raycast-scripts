@@ -1,4 +1,7 @@
+import itertools
 from typing import List
+
+import more_itertools
 from .lexer import EOL, InlineText, lexer, BacklinkPrefix, BacklinkSuffix
 from attrs import define
 from parsy import *
@@ -9,7 +12,23 @@ from parsy import *
 class Backlink:
     value: str
 
+    
+def checkinstance(Class):
+    return test_item(lambda x: isinstance(x, Class), Class.__name__)
+
+backlink_prefix = checkinstance(BacklinkPrefix)
+backlink_suffix = checkinstance(BacklinkSuffix)
+inline_text = checkinstance(InlineText)
+
+@define
+class Line:
+    children: List[Backlink | InlineText]
+
+
 # MARK: Final Output
+
+# TODO: Uncertain if blocks should consume the relevant EOL
+# I think, by default we should assume they do.
 
 @define
 class TitleBlock:
@@ -17,15 +36,8 @@ class TitleBlock:
 
 @define
 class BacklinksBlock:
-    children: List[InlineText]
-    
-def checkinstance(Class):
-    return test_item(lambda x: isinstance(x, Class), Class.__name__)
+    children: List[Line]
 
-
-backlink_prefix = checkinstance(BacklinkPrefix)
-backlink_suffix = checkinstance(BacklinkSuffix)
-inline_text = checkinstance(InlineText)
 
 @generate
 def backlink():
@@ -37,6 +49,13 @@ def backlink():
     return Backlink(body.value)
 
 eol = checkinstance(EOL)
+
+line = (
+    (backlink | inline_text)
+    .at_least(1)
+    .map(Line)
+    << eol
+)
 
 @generate
 def title_block():
@@ -56,12 +75,13 @@ from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
 backlinks_block = (
     backlinks_heading
-    >> (inline_text | eol)
+    >> line
     .until(eol * 2 | eof)
     .map(BacklinksBlock)
 )
 
+
 parser = seq(
     title_block,
-    (backlinks_block | inline_text | eol).many(),
-)
+    (backlinks_block | line | eol).many(),
+).map(lambda x: list(more_itertools.collapse(x)))
