@@ -67,7 +67,7 @@ def title_block():
         .concat()
         .map(TitleBlock)
     ).parse(value)
-    yield eol
+    yield eol | eof
     return result
 
 

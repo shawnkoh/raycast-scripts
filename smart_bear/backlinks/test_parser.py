@@ -37,6 +37,18 @@ def test_parser():
     given = [
         InlineText("# Title"),
         EOL(),
+    ]
+    expected = [
+        TitleBlock("Title"),
+    ]
+    assert parser.parse(given) == expected
+
+def test_parser_1():
+    from .parser import parser, TitleBlock, BacklinksBlock, Line
+    from .lexer import InlineText
+    given = [
+        InlineText("# Title"),
+        EOL(),
         InlineText("## Body"),
         EOL(),
         InlineText("Body"),
