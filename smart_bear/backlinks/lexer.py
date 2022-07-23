@@ -1,5 +1,4 @@
 from attrs import define
-from more_itertools import consume
 from parsy import any_char, string
 import parsy
 
@@ -56,17 +55,37 @@ eol = string("\n").result(EOL())
 
 backlinks_heading = string("## Backlinks\n").map(lambda _: BacklinksHeading())
 
-non_text = backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
+inline_special = backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
 inline_text = (
     any_char
     .until(eol | parsy.eof, min=1)
     .concat()
     .map(InlineText)
 )
+# if i consume other, then i can simply do [:-1] to get everything else except the last.
+# TODO: What about eof?
+# TODO: what if ls is empty?
 
-line = (non_text | inline_text)
 
-lexer = (line | eol).many()
+def _join(ls):
+    length = len(ls)
+
+    if length == 1:
+        return ls
+
+    return [
+        InlineText("".join(ls[:-1])),
+        ls[-1],
+    ]
+
+
+line = (
+    any_char
+    .until(inline_special | eol, consume_other=True)
+    .map(_join)
+)
+
+lexer = line.many()
 
 # TODO: Need to distinct between grammar that short-circuits a paragraph
 # and a paragraph.
