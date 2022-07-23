@@ -54,7 +54,7 @@ line = (
     (backlink | inline_text)
     .at_least(1)
     .map(Line)
-    << eol
+    << (eol | eof)
 )
 
 @generate

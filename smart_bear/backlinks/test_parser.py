@@ -40,7 +40,24 @@ def test_parser():
         InlineText("## Body"),
         EOL(),
         InlineText("Body"),
-        # TODO: This shouldnt be necessary
+    ]
+    expected = [
+        TitleBlock("Title"),
+        Line([InlineText("## Body")]),
+        Line([InlineText("Body")]),
+    ]
+    assert parser.parse(given) == expected
+
+
+def test_parser_2():
+    from .parser import parser, TitleBlock, BacklinksBlock, Line
+    from .lexer import InlineText
+    given = [
+        InlineText("# Title"),
+        EOL(),
+        InlineText("## Body"),
+        EOL(),
+        InlineText("Body"),
         EOL(),
     ]
     expected = [
