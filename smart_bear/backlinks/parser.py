@@ -49,9 +49,17 @@ def backlink():
     return Backlink(body.value)
 
 eol = checkinstance(EOL)
+            
+unwrap = (
+    (
+        backlink_prefix.result("[[")
+        | backlink_suffix.result("]]")
+    )
+    .map(InlineText)
+)
 
 line = (
-    (backlink | inline_text)
+    (backlink | inline_text | unwrap)
     .at_least(1)
     .map(Line)
     << (eol | eof)
