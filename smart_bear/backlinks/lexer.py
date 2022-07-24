@@ -1,6 +1,7 @@
 from attrs import define
 from parsy import any_char, string, eof
 import parsy
+import more_itertools
 
 # Ignore backlinks
 # Backlink format
@@ -66,24 +67,26 @@ def _join(ls):
     if length == 1:
         return ls
 
-    # until consume_other=true results in ls[-1] = None
-    # for EOF
-    if ls[-1] is None:
-        return [
-            InlineText("".join(ls[:-1]))
-        ]
-
     return [
         InlineText("".join(ls[:-1])),
         ls[-1],
     ]
 
 
+# TODO: This can be made much more efficient for sure
 line = (
-    (inline_special | any_char)
+    (
+        inline_special
+        .until(eol | eof, consume_other=True)
+        | any_char
+        .until(inline_special | eol | eof, consume_other=True)
+        .map(_join)
+    )
     .until(eol | eof, consume_other=True)
-    .map(_join)
+    .map(lambda x: list(more_itertools.collapse(x)))
+    .map(lambda ls: list(filter(lambda x: x is not None, ls)))
 )
+
 
 lexer = line.many()
 

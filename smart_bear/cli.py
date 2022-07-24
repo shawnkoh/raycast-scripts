@@ -1,7 +1,6 @@
 import datetime
 import glob
 import os
-import sched
 import webbrowser
 import pyperclip
 from pathlib import Path
