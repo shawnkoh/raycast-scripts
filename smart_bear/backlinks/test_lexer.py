@@ -1,7 +1,10 @@
+from .lexer import EOL
+
 def test_backlinks_heading():
     from .lexer import backlinks_heading, BacklinksHeading
-    given = "## Backlinks\n"
-    assert backlinks_heading.parse(given) == BacklinksHeading()
+    given = "## Backlinks"
+    expected = BacklinksHeading()
+    assert backlinks_heading.parse(given) == expected
 
 
 def test_line():

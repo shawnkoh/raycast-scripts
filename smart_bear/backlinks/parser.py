@@ -20,16 +20,10 @@ backlink_prefix = checkinstance(BacklinkPrefix)
 backlink_suffix = checkinstance(BacklinkSuffix)
 inline_text = checkinstance(InlineText)
 
-@define
-class Line:
-    children: List[Backlink | InlineText]
-
 
 # MARK: Final Output
 
-# TODO: Uncertain if blocks should consume the relevant EOL
-# I think, by default we should assume they do.
-# TODO: No. They should not!
+# NB: Blocks should not consume EOLs.
 # It makes it difficult to print the original content.
 # There's also not much reason to have a Line abstraction.
 
@@ -39,7 +33,7 @@ class Title:
 
 @define
 class BacklinksBlock:
-    children: List[Line]
+    children: List[InlineText | EOL]
 
 
 @generate
@@ -52,20 +46,13 @@ def backlink():
     return Backlink(body.value)
 
 eol = checkinstance(EOL)
-            
+
 unwrap = (
     (
         backlink_prefix.result("[[")
         | backlink_suffix.result("]]")
     )
     .map(InlineText)
-)
-
-line = (
-    (backlink | inline_text | unwrap)
-    .at_least(1)
-    .map(Line)
-    << (eol | eof)
 )
 
 @generate
@@ -85,7 +72,7 @@ from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
 backlinks_block = (
     backlinks_heading
-    >> line
+    >> (inline_text | unwrap | eol)
     .until(eol * 2 | eof)
     .map(BacklinksBlock)
 )
@@ -93,5 +80,5 @@ backlinks_block = (
 
 parser = seq(
     title,
-    (backlinks_block | line | eol).many(),
+    (backlinks_block | backlink | inline_text | eol | unwrap).many(),
 ).map(lambda x: list(more_itertools.collapse(x)))

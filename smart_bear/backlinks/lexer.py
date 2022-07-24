@@ -54,7 +54,7 @@ quote_tick = string("`").result(QuoteTick())
 inline_code = string("```").result(InlineCode())
 eol = string("\n").result(EOL())
 
-backlinks_heading = string("## Backlinks\n").map(lambda _: BacklinksHeading())
+backlinks_heading = string("## Backlinks").result(BacklinksHeading())
 
 inline_special = backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
 

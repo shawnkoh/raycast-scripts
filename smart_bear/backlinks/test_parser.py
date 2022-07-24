@@ -2,6 +2,8 @@ from pprint import pprint
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
 from smart_bear.backlinks.parser import Title
 from smart_bear.intelligence.test_utilities import assert_that
+from .lexer import EOL, InlineText
+from .parser import parser
 
 
 def test_title():
@@ -17,24 +19,46 @@ def test_title():
 
 def test_backlink():
     from .parser import backlink, Backlink, BacklinkPrefix, BacklinkSuffix
-    from .lexer import InlineText
 
     given = [BacklinkPrefix(), InlineText("abc"), BacklinkSuffix()]
     assert_that(backlink.parse(given), Backlink("abc"))
 
 
 def test_backlinks_block():
-    from .parser import BacklinksBlock, backlinks_block, Line
-    from .lexer import InlineText
+    from .parser import BacklinksBlock, backlinks_block
     inline_text = InlineText("some backlink")
-    given = [BacklinksHeading(), inline_text, EOL()]
-    expected = BacklinksBlock([Line([inline_text])])
+    given = [
+        BacklinksHeading(),
+        EOL(),
+        inline_text,
+    ]
+    expected = BacklinksBlock([
+        EOL(),
+        inline_text,
+    ])
+
+    assert backlinks_block.parse(given) == expected
+
+
+def test_backlinks_block_2():
+    from .parser import BacklinksBlock, backlinks_block
+    inline_text = InlineText("some backlink")
+    given = [
+        BacklinksHeading(),
+        EOL(),
+        inline_text,
+        EOL(),
+    ]
+    expected = BacklinksBlock([
+        EOL(),
+        inline_text,
+        EOL(),
+    ])
 
     assert backlinks_block.parse(given) == expected
 
 def test_parser():
-    from .parser import parser, Title, BacklinksBlock, Line
-    from .lexer import InlineText
+    from .parser import Title, BacklinksBlock
     given = [
         InlineText("# Title"),
         EOL(),
@@ -46,8 +70,7 @@ def test_parser():
     assert parser.parse(given) == expected
 
 def test_parser_1():
-    from .parser import parser, Title, BacklinksBlock, Line
-    from .lexer import InlineText
+    from .parser import Title, BacklinksBlock
     given = [
         InlineText("# Title"),
         EOL(),
@@ -58,15 +81,15 @@ def test_parser_1():
     expected = [
         Title("Title"),
         EOL(),
-        Line([InlineText("## Body")]),
-        Line([InlineText("Body")]),
+        InlineText("## Body"),
+        EOL(),
+        InlineText("Body"),
     ]
     assert parser.parse(given) == expected
 
 
 def test_parser_2():
-    from .parser import parser, Title, BacklinksBlock, Line
-    from .lexer import InlineText
+    from .parser import Title, BacklinksBlock
     given = [
         InlineText("# Title"),
         EOL(),
@@ -78,14 +101,15 @@ def test_parser_2():
     expected = [
         Title("Title"),
         EOL(),
-        Line([InlineText("## Body")]),
-        Line([InlineText("Body")]),
+        InlineText("## Body"),
+        EOL(),
+        InlineText("Body"),
+        EOL(),
     ]
     assert parser.parse(given) == expected
 
 def test_parser_3():
     from .lexer import lexer
-    from .parser import parser
     given = "# Executive functions are actions towards self-regulation, per Barkley"
 
     expected = [
