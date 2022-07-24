@@ -1,5 +1,5 @@
 from attrs import define
-from parsy import any_char, string
+from parsy import any_char, string, eof
 import parsy
 
 # Ignore backlinks
@@ -47,10 +47,10 @@ class BacklinksHeading:
     pass
 
 
-backlink_prefix = string("[[").map(lambda _: BacklinkPrefix())
-backlink_suffix = string("]]").map(lambda _: BacklinkSuffix())
-quote_tick = string("`").map(lambda _: QuoteTick())
-inline_code = string("```").map(lambda _: InlineCode())
+backlink_prefix = string("[[").result(BacklinkPrefix())
+backlink_suffix = string("]]").result(BacklinkSuffix())
+quote_tick = string("`").result(QuoteTick())
+inline_code = string("```").result(InlineCode())
 eol = string("\n").result(EOL())
 
 backlinks_heading = string("## Backlinks\n").map(lambda _: BacklinksHeading())
@@ -66,6 +66,13 @@ def _join(ls):
     if length == 1:
         return ls
 
+    # until consume_other=true results in ls[-1] = None
+    # for EOF
+    if ls[-1] is None:
+        return [
+            InlineText("".join(ls[:-1]))
+        ]
+
     return [
         InlineText("".join(ls[:-1])),
         ls[-1],
@@ -73,8 +80,8 @@ def _join(ls):
 
 
 line = (
-    any_char
-    .until(inline_special | eol, consume_other=True)
+    (inline_special | any_char)
+    .until(eol | eof, consume_other=True)
     .map(_join)
 )
 
