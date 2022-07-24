@@ -115,6 +115,10 @@ def backlinks():
     from .backlinks.parser import parser
 
     urls = get_urls()
+    urls = ["/Users/shawnkoh/repos/windows/Dyson Sphere Program.md"]
+    # urls = ["/Users/shawnkoh/Downloads/dsp.md"]
+    # urls = ["/Users/shawnkoh/Downloads/Executive functions are actions towards self-regulation, per Barkley.md"]
+    # urls = ["/Users/shawnkoh/repos/notes/bear/Dyson Sphere Program.md"]
     (
         seq(urls)
         .map(_read)

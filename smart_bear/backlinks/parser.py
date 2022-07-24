@@ -2,7 +2,7 @@ import itertools
 from typing import List
 
 import more_itertools
-from .lexer import EOL, InlineText, lexer, BacklinkPrefix, BacklinkSuffix
+from .lexer import EOL, InlineCode, InlineText, QuoteTick, lexer, BacklinkPrefix, BacklinkSuffix
 from attrs import define
 from parsy import *
 
@@ -19,6 +19,8 @@ def checkinstance(Class):
 backlink_prefix = checkinstance(BacklinkPrefix)
 backlink_suffix = checkinstance(BacklinkSuffix)
 inline_text = checkinstance(InlineText)
+quote_tick = checkinstance(QuoteTick)
+inline_code = checkinstance(InlineCode)
 
 
 # MARK: Final Output
@@ -51,34 +53,41 @@ unwrap = (
     (
         backlink_prefix.result("[[")
         | backlink_suffix.result("]]")
+        | quote_tick.result("`")
+        | inline_code.result("```")
     )
     .map(InlineText)
 )
 
 @generate
 def title():
-    value = yield inline_text.map(lambda x: x.value)
-    result = (
-        string("# ")
-        >> any_char
-        .at_least(1)
-        .concat()
-        .map(Title)
-    ).parse(value)
-    return result
+    text = yield inline_text
+    value = text.value
+    try:
+        return (
+            string("# ")
+            >> any_char
+            .at_least(1)
+            .concat()
+            .map(Title)
+        ).parse(value)
+
+    except ParseError:
+        return fail("title")
+
 
 
 from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
 backlinks_block = (
     backlinks_heading
-    >> (inline_text | unwrap | eol)
+    >> (inline_text | eol | unwrap)
     .until(eol * 2 | eof)
     .map(BacklinksBlock)
 )
 
 
 parser = seq(
-    title,
+    title.optional(),
     (backlinks_block | backlink | inline_text | eol | unwrap).many(),
 ).map(lambda x: list(more_itertools.collapse(x)))

@@ -1,9 +1,12 @@
 from pprint import pprint
+
+import pytest
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
 from smart_bear.backlinks.parser import Title
 from smart_bear.intelligence.test_utilities import assert_that
 from .lexer import EOL, InlineText
 from .parser import parser
+import parsy
 
 
 def test_title():
@@ -13,8 +16,26 @@ def test_title():
     # The problem is test_item relies on a stream, or at least, a streamable item
     # perhaps we can make text inherit from str? not sure if good idea.
     given = [InlineText("# abc")]
-    answer = Title("abc")
-    assert(title.parse(given)) == answer
+    expected = Title("abc")
+    assert(title.parse(given)) == expected
+
+
+def test_title_or_inline_text():
+    from .parser import title, inline_text
+    from .lexer import InlineText
+    given = [InlineText("abc")]
+    expected = InlineText("abc")
+    assert((title | inline_text).parse(given)) == expected
+
+
+def test_title_optional():
+    from .parser import title
+    from .lexer import InlineText
+    given = [InlineText("abc")]
+    assert title.optional().parse_partial(given)[0] is None
+    # NB: this does not work because a failed parse does not consume the stream
+    with pytest.raises(parsy.ParseError):
+        title.optional().parse(given)
 
 
 def test_backlink():
