@@ -78,20 +78,24 @@ def test_backlinks_block_2():
 
     assert backlinks_block.parse(given) == expected
 
+
 def test_parser():
-    from .parser import Title, BacklinksBlock
+    from .parser import Title, Note
     given = [
         InlineText("# Title"),
         EOL(),
     ]
-    expected = [
-        Title("Title"),
-        EOL(),
-    ]
+    expected = Note(
+        title=Title("Title"),
+        children=[
+            EOL(),
+        ]
+    )
     assert parser.parse(given) == expected
 
+
 def test_parser_1():
-    from .parser import Title, BacklinksBlock
+    from .parser import Title, Note
     given = [
         InlineText("# Title"),
         EOL(),
@@ -99,18 +103,20 @@ def test_parser_1():
         EOL(),
         InlineText("Body"),
     ]
-    expected = [
-        Title("Title"),
-        EOL(),
-        InlineText("## Body"),
-        EOL(),
-        InlineText("Body"),
-    ]
+    expected = Note(
+        title=Title("Title"),
+        children=[
+            EOL(),
+            InlineText("## Body"),
+            EOL(),
+            InlineText("Body"),
+        ]
+    )
     assert parser.parse(given) == expected
 
 
 def test_parser_2():
-    from .parser import Title, BacklinksBlock
+    from .parser import Title, Note
     given = [
         InlineText("# Title"),
         EOL(),
@@ -119,21 +125,26 @@ def test_parser_2():
         InlineText("Body"),
         EOL(),
     ]
-    expected = [
-        Title("Title"),
-        EOL(),
-        InlineText("## Body"),
-        EOL(),
-        InlineText("Body"),
-        EOL(),
-    ]
+    expected = Note(
+        title=Title("Title"),
+        children=[
+            EOL(),
+            InlineText("## Body"),
+            EOL(),
+            InlineText("Body"),
+            EOL(),
+        ]
+    )
     assert parser.parse(given) == expected
+
 
 def test_parser_3():
     from .lexer import lexer
+    from .parser import Note
     given = "# Executive functions are actions towards self-regulation, per Barkley"
 
-    expected = [
-        Title("Executive functions are actions towards self-regulation, per Barkley"),
-    ]
+    expected = Note(
+        title=Title("Executive functions are actions towards self-regulation, per Barkley"),
+        children=[]
+    )
     assert parser.parse(lexer.parse(given)) == expected

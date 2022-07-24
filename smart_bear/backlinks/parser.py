@@ -1,7 +1,8 @@
 import itertools
-from typing import List
+from typing import List, Optional
 
 import more_itertools
+from pyparsing import Combine
 from .lexer import EOL, InlineCode, InlineText, QuoteTick, lexer, BacklinkPrefix, BacklinkSuffix
 from attrs import define
 from parsy import *
@@ -36,6 +37,11 @@ class Title:
 @define
 class BacklinksBlock:
     children: List[InlineText | EOL]
+    
+@define
+class Note:
+    title: Optional[Title]
+    children: List[InlineText | InlineCode | QuoteTick | Backlink | EOL]
 
 
 @generate
@@ -81,13 +87,24 @@ from .lexer import BacklinksHeading
 backlinks_heading = checkinstance(BacklinksHeading)
 backlinks_block = (
     backlinks_heading
-    >> (inline_text | eol | unwrap)
+    >> (
+        (inline_text | unwrap)
+        .map(lambda x: x.value)
+        .until(eol | eof, min=1)
+        .concat()
+        .map(InlineText)
+        | eol
+    )
     .until(eol * 2 | eof)
     .map(BacklinksBlock)
 )
 
 
 parser = seq(
-    title.optional(),
-    (backlinks_block | backlink | inline_text | eol | unwrap).many(),
-).map(lambda x: list(more_itertools.collapse(x)))
+    title=title.optional(),
+    children=(
+        (backlinks_block | backlink | inline_text | eol | unwrap)
+        .many()
+        .map(lambda x: list(more_itertools.collapse(x)))
+    ),
+).combine_dict(Note)
