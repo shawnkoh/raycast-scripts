@@ -1,7 +1,9 @@
 from .lexer import EOL
 
+
 def test_backlinks_heading():
     from .lexer import backlinks_heading, BacklinksHeading
+
     given = "## Backlinks"
     expected = BacklinksHeading()
     assert backlinks_heading.parse(given) == expected
@@ -9,6 +11,7 @@ def test_backlinks_heading():
 
 def test_line():
     from .lexer import InlineText, line, EOL
+
     given = "# Title\n"
     expected = [
         InlineText("# Title"),
@@ -19,6 +22,7 @@ def test_line():
 
 def test_line_2():
     from .lexer import InlineText, line
+
     given = "# Title"
     expected = [InlineText("# Title")]
     assert line.parse(given) == expected
@@ -26,6 +30,7 @@ def test_line_2():
 
 def test_line_3():
     from .lexer import InlineText, line, BacklinkPrefix, BacklinkSuffix
+
     given = "Some [[Backlink]]"
     expected = [
         InlineText("Some "),
@@ -35,8 +40,10 @@ def test_line_3():
     ]
     assert line.parse(given) == expected
 
+
 def test_lexer():
     from .lexer import InlineText, lexer, BacklinkPrefix, BacklinkSuffix, EOL
+
     given = "# riley_gmi\nAdded to [[ninjacado]] on [[2022-07-19]]."
     expected = [
         InlineText("# riley_gmi"),

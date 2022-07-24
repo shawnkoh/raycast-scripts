@@ -288,13 +288,9 @@ answer = answer_prefix >> (
     ).map(Answer)
 )
 
-basic_prompt = (
-    seq(
-        question=question << eol,
-        answer=answer.optional(),
-    ).combine_dict(BasicPrompt)
-    | question.map(lambda x: BasicPrompt(question=x, answer=None))
-)
+basic_prompt = seq(question=question << eol, answer=answer.optional(),).combine_dict(
+    BasicPrompt
+) | question.map(lambda x: BasicPrompt(question=x, answer=None))
 
 
 cloze = (

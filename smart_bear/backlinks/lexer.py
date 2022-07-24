@@ -9,29 +9,36 @@ import more_itertools
 # pass
 # [[ok stuff]]
 
+
 @define
 class InlineText:
     value: str
+
 
 @define
 class BacklinkPrefix:
     pass
 
+
 @define
 class BacklinkSuffix:
     pass
+
 
 @define
 class InlineCode:
     pass
 
+
 @define
 class QuoteTick:
     pass
 
+
 @define
 class CodeBlock:
     pass
+
 
 # ## Backlinks
 @define
@@ -42,6 +49,7 @@ class BacklinksBlockHeader:
 @define
 class EOL:
     pass
+
 
 @define
 class BacklinksHeading:
@@ -56,7 +64,9 @@ eol = string("\n").result(EOL())
 
 backlinks_heading = string("## Backlinks").result(BacklinksHeading())
 
-inline_special = backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
+inline_special = (
+    backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
+)
 
 # TODO: What about eof?
 
@@ -76,11 +86,8 @@ def _join(ls):
 # TODO: This can be made much more efficient for sure
 line = (
     (
-        inline_special
-        .until(eol | eof, consume_other=True)
-        | any_char
-        .until(inline_special | eol | eof, consume_other=True)
-        .map(_join)
+        inline_special.until(eol | eof, consume_other=True)
+        | any_char.until(inline_special | eol | eof, consume_other=True).map(_join)
     )
     .until(eol | eof, consume_other=True)
     .map(lambda x: list(more_itertools.collapse(x)))

@@ -10,27 +10,30 @@ import parsy
 
 
 def test_title():
-    from .parser import title 
+    from .parser import title
     from .lexer import InlineText, EOL
+
     # TODO: Investigate how not to wrap it in an array.
     # The problem is test_item relies on a stream, or at least, a streamable item
     # perhaps we can make text inherit from str? not sure if good idea.
     given = [InlineText("# abc")]
     expected = Title("abc")
-    assert(title.parse(given)) == expected
+    assert (title.parse(given)) == expected
 
 
 def test_title_or_inline_text():
     from .parser import title, inline_text
     from .lexer import InlineText
+
     given = [InlineText("abc")]
     expected = InlineText("abc")
-    assert((title | inline_text).parse(given)) == expected
+    assert ((title | inline_text).parse(given)) == expected
 
 
 def test_title_optional():
     from .parser import title
     from .lexer import InlineText
+
     given = [InlineText("abc")]
     assert title.optional().parse_partial(given)[0] is None
     # NB: this does not work because a failed parse does not consume the stream
@@ -47,22 +50,26 @@ def test_backlink():
 
 def test_backlinks_block():
     from .parser import BacklinksBlock, backlinks_block
+
     inline_text = InlineText("some backlink")
     given = [
         BacklinksHeading(),
         EOL(),
         inline_text,
     ]
-    expected = BacklinksBlock([
-        EOL(),
-        inline_text,
-    ])
+    expected = BacklinksBlock(
+        [
+            EOL(),
+            inline_text,
+        ]
+    )
 
     assert backlinks_block.parse(given) == expected
 
 
 def test_backlinks_block_2():
     from .parser import BacklinksBlock, backlinks_block
+
     inline_text = InlineText("some backlink")
     given = [
         BacklinksHeading(),
@@ -70,17 +77,20 @@ def test_backlinks_block_2():
         inline_text,
         EOL(),
     ]
-    expected = BacklinksBlock([
-        EOL(),
-        inline_text,
-        EOL(),
-    ])
+    expected = BacklinksBlock(
+        [
+            EOL(),
+            inline_text,
+            EOL(),
+        ]
+    )
 
     assert backlinks_block.parse(given) == expected
 
 
 def test_parser():
     from .parser import Title, Note
+
     given = [
         InlineText("# Title"),
         EOL(),
@@ -89,13 +99,14 @@ def test_parser():
         title=Title("Title"),
         children=[
             EOL(),
-        ]
+        ],
     )
     assert parser.parse(given) == expected
 
 
 def test_parser_1():
     from .parser import Title, Note
+
     given = [
         InlineText("# Title"),
         EOL(),
@@ -110,13 +121,14 @@ def test_parser_1():
             InlineText("## Body"),
             EOL(),
             InlineText("Body"),
-        ]
+        ],
     )
     assert parser.parse(given) == expected
 
 
 def test_parser_2():
     from .parser import Title, Note
+
     given = [
         InlineText("# Title"),
         EOL(),
@@ -133,7 +145,7 @@ def test_parser_2():
             EOL(),
             InlineText("Body"),
             EOL(),
-        ]
+        ],
     )
     assert parser.parse(given) == expected
 
@@ -141,10 +153,13 @@ def test_parser_2():
 def test_parser_3():
     from .lexer import lexer
     from .parser import Note
+
     given = "# Executive functions are actions towards self-regulation, per Barkley"
 
     expected = Note(
-        title=Title("Executive functions are actions towards self-regulation, per Barkley"),
-        children=[]
+        title=Title(
+            "Executive functions are actions towards self-regulation, per Barkley"
+        ),
+        children=[],
     )
     assert parser.parse(lexer.parse(given)) == expected
