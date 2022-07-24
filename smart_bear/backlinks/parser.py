@@ -29,9 +29,12 @@ class Line:
 
 # TODO: Uncertain if blocks should consume the relevant EOL
 # I think, by default we should assume they do.
+# TODO: No. They should not!
+# It makes it difficult to print the original content.
+# There's also not much reason to have a Line abstraction.
 
 @define
-class TitleBlock:
+class Title:
     value: str
 
 @define
@@ -66,16 +69,15 @@ line = (
 )
 
 @generate
-def title_block():
+def title():
     value = yield inline_text.map(lambda x: x.value)
     result = (
         string("# ")
         >> any_char
         .at_least(1)
         .concat()
-        .map(TitleBlock)
+        .map(Title)
     ).parse(value)
-    yield eol | eof
     return result
 
 
@@ -90,6 +92,6 @@ backlinks_block = (
 
 
 parser = seq(
-    title_block,
+    title,
     (backlinks_block | line | eol).many(),
 ).map(lambda x: list(more_itertools.collapse(x)))

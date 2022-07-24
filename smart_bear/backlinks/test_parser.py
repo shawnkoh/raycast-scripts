@@ -1,17 +1,18 @@
 from pprint import pprint
-from smart_bear.backlinks.lexer import EOL, BacklinksHeading
+from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
+from smart_bear.backlinks.parser import Title
 from smart_bear.intelligence.test_utilities import assert_that
 
 
 def test_title():
-    from .parser import title_block, TitleBlock
+    from .parser import title 
     from .lexer import InlineText, EOL
     # TODO: Investigate how not to wrap it in an array.
     # The problem is test_item relies on a stream, or at least, a streamable item
     # perhaps we can make text inherit from str? not sure if good idea.
-    given = [InlineText("# abc"), EOL()]
-    answer = TitleBlock("abc")
-    assert(title_block.parse(given)) == answer
+    given = [InlineText("# abc")]
+    answer = Title("abc")
+    assert(title.parse(given)) == answer
 
 
 def test_backlink():
@@ -32,19 +33,20 @@ def test_backlinks_block():
     assert backlinks_block.parse(given) == expected
 
 def test_parser():
-    from .parser import parser, TitleBlock, BacklinksBlock, Line
+    from .parser import parser, Title, BacklinksBlock, Line
     from .lexer import InlineText
     given = [
         InlineText("# Title"),
         EOL(),
     ]
     expected = [
-        TitleBlock("Title"),
+        Title("Title"),
+        EOL(),
     ]
     assert parser.parse(given) == expected
 
 def test_parser_1():
-    from .parser import parser, TitleBlock, BacklinksBlock, Line
+    from .parser import parser, Title, BacklinksBlock, Line
     from .lexer import InlineText
     given = [
         InlineText("# Title"),
@@ -54,7 +56,8 @@ def test_parser_1():
         InlineText("Body"),
     ]
     expected = [
-        TitleBlock("Title"),
+        Title("Title"),
+        EOL(),
         Line([InlineText("## Body")]),
         Line([InlineText("Body")]),
     ]
@@ -62,7 +65,7 @@ def test_parser_1():
 
 
 def test_parser_2():
-    from .parser import parser, TitleBlock, BacklinksBlock, Line
+    from .parser import parser, Title, BacklinksBlock, Line
     from .lexer import InlineText
     given = [
         InlineText("# Title"),
@@ -73,8 +76,19 @@ def test_parser_2():
         EOL(),
     ]
     expected = [
-        TitleBlock("Title"),
+        Title("Title"),
+        EOL(),
         Line([InlineText("## Body")]),
         Line([InlineText("Body")]),
     ]
     assert parser.parse(given) == expected
+
+def test_parser_3():
+    from .lexer import lexer
+    from .parser import parser
+    given = "# Executive functions are actions towards self-regulation, per Barkley"
+
+    expected = [
+        Title("Executive functions are actions towards self-regulation, per Barkley"),
+    ]
+    assert parser.parse(lexer.parse(given)) == expected
