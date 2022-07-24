@@ -112,7 +112,16 @@ def open_today():
 @app.command()
 def backlinks():
     from .backlinks.lexer import lexer
-    print(lexer.parse("# text"))
+    from .backlinks.parser import parser
+
+    urls = get_urls()
+    (
+        seq(urls)
+        .map(_read)
+        .map(lexer.parse)
+        .map(parser.parse)
+        .for_each(lambda x: pprint(x))
+    )
 
 
 @app.command()
@@ -170,6 +179,7 @@ def benchmark():
 
 def _read(url) -> str:
     r = None
+    print(url)
     with open(url, "r") as file:
         r = file.read()
     return r

@@ -31,3 +31,21 @@ def test_line_3():
         BacklinkSuffix(),
     ]
     assert line.parse(given) == expected
+
+def test_lexer():
+    from .lexer import InlineText, lexer, BacklinkPrefix, BacklinkSuffix, EOL
+    given = "# riley_gmi\nAdded to [[ninjacado]] on [[2022-07-19]]."
+    expected = [
+        InlineText("# riley_gmi"),
+        EOL(),
+        InlineText("Added to "),
+        BacklinkPrefix(),
+        InlineText("ninjacado"),
+        BacklinkSuffix(),
+        InlineText(" on "),
+        BacklinkPrefix(),
+        InlineText("2022-07-19"),
+        BacklinkSuffix(),
+        InlineText("."),
+    ]
+    assert lexer.parse(given) == expected
