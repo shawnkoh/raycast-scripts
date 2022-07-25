@@ -1,7 +1,7 @@
 from rich.pretty import pprint
 import parsy
 from functional import seq
-from ..backlinks.lexer import lexer
+from ..backlinks.lexer import BacklinksHeading, lexer
 from ..backlinks.parser import (
     parser,
     eol,
@@ -17,8 +17,8 @@ from attrs import frozen
 
 @frozen
 class Edge:
-    from_title: Title
-    to: Backlink
+    from_node: Title
+    to_node: Backlink
     children: list[InlineText | EOL | Backlink]
 
 
@@ -62,14 +62,53 @@ def printer(urls: list[str]):
 
         return File(url, note, edges)
 
-    files = seq(urls[:20]).map(read).to_list()
-    edge_by_title = (
+    files = seq(urls[:50]).map(read).to_list()
+    edges_to_node = (
         seq(files)
         .flat_map(lambda file: file.edges)
-        .group_by(lambda edge: edge.to)
+        .group_by(lambda edge: edge.to_node.value)
+        .to_dict()
+    )
+
+    def build_note(file: File):
+        new_children = (
+            seq(file.note.children)
+            .filter(lambda child: not isinstance(child, BacklinksBlock))
+            .to_list()
+        )
+
+        if file.note.title.value not in edges_to_node:
+            return Note(file.note.title, new_children)
+        else:
+            edges: list[Edge] = edges_to_node[file.note.title.value]
+
+            def map_edge(edge: Edge):
+                return [
+                    InlineText("* "),
+                    Backlink(edge.from_node.value),
+                    EOL(),
+                    InlineText("\t* "),
+                    EOL(),
+                    *edge.children,
+                ]
+
+            backlinks_block = (
+                BacklinksBlock(seq(edges).map(map_edge).flatten().to_list()),
+            )
+
+            return Note(
+                title=file.note.title,
+                children=[*new_children, *backlinks_block],
+            )
+
+    (
+        seq(files)
+        .filter(lambda file: file.note.title.value in edges_to_node)
+        .map(build_note)
+        .peek(pprint)
         .to_list()
     )
-    pprint(edge_by_title)
+    # pprint(edges_to_node)
 
 
 def _read(url) -> str:
