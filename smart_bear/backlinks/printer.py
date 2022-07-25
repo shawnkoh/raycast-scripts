@@ -43,7 +43,6 @@ def printer(urls: list[str]):
     def read(url):
         raw = _read(url)
         tokens = lexer.parse(raw)
-        pprint(tokens)
         note: Note = parser.parse(tokens)
         edges = (
             seq([note.children])
@@ -71,42 +70,10 @@ def printer(urls: list[str]):
         .to_dict()
     )
 
-    def build_note(file: File):
-        new_children = (
-            seq(file.note.children)
-            .filter(lambda child: not isinstance(child, BacklinksBlock))
-            .to_list()
-        )
-
-        if file.note.title.value not in edges_to_node:
-            return Note(file.note.title, new_children)
-        else:
-            edges: list[Edge] = edges_to_node[file.note.title.value]
-
-            def map_edge(edge: Edge):
-                return [
-                    InlineText("* "),
-                    Backlink(edge.from_node.value),
-                    EOL(),
-                    InlineText("\t* "),
-                    EOL(),
-                    *edge.children,
-                ]
-
-            backlinks_block = (
-                BacklinksBlock(seq(edges).map(map_edge).flatten().to_list()),
-            )
-
-            return Note(
-                title=file.note.title,
-                children=[*new_children, *backlinks_block],
-                bear_id=file.note.bear_id,
-            )
-
     (
         seq(files)
         .filter(lambda file: file.note.title.value in edges_to_node)
-        .map(build_note)
+        .map(lambda x: build_note(edges_to_node, x))
         .peek(pprint)
         .to_list()
     )
@@ -117,4 +84,37 @@ def _read(url) -> str:
     r = None
     with open(url, "r") as file:
         r = file.read()
-        return r
+    return r
+
+
+def build_note(edges_to_node, file: File):
+    new_children = (
+        seq(file.note.children)
+        .filter(lambda child: not isinstance(child, BacklinksBlock))
+        .to_list()
+    )
+
+    if file.note.title.value not in edges_to_node:
+        return Note(file.note.title, new_children)
+    else:
+        edges: list[Edge] = edges_to_node[file.note.title.value]
+
+        def map_edge(edge: Edge):
+            return [
+                InlineText("* "),
+                Backlink(edge.from_node.value),
+                EOL(),
+                InlineText("\t* "),
+                EOL(),
+                *edge.children,
+            ]
+
+        backlinks_block = (
+            BacklinksBlock(seq(edges).map(map_edge).flatten().to_list()),
+        )
+
+        return Note(
+            title=file.note.title,
+            children=[*new_children, *backlinks_block],
+            bear_id=file.note.bear_id,
+        )
