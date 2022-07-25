@@ -99,17 +99,19 @@ def test_note():
 
 
 def test_note_2():
-    given = [
-        Note(
-            title=Title("abc"),
-            children=[
-                InlineText("test"),
-            ],
-            bear_id=None,
-        )
-    ]
-    expected = "# abctest"
-    assert printer.note.parse(given) == expected
+    given = "# abctest"
+    from .lexer import lexer
+    from .parser import note
+
+    tokens = lexer.parse(given)
+    assert tokens == [InlineText("# abctest")]
+    n = note.parse(tokens)
+    assert n == Note(
+        title=Title("abctest"),
+        children=[],
+        bear_id=None,
+    )
+    assert printer.note.parse([n]) == given
 
 
 def test_note_3():
