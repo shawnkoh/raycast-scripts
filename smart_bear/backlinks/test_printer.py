@@ -96,3 +96,32 @@ def test_note():
     ]
     expected = "test"
     assert printer.note.parse(given) == expected
+
+
+def test_note_2():
+    given = [
+        Note(
+            title=Title("abc"),
+            children=[
+                InlineText("test"),
+            ],
+            bear_id=None,
+        )
+    ]
+    expected = "# abctest"
+    assert printer.note.parse(given) == expected
+
+
+def test_note_3():
+    given = [
+        Note(
+            title=Title("abc"),
+            children=[
+                EOL(),
+                InlineText("test"),
+            ],
+            bear_id=None,
+        )
+    ]
+    expected = "# abc\ntest"
+    assert printer.note.parse(given) == expected

@@ -91,7 +91,7 @@ backlinks_block = (
 )
 
 
-parser = seq(
+note = seq(
     title=title.optional(),
     children=(backlinks_block | backlink | any_char).until(
         (bear_id << eol.optional()) | eof

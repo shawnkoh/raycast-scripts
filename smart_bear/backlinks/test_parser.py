@@ -5,7 +5,7 @@ from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
 from smart_bear.backlinks.parser import Title
 from smart_bear.intelligence.test_utilities import assert_that
 from .lexer import EOL, BearID, InlineText
-from .parser import parser
+from .parser import note
 import parsy
 
 
@@ -101,7 +101,7 @@ def test_parser():
         ],
         bear_id=BearID("1234"),
     )
-    assert parser.parse(given) == expected
+    assert note.parse(given) == expected
 
 
 def test_parser_1():
@@ -125,7 +125,7 @@ def test_parser_1():
         ],
         bear_id=BearID("1234"),
     )
-    assert parser.parse(given) == expected
+    assert note.parse(given) == expected
 
 
 def test_parser_2():
@@ -151,7 +151,7 @@ def test_parser_2():
         ],
         bear_id=BearID("1234"),
     )
-    assert parser.parse(given) == expected
+    assert note.parse(given) == expected
 
 
 def test_parser_3():
@@ -167,4 +167,4 @@ def test_parser_3():
         children=[EOL()],
         bear_id=BearID("1234"),
     )
-    assert parser.parse(lexer.parse(given)) == expected
+    assert note.parse(lexer.parse(given)) == expected
