@@ -67,6 +67,18 @@ def backlink():
     return Backlink(body.value)
 
 
+from .lexer import BacklinksHeading
+
+backlinks_heading = checkinstance(BacklinksHeading)
+inline_special = (
+    backlink_prefix
+    | backlink_suffix
+    | inline_code
+    | quote_tick
+    | backlinks_heading
+    | bear_id
+)
+
 eol = checkinstance(EOL)
 
 unwrap = (
@@ -88,9 +100,6 @@ def title():
         return fail("title")
 
 
-from .lexer import BacklinksHeading
-
-backlinks_heading = checkinstance(BacklinksHeading)
 backlinks_block = backlinks_heading >> (
     (inline_text | unwrap)
     .map(lambda x: x.value)
@@ -100,15 +109,6 @@ backlinks_block = backlinks_heading >> (
     | eol
 ).until(eol * 2 | eof).map(BacklinksBlock)
 
-
-inline_special = (
-    backlink_prefix
-    | backlink_suffix
-    | inline_code
-    | quote_tick
-    | backlinks_heading
-    | bear_id
-)
 
 parser = seq(
     title=title.optional(),
