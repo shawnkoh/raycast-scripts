@@ -72,7 +72,7 @@ def printer(urls: list[str]):
 
     (
         seq(files)
-        .filter(lambda file: file.note.title.value in edges_to_node)
+        # .filter(lambda file: file.note.title.value in edges_to_node)
         .map(lambda x: build_note(edges_to_node, x))
         .peek(pprint)
         .to_list()
@@ -95,7 +95,11 @@ def build_note(edges_to_node, file: File):
     )
 
     if file.note.title.value not in edges_to_node:
-        return Note(file.note.title, new_children)
+        return Note(
+            file.note.title,
+            new_children,
+            bear_id=file.note.bear_id,
+        )
     else:
         edges: list[Edge] = edges_to_node[file.note.title.value]
 
