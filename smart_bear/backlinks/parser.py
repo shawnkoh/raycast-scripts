@@ -55,27 +55,35 @@ class BacklinksBlock:
 class Note:
     title: Optional[Title]
     children: List[InlineText | InlineCode | QuoteTick | Backlink | EOL]
-    bear_id: BearID
+    bear_id: Optional[BearID]
 
     def to_string(self) -> str:
         unwrap = (
+            inline_text.map(lambda x: x.value)
+            | eol.result("\n")
+            | checkinstance(Backlink).map(lambda x: f"[[{x.value}]]")
+            | quote_tick.result("`")
+            | inline_code.result("```")
+            | backlinks_heading.result("## Backlinks")
+            | backlink_prefix.result("[[")
+            | backlink_suffix.result("]]")
+            | bear_id.map(lambda x: x.value)
+            | checkinstance(Title).map(lambda x: x.value)
+        )
+        _unwrap = (
             (
-                inline_text.map(lambda x: x.value)
-                | eol.result("\n")
-                | checkinstance(Backlink).map(lambda x: f"[[{x.value}]]")
-                | quote_tick.result("`")
-                | inline_code.result("```")
-                | backlinks_heading.result("## Backlinks")
-                | backlink_prefix.result("[[")
-                | backlink_suffix.result("]]")
-                | bear_id.map(lambda x: x.value)
-                | checkinstance(Title).map(lambda x: x.value)
+                unwrap
+                | checkinstance(BacklinksBlock)
+                .map(lambda x: x.children)
+                .map(lambda x: unwrap.many().concat().parse(x))
             )
             .many()
             .concat()
         )
-        ls = [self.title, *self.children, self.bear_id]
-        return unwrap.parse(ls)
+        ls = list(
+            filter(lambda x: x is not None, [self.title, *self.children, self.bear_id])
+        )
+        return _unwrap.parse(ls)
 
 
 @generate
@@ -111,6 +119,8 @@ backlinks_block = backlinks_heading >> any_char.until(eol * 2 | eof).map(Backlin
 
 parser = seq(
     title=title.optional(),
-    children=((backlinks_block | backlink | any_char).until(bear_id)),
-    bear_id=bear_id << eol.optional(),
+    children=(backlinks_block | backlink | any_char).until(
+        (bear_id << eol.optional()) | eof
+    ),
+    bear_id=(bear_id << eol.optional()).optional(),
 ).combine_dict(Note)

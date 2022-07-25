@@ -1,6 +1,6 @@
 from rich.pretty import pprint
 import parsy
-from functional import seq
+from functional import pseq, seq
 from ..backlinks.lexer import lexer
 from ..backlinks.parser import (
     parser,
@@ -62,20 +62,20 @@ def printer(urls: list[str]):
 
         return File(url, note, edges)
 
-    files = seq(urls[:30]).map(read).to_list()
+    print("reading files")
+    files = pseq(urls).map(read).to_list()
     edges_to_node = (
         seq(files)
         .flat_map(lambda file: file.edges)
         .group_by(lambda edge: edge.to_node.value)
         .to_dict()
     )
-
     (
         seq(files)
-        # .filter(lambda file: file.note.title.value in edges_to_node)
+        .peek(lambda file: print(file.url))
         .map(lambda x: build_note(edges_to_node, x))
-        # .peek(pprint)
-        .for_each(lambda note: pprint(note.to_string()))
+        .map(lambda note: note.to_string())
+        .for_each(pprint)
     )
 
 
@@ -93,31 +93,36 @@ def build_note(edges_to_node, file: File):
         .to_list()
     )
 
+    if file.note.title is None:
+        return Note(
+            title=None,
+            children=new_children,
+            bear_id=file.note.bear_id,
+        )
+
     if file.note.title.value not in edges_to_node:
         return Note(
             file.note.title,
             new_children,
             bear_id=file.note.bear_id,
         )
-    else:
-        edges: list[Edge] = edges_to_node[file.note.title.value]
 
-        def map_edge(edge: Edge):
-            return [
-                InlineText("* "),
-                Backlink(edge.from_node.value),
-                EOL(),
-                InlineText("\t* "),
-                EOL(),
-                *edge.children,
-            ]
+    edges: list[Edge] = edges_to_node[file.note.title.value]
 
-        backlinks_block = (
-            BacklinksBlock(seq(edges).map(map_edge).flatten().to_list()),
-        )
+    def map_edge(edge: Edge):
+        return [
+            InlineText("* "),
+            Backlink(edge.from_node.value),
+            EOL(),
+            InlineText("\t* "),
+            EOL(),
+            *edge.children,
+        ]
 
-        return Note(
-            title=file.note.title,
-            children=[*new_children, *backlinks_block],
-            bear_id=file.note.bear_id,
-        )
+    backlinks_block = BacklinksBlock(seq(edges).map(map_edge).flatten().to_list())
+
+    return Note(
+        title=file.note.title,
+        children=[*new_children, backlinks_block],
+        bear_id=file.note.bear_id,
+    )
