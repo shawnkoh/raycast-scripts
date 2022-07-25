@@ -160,13 +160,13 @@ def test_parser_3():
     from .lexer import lexer
     from .parser import Note
 
-    given = "# Executive functions are actions towards self-regulation, per Barkley"
+    given = "# Executive functions are actions towards self-regulation, per Barkley\n<!-- {BearID:1234} -->"
 
     expected = Note(
         title=Title(
             "Executive functions are actions towards self-regulation, per Barkley"
         ),
-        children=[],
+        children=[EOL()],
         bear_id=BearID("1234"),
     )
     assert parser.parse(lexer.parse(given)) == expected
