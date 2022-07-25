@@ -70,12 +70,16 @@ def printer(urls: list[str]):
         .group_by(lambda edge: edge.to_node.value)
         .to_dict()
     )
+
+    def save_note(file: File, note: Note):
+        with open(file.url, "w") as f:
+            f.write(note.to_string())
+
     (
         seq(files)
         .peek(lambda file: print(file.url))
-        .map(lambda x: build_note(edges_to_node, x))
-        .map(lambda note: note.to_string())
-        .for_each(pprint)
+        .map(lambda x: (x, build_note(edges_to_node, x)))
+        .for_each(lambda x: save_note(x[0], x[1]))
     )
 
 

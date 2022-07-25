@@ -67,15 +67,15 @@ class Note:
             | backlinks_heading.result("## Backlinks")
             | backlink_prefix.result("[[")
             | backlink_suffix.result("]]")
-            | bear_id.map(lambda x: x.value)
-            | checkinstance(Title).map(lambda x: x.value)
+            | bear_id.map(lambda x: f"<!-- {{BearID:{x.value}}} -->\n")
+            | checkinstance(Title).map(lambda x: f"# {x.value}")
         )
         _unwrap = (
             (
                 unwrap
                 | checkinstance(BacklinksBlock)
                 .map(lambda x: x.children)
-                .map(lambda x: unwrap.many().concat().parse(x))
+                .map(lambda x: f"## Backlinks\n{unwrap.many().concat().parse(x)}")
             )
             .many()
             .concat()
