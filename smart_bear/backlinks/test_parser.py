@@ -4,7 +4,7 @@ import pytest
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
 from smart_bear.backlinks.parser import Title
 from smart_bear.intelligence.test_utilities import assert_that
-from .lexer import EOL, InlineText
+from .lexer import EOL, BearID, InlineText
 from .parser import parser
 import parsy
 
@@ -94,12 +94,14 @@ def test_parser():
     given = [
         InlineText("# Title"),
         EOL(),
+        BearID("1234"),
     ]
     expected = Note(
         title=Title("Title"),
         children=[
             EOL(),
         ],
+        bear_id=BearID("1234"),
     )
     assert parser.parse(given) == expected
 
@@ -113,6 +115,7 @@ def test_parser_1():
         InlineText("## Body"),
         EOL(),
         InlineText("Body"),
+        BearID("1234"),
     ]
     expected = Note(
         title=Title("Title"),
@@ -122,6 +125,7 @@ def test_parser_1():
             EOL(),
             InlineText("Body"),
         ],
+        bear_id=BearID("1234"),
     )
     assert parser.parse(given) == expected
 
@@ -136,6 +140,7 @@ def test_parser_2():
         EOL(),
         InlineText("Body"),
         EOL(),
+        BearID("1234"),
     ]
     expected = Note(
         title=Title("Title"),
@@ -146,6 +151,7 @@ def test_parser_2():
             InlineText("Body"),
             EOL(),
         ],
+        bear_id=BearID("1234"),
     )
     assert parser.parse(given) == expected
 
@@ -161,5 +167,6 @@ def test_parser_3():
             "Executive functions are actions towards self-regulation, per Barkley"
         ),
         children=[],
+        bear_id=BearID("1234"),
     )
     assert parser.parse(lexer.parse(given)) == expected

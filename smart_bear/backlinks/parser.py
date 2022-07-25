@@ -1,14 +1,12 @@
-import itertools
 from typing import List, Optional
 
 import more_itertools
-from pyparsing import Combine
 from .lexer import (
     EOL,
+    BearID,
     InlineCode,
     InlineText,
     QuoteTick,
-    lexer,
     BacklinkPrefix,
     BacklinkSuffix,
 )
@@ -32,6 +30,7 @@ backlink_suffix = checkinstance(BacklinkSuffix)
 inline_text = checkinstance(InlineText)
 quote_tick = checkinstance(QuoteTick)
 inline_code = checkinstance(InlineCode)
+bear_id = checkinstance(BearID)
 
 
 # MARK: Final Output
@@ -55,6 +54,7 @@ class BacklinksBlock:
 class Note:
     title: Optional[Title]
     children: List[InlineText | InlineCode | QuoteTick | Backlink | EOL]
+    bear_id: BearID
 
 
 @generate
@@ -108,4 +108,5 @@ parser = seq(
         .many()
         .map(lambda x: list(more_itertools.collapse(x)))
     ),
+    bear_id=bear_id << eol.optional(),
 ).combine_dict(Note)

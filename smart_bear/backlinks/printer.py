@@ -1,7 +1,7 @@
 from rich.pretty import pprint
 import parsy
 from functional import seq
-from ..backlinks.lexer import BacklinksHeading, lexer
+from ..backlinks.lexer import lexer
 from ..backlinks.parser import (
     parser,
     eol,
@@ -43,6 +43,7 @@ def printer(urls: list[str]):
     def read(url):
         raw = _read(url)
         tokens = lexer.parse(raw)
+        pprint(tokens)
         note: Note = parser.parse(tokens)
         edges = (
             seq([note.children])
@@ -99,6 +100,7 @@ def printer(urls: list[str]):
             return Note(
                 title=file.note.title,
                 children=[*new_children, *backlinks_block],
+                bear_id=file.note.bear_id,
             )
 
     (

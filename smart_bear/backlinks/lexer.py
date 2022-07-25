@@ -56,16 +56,42 @@ class BacklinksHeading:
     pass
 
 
+@frozen
+class BearID:
+    value: str
+
+    def stringify(self) -> str:
+        return f"<!-- {{BearID:{self.value}}} -->"
+
+
 backlink_prefix = string("[[").result(BacklinkPrefix())
 backlink_suffix = string("]]").result(BacklinkSuffix())
 quote_tick = string("`").result(QuoteTick())
 inline_code = string("```").result(InlineCode())
+
+
+@parsy.generate
+def bear_id():
+    suffix = string("} -->")
+    yield string("<!-- {BearID:")
+    # TODO: Uncertain about the | eol | eof
+    # need to write tests
+    id = yield any_char.until(suffix | eol | eof, min=1).concat()
+    yield suffix
+    return BearID(id)
+
+
 eol = string("\n").result(EOL())
 
 backlinks_heading = string("## Backlinks").result(BacklinksHeading())
 
 inline_special = (
-    backlink_prefix | backlink_suffix | inline_code | quote_tick | backlinks_heading
+    backlink_prefix
+    | backlink_suffix
+    | inline_code
+    | quote_tick
+    | backlinks_heading
+    | bear_id
 )
 
 # TODO: What about eof?
