@@ -62,7 +62,6 @@ def printer(urls: list[str]):
 
         return File(url, note, edges)
 
-    print("reading files")
     files = pseq(urls).map(read).to_list()
     edges_to_node = (
         seq(files)
@@ -72,7 +71,7 @@ def printer(urls: list[str]):
     )
 
     def save_note(file: File, note: Note):
-        import printer
+        from smart_bear.backlinks import printer
 
         with open(file.url, "w") as f:
             f.write(printer.note(note))
@@ -121,8 +120,8 @@ def build_note(edges_to_node, file: File):
             Backlink(edge.from_node.value),
             EOL(),
             InlineText("\t* "),
-            EOL(),
             *edge.children,
+            EOL(),
         ]
 
     backlinks_block = BacklinksBlock(seq(edges).map(map_edge).flatten().to_list())

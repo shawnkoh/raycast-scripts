@@ -39,6 +39,13 @@ unwrap = (
     | title
 )
 
+backlinks_block = (
+    checkinstance(BacklinksBlock)
+    .map(lambda x: x.children)
+    .map(unwrap.many().concat().parse)
+    .map(lambda x: f"## Backlinks\n{x}")
+)
+
 
 def note(note: Note) -> str:
     _unwrap = (
