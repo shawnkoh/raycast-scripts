@@ -106,8 +106,8 @@ backlinks_block = backlinks_heading >> any_char.until(eol * 2 | eof).map(Backlin
 parser = seq(
     title=title.optional(),
     children=(
-        (backlinks_block | backlink | inline_text | eol | unwrap)
-        .many()
+        (backlinks_block | backlink | any_char)
+        .until(bear_id)
         .map(lambda x: list(more_itertools.collapse(x)))
     ),
     bear_id=bear_id << eol.optional(),
