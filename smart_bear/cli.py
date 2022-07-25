@@ -2,6 +2,7 @@ import datetime
 import glob
 import os
 import webbrowser
+from more_itertools import collapse
 import pyperclip
 from pathlib import Path
 from timeit import timeit
@@ -113,7 +114,17 @@ def open_today():
 @app.command()
 def backlinks():
     from .backlinks.lexer import lexer
-    from .backlinks.parser import parser
+    from .backlinks.parser import parser, eol, Backlink, Note, BacklinksBlock
+    import parsy
+
+    def split_into_paragraphs(ls):
+        f = parsy.any_char
+
+        return (
+            (eol.optional() >> f.until(eol * 2) << (eol * 2) | f.map(lambda x: [x]))
+            .many()
+            .parse(ls)
+        )
 
     urls = get_urls()
     (
@@ -121,7 +132,12 @@ def backlinks():
         .map(_read)
         .map(lexer.parse)
         .map(parser.parse)
-        .for_each(lambda x: pprint(x))
+        .map(lambda note: note.children)
+        .filter(lambda child: not isinstance(child, BacklinksBlock))
+        .flat_map(split_into_paragraphs)
+        .filter(lambda x: any(isinstance(ele, Backlink) for ele in x))
+        .filter(lambda x: len(x) > 0)
+        .for_each(pprint)
     )
 
 
