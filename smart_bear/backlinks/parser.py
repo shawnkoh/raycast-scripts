@@ -100,14 +100,7 @@ def title():
         return fail("title")
 
 
-backlinks_block = backlinks_heading >> (
-    (inline_text | unwrap)
-    .map(lambda x: x.value)
-    .until(eol | eof, min=1)
-    .concat()
-    .map(InlineText)
-    | eol
-).until(eol * 2 | eof).map(BacklinksBlock)
+backlinks_block = backlinks_heading >> any_char.until(eol * 2 | eof).map(BacklinksBlock)
 
 
 parser = seq(
