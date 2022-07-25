@@ -25,6 +25,7 @@ class Edge:
 @frozen
 class File:
     url: str
+    raw: str
     note: Note
     edges: list[Edge]
 
@@ -60,7 +61,7 @@ def printer(urls: list[str]):
             .to_list()
         )
 
-        return File(url, note, edges)
+        return File(url, raw, note, edges)
 
     files = pseq(urls).map(read).to_list()
     edges_to_node = (
@@ -73,8 +74,12 @@ def printer(urls: list[str]):
     def save_note(file: File, note: Note):
         from smart_bear.backlinks import printer
 
+        printed = printer.note(note)
+        if file.raw == printed:
+            return
+
         with open(file.url, "w") as f:
-            f.write(printer.note(note))
+            f.write(printed)
 
     (
         seq(files)
@@ -119,6 +124,8 @@ def build_note(edges_to_node, file: File):
             InlineText("* "),
             Backlink(edge.from_node.value),
             EOL(),
+            # TODO: i need to fix this
+            # the children have to be indented as well.
             InlineText("\t* "),
             *edge.children,
             EOL(),
