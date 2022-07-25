@@ -57,34 +57,6 @@ class Note:
     children: List[InlineText | InlineCode | QuoteTick | Backlink | EOL]
     bear_id: Optional[BearID]
 
-    def to_string(self) -> str:
-        unwrap = (
-            inline_text.map(lambda x: x.value)
-            | eol.result("\n")
-            | checkinstance(Backlink).map(lambda x: f"[[{x.value}]]")
-            | quote_tick.result("`")
-            | inline_code.result("```")
-            | backlinks_heading.result("## Backlinks")
-            | backlink_prefix.result("[[")
-            | backlink_suffix.result("]]")
-            | bear_id.map(lambda x: f"<!-- {{BearID:{x.value}}} -->\n")
-            | checkinstance(Title).map(lambda x: f"# {x.value}")
-        )
-        _unwrap = (
-            (
-                unwrap
-                | checkinstance(BacklinksBlock)
-                .map(lambda x: x.children)
-                .map(lambda x: f"## Backlinks\n{unwrap.many().concat().parse(x)}")
-            )
-            .many()
-            .concat()
-        )
-        ls = list(
-            filter(lambda x: x is not None, [self.title, *self.children, self.bear_id])
-        )
-        return _unwrap.parse(ls)
-
 
 @generate
 def backlink():
