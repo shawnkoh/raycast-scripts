@@ -59,7 +59,6 @@ def test_backlinks_block():
     ]
     expected = BacklinksBlock(
         [
-            EOL(),
             inline_text,
         ]
     )
@@ -79,7 +78,6 @@ def test_backlinks_block_2():
     ]
     expected = BacklinksBlock(
         [
-            EOL(),
             inline_text,
             EOL(),
         ]

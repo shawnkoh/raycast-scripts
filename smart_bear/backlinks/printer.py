@@ -48,16 +48,7 @@ backlinks_block = (
 
 
 def note(note: Note) -> str:
-    _unwrap = (
-        (
-            unwrap
-            | checkinstance(BacklinksBlock)
-            .map(lambda x: x.children)
-            .map(lambda x: f"## Backlinks\n{unwrap.many().concat().parse(x)}\n")
-        )
-        .many()
-        .concat()
-    )
+    _unwrap = (unwrap | backlinks_block).many().concat()
     ls = list(
         filter(lambda x: x is not None, [note.title, *note.children, note.bear_id])
     )

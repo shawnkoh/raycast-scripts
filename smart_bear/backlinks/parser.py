@@ -86,7 +86,9 @@ def title():
         return fail("title")
 
 
-backlinks_block = backlinks_heading >> any_char.until(eol * 2 | eof).map(BacklinksBlock)
+backlinks_block = (
+    backlinks_heading >> eol >> any_char.until(eol * 2 | eof).map(BacklinksBlock)
+)
 
 
 parser = seq(
