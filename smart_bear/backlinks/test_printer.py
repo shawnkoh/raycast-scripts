@@ -1,6 +1,6 @@
 import pytest
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
-from smart_bear.backlinks.parser import BacklinksBlock, Title
+from smart_bear.backlinks.parser import BacklinksBlock, Title, Note
 from .lexer import (
     EOL,
     BacklinkPrefix,
@@ -82,3 +82,17 @@ def test_backlinks_block():
     ]
     expected = "## Backlinks\nabc\n````[["
     assert printer.backlinks_block.parse(given) == expected
+
+
+def test_note():
+    given = [
+        Note(
+            title=None,
+            children=[
+                InlineText("test"),
+            ],
+            bear_id=None,
+        )
+    ]
+    expected = "test"
+    assert printer.note.parse(given) == expected

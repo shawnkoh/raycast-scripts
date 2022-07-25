@@ -74,7 +74,7 @@ def printer(urls: list[str]):
     def save_note(file: File, note: Note):
         from smart_bear.backlinks import printer
 
-        printed = printer.note(note)
+        printed = printer.note.parse(note)
         if file.raw == printed:
             return
 
