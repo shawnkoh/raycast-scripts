@@ -2,7 +2,6 @@ import datetime
 import glob
 import os
 import webbrowser
-from more_itertools import collapse
 import pyperclip
 from pathlib import Path
 from timeit import timeit
@@ -17,7 +16,6 @@ from rich.pretty import pprint
 from tqdm import tqdm
 
 from smart_bear.anki.anki import Anki
-from smart_bear.backlinks.lexer import EOL, InlineText
 from smart_bear.bear import x_callback_url
 from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.nuke import uuid_if_sync_conflict
@@ -114,54 +112,9 @@ def open_today():
 
 @app.command()
 def backlinks():
-    from .backlinks.lexer import lexer
-    from .backlinks.parser import parser, eol, Backlink, Note, BacklinksBlock
-    import parsy
-    from attrs import define
+    from .backlinks.printer import printer
 
-    def split_into_paragraphs(ls):
-        f = parsy.any_char
-
-        return (
-            (eol.optional() >> f.until(eol * 2) << (eol * 2) | f.map(lambda x: [x]))
-            .many()
-            .parse(ls)
-        )
-
-    @define
-    class Edge:
-        to: Backlink
-        children: list[InlineText | EOL | Backlink]
-
-    @define
-    class File:
-        url: str
-        note: Note
-        edges: list[Edge]
-
-    def read(url):
-        raw = _read(url)
-        tokens = lexer.parse(raw)
-        note: Note = parser.parse(tokens)
-        edges = (
-            seq([note.children])
-            .filter(lambda child: not isinstance(child, BacklinksBlock))
-            .flat_map(split_into_paragraphs)
-            .filter(lambda x: any(isinstance(ele, Backlink) for ele in x))
-            .filter(lambda x: len(x) > 0)
-            .flat_map(
-                lambda paragraph: (
-                    seq(paragraph)
-                    .filter(lambda x: isinstance(x, Backlink))
-                    .map(lambda backlink: Edge(backlink, paragraph))
-                )
-            )
-            .to_list()
-        )
-
-        return File(url, note, edges)
-
-    (seq(get_urls()).map(read).for_each(pprint))
+    printer(get_urls())
 
 
 @app.command()
