@@ -23,7 +23,7 @@ inline_code = checkinstance(InlineCode).result("```")
 backlinks_heading = checkinstance(BacklinksHeading).result("## Backlinks")
 backlink_prefix = checkinstance(BacklinkPrefix).result("[[")
 backlink_suffix = checkinstance(BacklinkSuffix).result("]]")
-bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->")
+bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->\n")
 title = checkinstance(Title).map(lambda x: f"# {x.value}")
 
 unwrap = (
