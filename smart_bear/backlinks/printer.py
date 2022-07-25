@@ -10,17 +10,19 @@ from ..backlinks.parser import (
     BacklinksBlock,
     EOL,
     InlineText,
+    Title,
 )
-from attrs import define
+from attrs import frozen
 
 
-@define
+@frozen
 class Edge:
+    from_title: Title
     to: Backlink
     children: list[InlineText | EOL | Backlink]
 
 
-@define
+@frozen
 class File:
     url: str
     note: Note
@@ -52,7 +54,7 @@ def printer(urls: list[str]):
                 lambda paragraph: (
                     seq(paragraph)
                     .filter(lambda x: isinstance(x, Backlink))
-                    .map(lambda backlink: Edge(backlink, paragraph))
+                    .map(lambda backlink: Edge(note.title, backlink, paragraph))
                 )
             )
             .to_list()
@@ -60,7 +62,14 @@ def printer(urls: list[str]):
 
         return File(url, note, edges)
 
-    (seq(urls)).map(read).for_each(pprint)
+    files = seq(urls[:20]).map(read).to_list()
+    edge_by_title = (
+        seq(files)
+        .flat_map(lambda file: file.edges)
+        .group_by(lambda edge: edge.to)
+        .to_list()
+    )
+    pprint(edge_by_title)
 
 
 def _read(url) -> str:

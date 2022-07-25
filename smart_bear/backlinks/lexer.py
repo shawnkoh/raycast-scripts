@@ -1,4 +1,4 @@
-from attrs import define
+from attrs import frozen
 from parsy import any_char, string, eof
 import parsy
 import more_itertools
@@ -10,48 +10,48 @@ import more_itertools
 # [[ok stuff]]
 
 
-@define
+@frozen
 class InlineText:
     value: str
 
 
-@define
+@frozen
 class BacklinkPrefix:
     pass
 
 
-@define
+@frozen
 class BacklinkSuffix:
     pass
 
 
-@define
+@frozen
 class InlineCode:
     pass
 
 
-@define
+@frozen
 class QuoteTick:
     pass
 
 
-@define
+@frozen
 class CodeBlock:
     pass
 
 
 # ## Backlinks
-@define
+@frozen
 class BacklinksBlockHeader:
     pass
 
 
-@define
+@frozen
 class EOL:
     pass
 
 
-@define
+@frozen
 class BacklinksHeading:
     pass
 

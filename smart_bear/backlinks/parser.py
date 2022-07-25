@@ -12,13 +12,13 @@ from .lexer import (
     BacklinkPrefix,
     BacklinkSuffix,
 )
-from attrs import define
+from attrs import frozen
 from parsy import *
 
 # MARK: Intermediaries
 
 
-@define
+@frozen
 class Backlink:
     value: str
 
@@ -41,17 +41,17 @@ inline_code = checkinstance(InlineCode)
 # There's also not much reason to have a Line abstraction.
 
 
-@define
+@frozen
 class Title:
     value: str
 
 
-@define
+@frozen
 class BacklinksBlock:
     children: List[InlineText | EOL]
 
 
-@define
+@frozen
 class Note:
     title: Optional[Title]
     children: List[InlineText | InlineCode | QuoteTick | Backlink | EOL]
