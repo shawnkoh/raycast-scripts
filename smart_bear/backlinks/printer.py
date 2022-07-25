@@ -62,7 +62,7 @@ def printer(urls: list[str]):
 
         return File(url, note, edges)
 
-    files = seq(urls[:50]).map(read).to_list()
+    files = seq(urls[:30]).map(read).to_list()
     edges_to_node = (
         seq(files)
         .flat_map(lambda file: file.edges)
@@ -74,10 +74,9 @@ def printer(urls: list[str]):
         seq(files)
         # .filter(lambda file: file.note.title.value in edges_to_node)
         .map(lambda x: build_note(edges_to_node, x))
-        .peek(pprint)
-        .to_list()
+        # .peek(pprint)
+        .for_each(lambda note: pprint(note.to_string()))
     )
-    # pprint(edges_to_node)
 
 
 def _read(url) -> str:

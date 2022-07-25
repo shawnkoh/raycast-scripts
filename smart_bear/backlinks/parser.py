@@ -1,4 +1,5 @@
 from typing import List, Optional
+from rich.pretty import pprint
 
 import more_itertools
 from .lexer import (
@@ -56,6 +57,26 @@ class Note:
     children: List[InlineText | InlineCode | QuoteTick | Backlink | EOL]
     bear_id: BearID
 
+    def to_string(self) -> str:
+        unwrap = (
+            (
+                inline_text.map(lambda x: x.value)
+                | eol.result("\n")
+                | checkinstance(Backlink).map(lambda x: f"[[{x.value}]]")
+                | quote_tick.result("`")
+                | inline_code.result("```")
+                | backlinks_heading.result("## Backlinks")
+                | backlink_prefix.result("[[")
+                | backlink_suffix.result("]]")
+                | bear_id.map(lambda x: x.value)
+                | checkinstance(Title).map(lambda x: x.value)
+            )
+            .many()
+            .concat()
+        )
+        ls = [self.title, *self.children, self.bear_id]
+        return unwrap.parse(ls)
+
 
 @generate
 def backlink():
@@ -70,23 +91,8 @@ def backlink():
 from .lexer import BacklinksHeading
 
 backlinks_heading = checkinstance(BacklinksHeading)
-inline_special = (
-    backlink_prefix
-    | backlink_suffix
-    | inline_code
-    | quote_tick
-    | backlinks_heading
-    | bear_id
-)
 
 eol = checkinstance(EOL)
-
-unwrap = (
-    backlink_prefix.result("[[")
-    | backlink_suffix.result("]]")
-    | quote_tick.result("`")
-    | inline_code.result("```")
-).map(InlineText)
 
 
 @generate
