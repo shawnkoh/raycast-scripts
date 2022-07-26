@@ -1,3 +1,4 @@
+from typing import Optional
 from functional import seq
 from .parser import (
     Backlink,
@@ -8,7 +9,7 @@ from .parser import (
 from .edge_builder import Edge
 
 
-def build(edges: list[Edge]) -> BacklinksBlock:
+def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
     def map_edge(edge: Edge):
         return [
             InlineText("* "),
@@ -36,5 +37,8 @@ def build(edges: list[Edge]) -> BacklinksBlock:
                 *edge.children,
                 # EOL(),
             ]
+
+    if len(result) == 0:
+        return None
 
     return BacklinksBlock(result)

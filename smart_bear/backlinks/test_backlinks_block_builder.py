@@ -140,3 +140,11 @@ def test_build_3():
     )
 
     assert backlinks_block_builder.build(given) == expected
+
+
+def test_build_4():
+    given = []
+
+    expected = None
+
+    assert backlinks_block_builder.build(given) == expected
