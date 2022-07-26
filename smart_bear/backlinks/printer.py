@@ -14,6 +14,7 @@ from .parser import (
     InlineCode,
 )
 from parsy import generate
+from functional import seq
 
 
 inline_text = checkinstance(InlineText).map(lambda x: x.value)
@@ -54,7 +55,9 @@ backlinks_block = (
 def note():
     note: Note = yield checkinstance(Note)
     _unwrap = (inline_unwrapper | eol | backlinks_block).many().concat()
-    ls = list(
-        filter(lambda x: x is not None, [note.title, *note.children, note.bear_id])
+    ls = (
+        seq([note.title, *note.children, note.bear_id])
+        .filter(lambda x: x is not None)
+        .to_list()
     )
     return f"{_unwrap.parse(ls)}\n"
