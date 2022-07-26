@@ -13,8 +13,9 @@ from .parser import (
     BacklinksBlock,
     InlineCode,
 )
-from parsy import generate
+from parsy import generate, eof, any_char
 from functional import seq
+import parsy
 
 
 inline_text = checkinstance(InlineText).map(lambda x: x.value)
@@ -28,22 +29,21 @@ backlink_suffix = checkinstance(BacklinkSuffix).result("]]")
 bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->")
 title = checkinstance(Title).map(lambda x: f"# {x.value}")
 
-inline_unwrapper = (
+children_unwrapper = (
     inline_text
+    | eol
     | backlink
     | quote_tick
     | inline_code
     | backlinks_heading
     | backlink_prefix
     | backlink_suffix
-    | bear_id
-    | title
 )
 
 backlinks_block = (
     checkinstance(BacklinksBlock)
     .map(lambda x: x.children)
-    .map((inline_unwrapper | eol).many().concat().parse)
+    .map(children_unwrapper.many().concat().parse)
     # TODO: Uncertain if this should append a newline
     # or if we should just wrap the BacklinksHeading and EOL into BacklinksBlock
     .map(lambda x: f"## Backlinks\n{x}")
@@ -54,10 +54,20 @@ backlinks_block = (
 @generate
 def note():
     note: Note = yield checkinstance(Note)
-    _unwrap = (inline_unwrapper | eol | backlinks_block).many().concat()
-    ls = (
-        seq([note.title, *note.children, note.bear_id])
-        .filter(lambda x: x is not None)
-        .to_list()
-    )
-    return f"{_unwrap.parse(ls)}\n"
+
+    result = (
+        (
+            (backlinks_block | children_unwrapper).until(eol.many() << eof).concat()
+            << (eol.many() << eof)
+        )
+    ).parse(note.children)
+
+    if note.title is not None:
+        parsed = title.parse([note.title])
+        result = f"{parsed}{result}"
+    if note.bear_id is not None:
+        parsed = bear_id.parse([note.bear_id])
+        result = f"{result}\n\n{parsed}"
+    if result[-1:] != "\n":
+        result += "\n"
+    return result

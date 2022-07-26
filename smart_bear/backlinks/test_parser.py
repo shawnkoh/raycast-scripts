@@ -86,6 +86,29 @@ def test_backlinks_block_2():
     assert backlinks_block.parse(given) == expected
 
 
+def test_backlinks_block_3():
+    from .parser import BacklinksBlock, backlinks_block
+
+    inline_text = InlineText("some backlink")
+    given = [
+        BacklinksHeading(),
+        EOL(),
+        inline_text,
+        EOL(),
+        EOL(),
+    ]
+    expected = BacklinksBlock(
+        [
+            inline_text,
+        ]
+    )
+
+    # TODO: something is definitely wrong here.
+    # should we absorb the eol after inline_text?
+    assert backlinks_block.parse_partial(given)[0] == expected
+    pytest.raises(parsy.ParseError, lambda: backlinks_block.parse(given))
+
+
 def test_parser():
     from .parser import Title, Note
 
