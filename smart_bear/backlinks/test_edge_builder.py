@@ -5,166 +5,6 @@ from . import edge_builder
 from .backlinks_block_builder import Edge
 
 
-# def test_build():
-#     given = Note(
-#         title=Title("Something that links here"),
-#         children=[
-#             InlineText(
-#                 "The block of text in the referencing note which contains the link to "
-#             ),
-#             Backlink("Sample note"),
-#             EOL(),
-#         ],
-#         bear_id=None,
-#     )
-
-#     expected = [
-#         Edge(
-#             from_node=Title("Something that links here"),
-#             to_node=Backlink("Sample note"),
-#             children=[
-#                 InlineText(
-#                     "The block of text in the referencing note which contains the link to "
-#                 ),
-#                 Backlink("Sample note"),
-#                 EOL(),
-#             ],
-#         )
-#     ]
-
-#     assert edge_builder.build(given) == expected
-
-
-# def test_build_2():
-#     given = Note(
-#         title=Title("Something that links here"),
-#         children=[
-#             InlineText(
-#                 "The block of text in the referencing note which contains the link to "
-#             ),
-#             Backlink("Sample note"),
-#             EOL(),
-#             InlineText("Additional line"),
-#         ],
-#         bear_id=None,
-#     )
-
-#     expected = [
-#         Edge(
-#             from_node=Title("Something that links here"),
-#             to_node=Backlink("Sample note"),
-#             children=[
-#                 InlineText(
-#                     "The block of text in the referencing note which contains the link to "
-#                 ),
-#                 Backlink("Sample note"),
-#                 EOL(),
-#                 InlineText("Additional line"),
-#             ],
-#         )
-#     ]
-
-#     assert edge_builder.build(given) == expected
-
-
-# def test_build_3():
-#     given = Note(
-#         title=Title("Something that links here"),
-#         children=[
-#             InlineText(
-#                 "The block of text in the referencing note which contains the link to "
-#             ),
-#             Backlink("Sample note"),
-#             EOL(),
-#             InlineText("Additional line"),
-#             EOL(),
-#         ],
-#         bear_id=None,
-#     )
-
-#     expected = [
-#         Edge(
-#             from_node=Title("Something that links here"),
-#             to_node=Backlink("Sample note"),
-#             children=[
-#                 InlineText(
-#                     "The block of text in the referencing note which contains the link to "
-#                 ),
-#                 Backlink("Sample note"),
-#                 EOL(),
-#                 InlineText("Additional line"),
-#                 EOL(),
-#             ],
-#         )
-#     ]
-
-#     assert edge_builder.build(given) == expected
-
-
-# def test_build_4():
-#     given = Note(
-#         title=Title("Something that links here"),
-#         children=[
-#             InlineText(
-#                 "The block of text in the referencing note which contains the link to "
-#             ),
-#             Backlink("Sample note"),
-#             EOL(),
-#             EOL(),
-#         ],
-#         bear_id=None,
-#     )
-
-#     expected = [
-#         Edge(
-#             from_node=Title("Something that links here"),
-#             to_node=Backlink("Sample note"),
-#             children=[
-#                 InlineText(
-#                     "The block of text in the referencing note which contains the link to "
-#                 ),
-#                 Backlink("Sample note"),
-#             ],
-#         )
-#     ]
-
-#     assert edge_builder.build(given) == expected
-
-
-# def test_build_5():
-#     given = Note(
-#         title=Title("Something that links here"),
-#         children=[
-#             InlineText(
-#                 "The block of text in the referencing note which contains the link to "
-#             ),
-#             Backlink("Sample note"),
-#             EOL(),
-#             ListItem(
-#                 prefix=ListItemPrefix("* "), children=[InlineText("Additional line")]
-#             ),
-#             EOL(),
-#         ],
-#         bear_id=None,
-#     )
-
-#     expected = [
-#         Edge(
-#             from_node=Title("Something that links here"),
-#             to_node=Backlink("Sample note"),
-#             children=[
-#                 InlineText(
-#                     "The block of text in the referencing note which contains the link to "
-#                 ),
-#                 Backlink("Sample note"),
-#                 EOL(),
-#             ],
-#         )
-#     ]
-
-#     assert edge_builder.build(given) == expected
-
-
 def test_paragraphs():
     given = [
         InlineText("abc"),
@@ -472,3 +312,163 @@ def test_paragraphs_11():
     ]
 
     assert edge_builder.split_into_paragraphs(given) == expected
+
+
+def test_build():
+    given = Note(
+        title=Title("Something that links here"),
+        children=[
+            InlineText(
+                "The block of text in the referencing note which contains the link to "
+            ),
+            Backlink("Sample note"),
+            EOL(),
+        ],
+        bear_id=None,
+    )
+
+    expected = [
+        Edge(
+            from_node=Title("Something that links here"),
+            to_node=Backlink("Sample note"),
+            children=[
+                InlineText(
+                    "The block of text in the referencing note which contains the link to "
+                ),
+                Backlink("Sample note"),
+                EOL(),
+            ],
+        )
+    ]
+
+    assert edge_builder.build(given) == expected
+
+
+def test_build_2():
+    given = Note(
+        title=Title("Something that links here"),
+        children=[
+            InlineText(
+                "The block of text in the referencing note which contains the link to "
+            ),
+            Backlink("Sample note"),
+            EOL(),
+            InlineText("Additional line"),
+        ],
+        bear_id=None,
+    )
+
+    expected = [
+        Edge(
+            from_node=Title("Something that links here"),
+            to_node=Backlink("Sample note"),
+            children=[
+                InlineText(
+                    "The block of text in the referencing note which contains the link to "
+                ),
+                Backlink("Sample note"),
+                EOL(),
+                InlineText("Additional line"),
+            ],
+        )
+    ]
+
+    assert edge_builder.build(given) == expected
+
+
+def test_build_3():
+    given = Note(
+        title=Title("Something that links here"),
+        children=[
+            InlineText(
+                "The block of text in the referencing note which contains the link to "
+            ),
+            Backlink("Sample note"),
+            EOL(),
+            InlineText("Additional line"),
+            EOL(),
+        ],
+        bear_id=None,
+    )
+
+    expected = [
+        Edge(
+            from_node=Title("Something that links here"),
+            to_node=Backlink("Sample note"),
+            children=[
+                InlineText(
+                    "The block of text in the referencing note which contains the link to "
+                ),
+                Backlink("Sample note"),
+                EOL(),
+                InlineText("Additional line"),
+                EOL(),
+            ],
+        )
+    ]
+
+    assert edge_builder.build(given) == expected
+
+
+def test_build_4():
+    given = Note(
+        title=Title("Something that links here"),
+        children=[
+            InlineText(
+                "The block of text in the referencing note which contains the link to "
+            ),
+            Backlink("Sample note"),
+            EOL(),
+            EOL(),
+        ],
+        bear_id=None,
+    )
+
+    expected = [
+        Edge(
+            from_node=Title("Something that links here"),
+            to_node=Backlink("Sample note"),
+            children=[
+                InlineText(
+                    "The block of text in the referencing note which contains the link to "
+                ),
+                Backlink("Sample note"),
+            ],
+        )
+    ]
+
+    assert edge_builder.build(given) == expected
+
+
+def test_build_5():
+    given = Note(
+        title=Title("Something that links here"),
+        children=[
+            InlineText(
+                "The block of text in the referencing note which contains the link to "
+            ),
+            Backlink("Sample note"),
+            EOL(),
+            ListItem(
+                prefix=ListItemPrefix("* "), children=[InlineText("Additional line")]
+            ),
+            EOL(),
+        ],
+        bear_id=None,
+    )
+
+    expected = [
+        Edge(
+            from_node=Title("Something that links here"),
+            to_node=Backlink("Sample note"),
+            children=[
+                InlineText(
+                    "The block of text in the referencing note which contains the link to "
+                ),
+                Backlink("Sample note"),
+                EOL(),
+            ],
+        )
+    ]
+
+    assert edge_builder.build(given) == expected
