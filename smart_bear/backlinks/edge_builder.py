@@ -58,11 +58,12 @@ def paragraphs():
         if li is not None:
             flush()
             result.append([li])
+            continue
 
         eols = yield (eol * 2).optional()
         if eols is not None:
             flush()
-            current = []
+            continue
 
         any = yield parsy.any_char.optional()
         if any is not None:
