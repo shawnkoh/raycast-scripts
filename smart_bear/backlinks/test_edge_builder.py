@@ -26,7 +26,6 @@ def test_paragraphs_2():
     expected = [
         [
             InlineText("abc"),
-            EOL(),
         ],
     ]
 
@@ -69,35 +68,12 @@ def test_paragraphs_4():
     assert edge_builder.split_into_paragraphs(given) == expected
 
 
-def test_paragraphs_4():
-    given = [
-        InlineText("abc"),
-        EOL(),
-        EOL(),
-        InlineText("def"),
-        EOL(),
-    ]
-
-    expected = [
-        [
-            InlineText("abc"),
-        ],
-        [
-            InlineText("def"),
-            EOL(),
-        ],
-    ]
-
-    assert edge_builder.split_into_paragraphs(given) == expected
-
-
 def test_paragraphs_5():
     given = [
         InlineText("abc"),
         EOL(),
         EOL(),
         InlineText("def"),
-        EOL(),
         EOL(),
     ]
 
@@ -114,6 +90,28 @@ def test_paragraphs_5():
 
 
 def test_paragraphs_6():
+    given = [
+        InlineText("abc"),
+        EOL(),
+        EOL(),
+        InlineText("def"),
+        EOL(),
+        EOL(),
+    ]
+
+    expected = [
+        [
+            InlineText("abc"),
+        ],
+        [
+            InlineText("def"),
+        ],
+    ]
+
+    assert edge_builder.split_into_paragraphs(given) == expected
+
+
+def test_paragraphs_7():
     given = [
         InlineText("abc"),
         ListItem(
@@ -141,7 +139,7 @@ def test_paragraphs_6():
     assert edge_builder.split_into_paragraphs(given) == expected
 
 
-def test_paragraphs_7():
+def test_paragraphs_8():
     given = [
         InlineText("abc"),
         ListItem(
@@ -173,32 +171,6 @@ def test_paragraphs_7():
     assert edge_builder.split_into_paragraphs(given) == expected
 
 
-def test_paragraphs_8():
-    given = [
-        ListItem(
-            prefix=ListItemPrefix("* "),
-            children=[
-                InlineText("def"),
-            ],
-        ),
-        EOL(),
-        EOL(),
-    ]
-
-    expected = [
-        [
-            ListItem(
-                prefix=ListItemPrefix("* "),
-                children=[
-                    InlineText("def"),
-                ],
-            ),
-        ],
-    ]
-
-    assert edge_builder.split_into_paragraphs(given) == expected
-
-
 def test_paragraphs_9():
     given = [
         ListItem(
@@ -207,7 +179,8 @@ def test_paragraphs_9():
                 InlineText("def"),
             ],
         ),
-        InlineText("abc"),
+        EOL(),
+        EOL(),
     ]
 
     expected = [
@@ -218,9 +191,6 @@ def test_paragraphs_9():
                     InlineText("def"),
                 ],
             ),
-        ],
-        [
-            InlineText("abc"),
         ],
     ]
 
@@ -235,25 +205,10 @@ def test_paragraphs_10():
                 InlineText("def"),
             ],
         ),
-        EOL(),
-        ListItem(
-            prefix=ListItemPrefix("* "),
-            children=[
-                InlineText("def"),
-            ],
-        ),
         InlineText("abc"),
     ]
 
     expected = [
-        [
-            ListItem(
-                prefix=ListItemPrefix("* "),
-                children=[
-                    InlineText("def"),
-                ],
-            ),
-        ],
         [
             ListItem(
                 prefix=ListItemPrefix("* "),
@@ -271,6 +226,49 @@ def test_paragraphs_10():
 
 
 def test_paragraphs_11():
+    given = [
+        ListItem(
+            prefix=ListItemPrefix("* "),
+            children=[
+                InlineText("def"),
+            ],
+        ),
+        EOL(),
+        ListItem(
+            prefix=ListItemPrefix("* "),
+            children=[
+                InlineText("def"),
+            ],
+        ),
+        InlineText("abc"),
+    ]
+
+    expected = [
+        [
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    InlineText("def"),
+                ],
+            ),
+        ],
+        [
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    InlineText("def"),
+                ],
+            ),
+        ],
+        [
+            InlineText("abc"),
+        ],
+    ]
+
+    assert edge_builder.split_into_paragraphs(given) == expected
+
+
+def test_paragraphs_12():
     given = [
         ListItem(
             prefix=ListItemPrefix("* "),
@@ -336,7 +334,6 @@ def test_build():
                     "The block of text in the referencing note which contains the link to "
                 ),
                 Backlink("Sample note"),
-                EOL(),
             ],
         )
     ]
@@ -367,8 +364,6 @@ def test_build_2():
                     "The block of text in the referencing note which contains the link to "
                 ),
                 Backlink("Sample note"),
-                EOL(),
-                InlineText("Additional line"),
             ],
         )
     ]
@@ -400,9 +395,6 @@ def test_build_3():
                     "The block of text in the referencing note which contains the link to "
                 ),
                 Backlink("Sample note"),
-                EOL(),
-                InlineText("Additional line"),
-                EOL(),
             ],
         )
     ]
@@ -466,7 +458,6 @@ def test_build_5():
                     "The block of text in the referencing note which contains the link to "
                 ),
                 Backlink("Sample note"),
-                EOL(),
             ],
         )
     ]

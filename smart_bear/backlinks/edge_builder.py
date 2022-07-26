@@ -60,7 +60,9 @@ def paragraphs():
             result.append([li])
             continue
 
-        eols = yield (eol * 2).optional()
+        # TODO: Test which feels better. line or paragraphs for backlinks
+        # eols = yield (eol * 2).optional()
+        eols = yield eol.optional()
         if eols is not None:
             flush()
             continue
@@ -68,6 +70,7 @@ def paragraphs():
         any = yield parsy.any_char.optional()
         if any is not None:
             current.append(any)
+            continue
         else:
             flush()
             result = list(filter(lambda x: len(x) > 0, result))
