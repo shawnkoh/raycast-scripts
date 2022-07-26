@@ -52,42 +52,40 @@ def process(urls):
 
     from ..console import console
     from rich.pretty import Pretty
+    from rich.text import Text
+    from rich.panel import Panel
+    from rich.console import Group
+
+    from . import printer
+
+    from . import diff
 
     (
         seq(saved_notes)
         .map(lambda saved_note: (saved_note, rebuild_note(saved_note.note)))
         .filter(lambda x: x[0].note != x[1])
         .map(lambda x: SavedNote(x[0].url, x[0].raw, x[1]))
-        .for_each(lambda x: console.print(Pretty(x)))
+        .map(
+            lambda saved_note: (
+                saved_note.url,
+                saved_note.raw,
+                printer.note.parse([saved_note.note]),
+            )
+        )
+        .for_each(
+            lambda x: console.print(
+                Group(
+                    Text(x[0], style="bold blue"),
+                    Panel(
+                        Group(
+                            *diff.str_stream(
+                                # TODO: inefficient to re-split
+                                x[1].split("\n"),
+                                x[2].split("\n"),
+                            )
+                        ),
+                    ),
+                )
+            )
+        )
     )
-
-    # console.print(Pretty(edges_to_node))
-
-    # def save_note(file: File, note: Note):
-    #     from smart_bear.backlinks import printer
-
-    #     printed = printer.note.parse([note])
-    #     if file.raw == printed:
-    #         return
-    #     from ..console import console
-    #     from rich.console import Group
-    #     from rich.panel import Panel
-
-    #     from rich.text import Text
-
-    #     from . import diff
-
-    #     console.print(
-    #         Group(
-    #             Text(file.url, style="bold blue"),
-    #             Panel(
-    #                 Group(
-    #                     *diff.str_stream(
-    #                         # TODO: inefficient to re-split
-    #                         file.raw.split("\n"),
-    #                         printed.split("\n"),
-    #                     )
-    #                 ),
-    #             ),
-    #         )
-    #     )
