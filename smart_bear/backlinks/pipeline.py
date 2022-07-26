@@ -1,18 +1,9 @@
-import parsy
 from functional import pseq, seq
 
 from smart_bear.backlinks.saved_note_reader import SavedNote
-from .lexer import token_stream
 from .parser import (
-    eol,
-    Backlink,
     Note,
-    BacklinksBlock,
-    EOL,
-    InlineText,
-    Title,
 )
-from . import parser
 from attrs import frozen
 
 
@@ -38,12 +29,65 @@ def process(urls):
     edges_to_node = (
         seq(saved_notes)
         .map(lambda x: x.note)
+        .filter(lambda x: x.title is not None)
         .flat_map(edge_builder.build)
         .group_by(lambda edge: edge.to_node.value)
         .to_dict()
     )
 
+    def rebuild_note(note: Note) -> Note:
+        from . import backlinks_block_builder
+
+        if note.title is None or note.title.value not in edges_to_node:
+            return note
+
+        edges = edges_to_node[note.title.value]
+        backlinks_block = backlinks_block_builder.build(edges)
+
+        return Note(
+            title=note.title,
+            children=note.children + [backlinks_block],
+            bear_id=note.bear_id,
+        )
+
     from ..console import console
     from rich.pretty import Pretty
 
-    console.print(Pretty(edges_to_node))
+    (
+        seq(saved_notes)
+        .map(lambda saved_note: (saved_note, rebuild_note(saved_note.note)))
+        .filter(lambda x: x[0].note != x[1])
+        .map(lambda x: SavedNote(x[0].url, x[0].raw, x[1]))
+        .for_each(lambda x: console.print(Pretty(x)))
+    )
+
+    # console.print(Pretty(edges_to_node))
+
+    # def save_note(file: File, note: Note):
+    #     from smart_bear.backlinks import printer
+
+    #     printed = printer.note.parse([note])
+    #     if file.raw == printed:
+    #         return
+    #     from ..console import console
+    #     from rich.console import Group
+    #     from rich.panel import Panel
+
+    #     from rich.text import Text
+
+    #     from . import diff
+
+    #     console.print(
+    #         Group(
+    #             Text(file.url, style="bold blue"),
+    #             Panel(
+    #                 Group(
+    #                     *diff.str_stream(
+    #                         # TODO: inefficient to re-split
+    #                         file.raw.split("\n"),
+    #                         printed.split("\n"),
+    #                     )
+    #                 ),
+    #             ),
+    #         )
+    #     )
