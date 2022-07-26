@@ -13,6 +13,9 @@ import click
 from functional import seq, pseq
 from rich.console import Console
 from rich.pretty import pprint
+from rich.traceback import install
+
+install(show_locals=True)
 from tqdm import tqdm
 
 from smart_bear.anki.anki import Anki
@@ -36,9 +39,10 @@ app = typer.Typer()
 
 
 def get_urls():
-    return glob.glob(f"{MARKDOWN_PATH}/*.md") + glob.glob(
-        "/Users/shawnkoh/repos/windows/*.md"
-    )
+    return [
+        *glob.glob(f"{MARKDOWN_PATH}/*.md"),
+        # *glob.glob("/Users/shawnkoh/repos/windows/*.md"),
+    ]
 
 
 @app.command()

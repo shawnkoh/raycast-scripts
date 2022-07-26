@@ -1,3 +1,5 @@
+from cgitb import html
+from difflib import unified_diff
 import parsy
 from functional import pseq, seq
 from .lexer import lexer
@@ -81,15 +83,49 @@ def printer(urls: list[str]):
         from rich.console import Group
         from rich.panel import Panel
 
+        from rich.text import Text
+
+        diff = unified_diff(
+            file.raw.split("\n"),
+            printed.split("\n"),
+            fromfile="before",
+            tofile="after",
+        )
+
+        from more_itertools import peekable
+
+        diff = peekable(diff)
+        if not diff:
+            return
+
+        def diffs():
+            for line in diff[2:]:
+                if line[:2] == "@@":
+                    yield Text(line, style="bold magenta")
+                    continue
+
+                match line[:1]:
+                    case "-":
+                        yield Text(line[1:], style="bold red")
+
+                    case "+":
+                        yield Text(line[1:], style="bold green")
+
+                    case " ":
+                        yield Text(line[1:])
+
+                    case "?":
+                        yield Text(line[1:], style="bold magenta")
+
+                    case _:
+                        yield Text(line)
+
         console.print(
             Panel(
                 Group(
                     Markdown(f"**{file.url}**"),
                     Panel(
-                        Markdown(file.raw),
-                    ),
-                    Panel(
-                        Markdown(printed),
+                        Group(*diffs()),
                     ),
                 )
             )
