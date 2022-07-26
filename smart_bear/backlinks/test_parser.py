@@ -155,7 +155,7 @@ def test_parser_2():
 
 
 def test_parser_3():
-    from .token_stream import token_stream
+    from .lexer import token_stream
     from .parser import Note
 
     given = "# Executive functions are actions towards self-regulation, per Barkley\n<!-- {BearID:1234} -->"

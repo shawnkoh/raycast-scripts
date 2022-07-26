@@ -1,6 +1,3 @@
-from .lexer import EOL
-
-
 def test_backlinks_heading():
     from .lexer import backlinks_heading, BacklinksHeading
 
@@ -42,7 +39,7 @@ def test_line_3():
 
 
 def test_lexer():
-    from .token_stream import (
+    from .lexer import (
         InlineText,
         token_stream,
         BacklinkPrefix,

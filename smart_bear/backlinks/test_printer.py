@@ -115,7 +115,7 @@ def test_note_2():
 
 def test_note_3():
     given = "# abctest"
-    from .token_stream import token_stream
+    from .lexer import token_stream
     from .parser import note
 
     tokens = token_stream.parse(given)
