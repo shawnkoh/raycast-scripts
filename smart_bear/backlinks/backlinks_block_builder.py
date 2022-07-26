@@ -21,4 +21,20 @@ def build(edges: list[Edge]) -> BacklinksBlock:
             EOL(),
         ]
 
-    return BacklinksBlock(seq(edges).map(map_edge).flatten().to_list())
+    edges_by_from = seq(edges).group_by(lambda edge: edge.from_node.value).to_dict()
+    result = []
+
+    for from_node, edges in edges_by_from.items():
+        result += [
+            InlineText("* "),
+            Backlink(from_node),
+            EOL(),
+        ]
+        for edge in edges:
+            result += [
+                InlineText("\t* "),
+                *edge.children,
+                # EOL(),
+            ]
+
+    return BacklinksBlock(result)
