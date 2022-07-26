@@ -78,7 +78,6 @@ def printer(urls: list[str]):
         if file.raw == printed:
             return
         from ..console import console
-        from rich.markdown import Markdown
         from rich.console import Group
         from rich.panel import Panel
 
@@ -97,36 +96,45 @@ def printer(urls: list[str]):
         if not diff:
             return
 
-        def diffs():
-            for line in diff[2:]:
-                if line[:2] == "@@":
-                    yield Text(line, style="bold magenta")
-                    continue
+        import parsy
 
-                match line[:1]:
-                    case "-":
-                        yield Text(line[1:], style="bold red")
+        pp = (
+            (
+                parsy.peek(parsy.string("@@"))
+                >> parsy.any_char.at_least(1)
+                .concat()
+                .map(lambda x: Text(text=x, style="bold magenta"))
+            )
+            | (
+                parsy.string("-")
+                >> parsy.any_char.at_least(1)
+                .concat()
+                .map(lambda x: Text(text=x, style="bold red"))
+            )
+            | (
+                parsy.string("+")
+                >> parsy.any_char.at_least(1)
+                .concat()
+                .map(lambda x: Text(text=x, style="bold green"))
+            )
+            | (parsy.string(" ") >> parsy.any_char.at_least(1).concat().map(Text))
+            | (
+                parsy.string("?")
+                >> parsy.any_char.at_least(1)
+                .concat()
+                .map(lambda x: Text(text=x, style="bold magenta"))
+            )
+            | (parsy.any_char.at_least(1).concat().map(Text))
+        )
 
-                    case "+":
-                        yield Text(line[1:], style="bold green")
-
-                    case " ":
-                        yield Text(line[1:])
-
-                    case "?":
-                        yield Text(line[1:], style="bold magenta")
-
-                    case _:
-                        yield Text(line)
+        diffs = seq(diff).drop(2).map(pp.parse)
 
         console.print(
-            Panel(
-                Group(
-                    Text(file.url, style="bold blue"),
-                    Panel(
-                        Group(*diffs()),
-                    ),
-                )
+            Group(
+                Text(file.url, style="bold blue"),
+                Panel(
+                    Group(*diffs),
+                ),
             )
         )
 
