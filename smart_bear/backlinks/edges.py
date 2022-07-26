@@ -117,7 +117,7 @@ def printer(urls: list[str]):
                 parsy.string("?")
                 >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
             )
-            | (parsy.any_char.at_least(1).concat().map(Text))
+            | (any_chars.map(Text))
         )
 
         diffs = seq(diff).drop(2).map(pp.parse)
