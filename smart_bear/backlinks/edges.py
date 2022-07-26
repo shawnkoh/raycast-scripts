@@ -98,31 +98,24 @@ def printer(urls: list[str]):
 
         import parsy
 
+        any_chars = parsy.any_char.at_least(1).concat()
         pp = (
             (
                 parsy.peek(parsy.string("@@"))
-                >> parsy.any_char.at_least(1)
-                .concat()
-                .map(lambda x: Text(text=x, style="bold magenta"))
+                >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
             )
             | (
                 parsy.string("-")
-                >> parsy.any_char.at_least(1)
-                .concat()
-                .map(lambda x: Text(text=x, style="bold red"))
+                >> any_chars.map(lambda x: Text(text=x, style="bold red"))
             )
             | (
                 parsy.string("+")
-                >> parsy.any_char.at_least(1)
-                .concat()
-                .map(lambda x: Text(text=x, style="bold green"))
+                >> any_chars.map(lambda x: Text(text=x, style="bold green"))
             )
             | (parsy.string(" ") >> parsy.any_char.at_least(1).concat().map(Text))
             | (
                 parsy.string("?")
-                >> parsy.any_char.at_least(1)
-                .concat()
-                .map(lambda x: Text(text=x, style="bold magenta"))
+                >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
             )
             | (parsy.any_char.at_least(1).concat().map(Text))
         )
