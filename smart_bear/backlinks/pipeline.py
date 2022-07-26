@@ -71,20 +71,19 @@ def process(urls):
                 printer.note.parse([saved_note.note]),
             )
         )
-        .for_each(
-            lambda x: console.print(
-                Group(
-                    Text(x[0], style="bold blue"),
-                    Panel(
-                        Group(
-                            *diff.str_stream(
-                                # TODO: inefficient to re-split
-                                x[1].split("\n"),
-                                x[2].split("\n"),
-                            )
-                        ),
+        .map(
+            lambda x: Group(
+                Text(x[0], style="bold blue"),
+                Panel(
+                    Group(
+                        *diff.str_stream(
+                            # TODO: inefficient to re-split
+                            x[1].split("\n"),
+                            x[2].split("\n"),
+                        )
                     ),
-                )
+                ),
             )
         )
+        .for_each(console.print)
     )
