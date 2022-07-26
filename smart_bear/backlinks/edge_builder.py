@@ -47,6 +47,9 @@ def paragraphs():
         nonlocal current
         if len(current) == 0:
             return
+        elif current == [EOL()]:
+            current = []
+            return
         result.append(current)
         current = []
 
