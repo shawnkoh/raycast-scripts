@@ -1,7 +1,7 @@
 from difflib import unified_diff
 import parsy
 from functional import pseq, seq
-from .token_stream import token_stream
+from .lexer import token_stream
 from .parser import (
     eol,
     Backlink,
