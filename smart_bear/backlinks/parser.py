@@ -96,7 +96,7 @@ backlinks_block = (
 @frozen
 class ListItem:
     prefix: ListItemPrefix
-    children: list[InlineText | InlineCode | QuoteTick | Backlink | EOL]
+    children: list[InlineText | InlineCode | QuoteTick | Backlink]
 
 
 list_item = seq(
