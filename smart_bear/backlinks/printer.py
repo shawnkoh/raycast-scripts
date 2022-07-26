@@ -31,6 +31,10 @@ bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->")
 title = checkinstance(Title).map(lambda x: f"# {x.value}")
 
 
+list_item = checkinstance(ListItem).map(
+    lambda x: f"{x.prefix.value}{children_unwrapper.many().concat().parse(x.children)}"
+)
+
 children_unwrapper = (
     inline_text
     | eol
@@ -40,6 +44,7 @@ children_unwrapper = (
     | backlinks_heading
     | backlink_prefix
     | backlink_suffix
+    | list_item
 )
 
 backlinks_block = (
@@ -51,9 +56,6 @@ backlinks_block = (
     .map(lambda x: f"## Backlinks\n{x}")
 )
 
-list_item = checkinstance(ListItem).map(
-    lambda x: f"{x.prefix.value}{children_unwrapper.many().concat().parse(x.children)}"
-)
 
 # TODO: Uncertain if the note printer should have
 @generate
@@ -62,9 +64,7 @@ def note():
 
     result = (
         (
-            (backlinks_block | list_item | children_unwrapper)
-            .until(eol.many() << eof)
-            .concat()
+            (backlinks_block | children_unwrapper).until(eol.many() << eof).concat()
             << (eol.many() << eof)
         )
     ).parse(note.children)
