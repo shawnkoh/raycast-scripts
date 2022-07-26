@@ -12,18 +12,6 @@ import parsy
 
 
 def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
-    def map_edge(edge: Edge):
-        return [
-            InlineText("* "),
-            Backlink(edge.from_node.value),
-            EOL(),
-            # TODO: i need to fix this
-            # the children have to be indented as well.
-            InlineText("\t* "),
-            *edge.children,
-            EOL(),
-        ]
-
     edges_by_from = seq(edges).group_by(lambda edge: edge.from_node.value).to_dict()
     result = []
 
