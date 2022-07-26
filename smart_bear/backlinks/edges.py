@@ -1,4 +1,3 @@
-from cgitb import html
 from difflib import unified_diff
 import parsy
 from functional import pseq, seq
@@ -123,7 +122,7 @@ def printer(urls: list[str]):
         console.print(
             Panel(
                 Group(
-                    Markdown(f"**{file.url}**"),
+                    Text(file.url, style="bold blue"),
                     Panel(
                         Group(*diffs()),
                     ),
