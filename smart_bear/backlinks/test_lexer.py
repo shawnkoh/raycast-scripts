@@ -42,7 +42,13 @@ def test_line_3():
 
 
 def test_lexer():
-    from .lexer import InlineText, lexer, BacklinkPrefix, BacklinkSuffix, EOL
+    from .token_stream import (
+        InlineText,
+        token_stream,
+        BacklinkPrefix,
+        BacklinkSuffix,
+        EOL,
+    )
 
     given = "# riley_gmi\nAdded to [[ninjacado]] on [[2022-07-19]]."
     expected = [
@@ -58,4 +64,4 @@ def test_lexer():
         BacklinkSuffix(),
         InlineText("."),
     ]
-    assert lexer.parse(given) == expected
+    assert token_stream.parse(given) == expected

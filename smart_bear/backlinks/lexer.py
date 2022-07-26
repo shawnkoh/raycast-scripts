@@ -121,7 +121,7 @@ line = (
 )
 
 
-lexer = line.until(eof).map(lambda x: list(more_itertools.collapse(x)))
+token_stream = line.until(eof).map(lambda x: list(more_itertools.collapse(x)))
 
 # TODO: Need to distinct between grammar that short-circuits a paragraph
 # and a paragraph.

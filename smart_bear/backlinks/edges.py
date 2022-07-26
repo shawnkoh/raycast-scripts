@@ -1,7 +1,7 @@
 from difflib import unified_diff
 import parsy
 from functional import pseq, seq
-from .lexer import lexer
+from .token_stream import token_stream
 from .parser import (
     eol,
     Backlink,
@@ -43,7 +43,7 @@ def printer(urls: list[str]):
 
     def read(url):
         raw = _read(url)
-        tokens = lexer.parse(raw)
+        tokens = token_stream.parse(raw)
         note: Note = parser.note.parse(tokens)
         edges = (
             seq([note.children])

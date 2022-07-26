@@ -155,7 +155,7 @@ def test_parser_2():
 
 
 def test_parser_3():
-    from .lexer import lexer
+    from .token_stream import token_stream
     from .parser import Note
 
     given = "# Executive functions are actions towards self-regulation, per Barkley\n<!-- {BearID:1234} -->"
@@ -167,4 +167,4 @@ def test_parser_3():
         children=[EOL()],
         bear_id=BearID("1234"),
     )
-    assert note.parse(lexer.parse(given)) == expected
+    assert note.parse(token_stream.parse(given)) == expected

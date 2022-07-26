@@ -94,27 +94,11 @@ def test_note():
             bear_id=None,
         )
     ]
-    expected = "test"
+    expected = "test\n"
     assert printer.note.parse(given) == expected
 
 
 def test_note_2():
-    given = "# abctest"
-    from .lexer import lexer
-    from .parser import note
-
-    tokens = lexer.parse(given)
-    assert tokens == [InlineText("# abctest")]
-    n = note.parse(tokens)
-    assert n == Note(
-        title=Title("abctest"),
-        children=[],
-        bear_id=None,
-    )
-    assert printer.note.parse([n]) == given
-
-
-def test_note_3():
     given = [
         Note(
             title=Title("abc"),
@@ -125,5 +109,21 @@ def test_note_3():
             bear_id=None,
         )
     ]
-    expected = "# abc\ntest"
+    expected = "# abc\ntest\n"
     assert printer.note.parse(given) == expected
+
+
+def test_note_3():
+    given = "# abctest"
+    from .token_stream import token_stream
+    from .parser import note
+
+    tokens = token_stream.parse(given)
+    assert tokens == [InlineText("# abctest")]
+    n = note.parse(tokens)
+    assert n == Note(
+        title=Title("abctest"),
+        children=[],
+        bear_id=None,
+    )
+    assert printer.note.parse([n]) == given
