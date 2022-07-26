@@ -27,9 +27,8 @@ backlink_suffix = checkinstance(BacklinkSuffix).result("]]")
 bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->")
 title = checkinstance(Title).map(lambda x: f"# {x.value}")
 
-unwrap = (
+inline_unwrapper = (
     inline_text
-    | eol
     | backlink
     | quote_tick
     | inline_code
@@ -43,7 +42,7 @@ unwrap = (
 backlinks_block = (
     checkinstance(BacklinksBlock)
     .map(lambda x: x.children)
-    .map(unwrap.many().concat().parse)
+    .map((inline_unwrapper | eol).many().concat().parse)
     # TODO: Uncertain if this should append a newline
     # or if we should just wrap the BacklinksHeading and EOL into BacklinksBlock
     .map(lambda x: f"## Backlinks\n{x}")
@@ -54,7 +53,7 @@ backlinks_block = (
 @generate
 def note():
     note: Note = yield checkinstance(Note)
-    _unwrap = (unwrap | backlinks_block).many().concat()
+    _unwrap = (inline_unwrapper | eol | backlinks_block).many().concat()
     ls = list(
         filter(lambda x: x is not None, [note.title, *note.children, note.bear_id])
     )
