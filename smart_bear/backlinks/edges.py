@@ -3,7 +3,6 @@ import parsy
 from functional import pseq, seq
 from .lexer import lexer
 from .parser import (
-    parser,
     eol,
     Backlink,
     Note,
@@ -12,6 +11,7 @@ from .parser import (
     InlineText,
     Title,
 )
+from ..backlinks import parser
 from attrs import frozen
 
 
@@ -44,7 +44,7 @@ def printer(urls: list[str]):
     def read(url):
         raw = _read(url)
         tokens = lexer.parse(raw)
-        note: Note = parser.parse(tokens)
+        note: Note = parser.note.parse(tokens)
         edges = (
             seq([note.children])
             .filter(lambda child: not isinstance(child, BacklinksBlock))
@@ -74,12 +74,17 @@ def printer(urls: list[str]):
     def save_note(file: File, note: Note):
         from smart_bear.backlinks import printer
 
-        printed = printer.note.parse(note)
+        printed = printer.note.parse([note])
         if file.raw == printed:
             return
+        # from rich.console import Console
+        # from rich.markdown import Markdown
 
-        with open(file.url, "w") as f:
-            f.write(printed)
+        # Console().print(Markdown(printed))
+        # pprint(printed)
+
+        # with open(file.url, "w") as f:
+        # f.write(printed)
 
     (
         seq(files)
