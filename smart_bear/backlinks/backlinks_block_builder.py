@@ -3,6 +3,7 @@ from functional import seq
 
 from smart_bear.backlinks.lexer import ListItemPrefix
 from .parser import (
+    eol,
     Backlink,
     BacklinksBlock,
     EOL,
@@ -30,7 +31,9 @@ def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
             result += [
                 ListItem(
                     prefix=ListItemPrefix("\t* "),
-                    children=parsy.any_char.many().parse(edge.children),
+                    children=(
+                        parsy.any_char.until(eol | parsy.eof) << (eol | parsy.eof)
+                    ).parse(edge.children),
                 ),
                 EOL(),
             ]
