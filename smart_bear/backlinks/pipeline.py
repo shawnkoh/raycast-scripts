@@ -43,6 +43,8 @@ def process(urls):
 
         edges = edges_to_node[note.title.value]
         backlinks_block = backlinks_block_builder.build(edges)
+        if backlinks_block is None:
+            return note
 
         return Note(
             title=note.title,
