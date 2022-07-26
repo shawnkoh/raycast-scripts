@@ -62,3 +62,21 @@ def test_lexer():
         InlineText("."),
     ]
     assert token_stream.parse(given) == expected
+
+
+def test_list_item_prefix():
+    from .lexer import list_item_prefix, ListItemPrefix
+
+    given = "- "
+    expected = ListItemPrefix("- ")
+
+    assert list_item_prefix.parse(given) == expected
+
+
+def test_list_item_prefix_2():
+    from .lexer import list_item_prefix, ListItemPrefix
+
+    given = "* "
+    expected = ListItemPrefix("* ")
+
+    assert list_item_prefix.parse(given) == expected

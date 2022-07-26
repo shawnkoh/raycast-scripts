@@ -191,3 +191,55 @@ def test_parser_3():
         bear_id=BearID("1234"),
     )
     assert note.parse(token_stream.parse(given)) == expected
+
+
+def test_list_item():
+    from .parser import ListItem, list_item, ListItemPrefix
+
+    given = [
+        ListItemPrefix("* "),
+        InlineText("ali"),
+    ]
+    expected = ListItem(
+        prefix=ListItemPrefix("* "),
+        children=[InlineText("ali")],
+    )
+    assert list_item.parse(given) == expected
+
+
+def test_list_item_2():
+    from .parser import ListItem, list_item, ListItemPrefix
+
+    given = [
+        ListItemPrefix("* "),
+        InlineText("ali"),
+        EOL(),
+    ]
+    expected = ListItem(
+        prefix=ListItemPrefix("* "),
+        children=[
+            InlineText("ali"),
+            EOL(),
+        ],
+    )
+    assert list_item.parse(given) == expected
+
+
+def test_list_item_3():
+    from .parser import ListItem, list_item, ListItemPrefix
+
+    given = [
+        ListItemPrefix("* "),
+        InlineText("ali"),
+        EOL(),
+        InlineText("abdaal"),
+    ]
+    expected = ListItem(
+        prefix=ListItemPrefix("* "),
+        children=[
+            InlineText("ali"),
+            EOL(),
+            InlineText("abdaal"),
+        ],
+    )
+    assert list_item.parse(given) == expected

@@ -7,6 +7,7 @@ from .lexer import (
     BearID,
     InlineCode,
     InlineText,
+    ListItemPrefix,
     QuoteTick,
     BacklinkPrefix,
     BacklinkSuffix,
@@ -32,6 +33,7 @@ inline_text = checkinstance(InlineText)
 quote_tick = checkinstance(QuoteTick)
 inline_code = checkinstance(InlineCode)
 bear_id = checkinstance(BearID)
+list_item_prefix = checkinstance(ListItemPrefix)
 
 
 # MARK: Final Output
@@ -91,9 +93,21 @@ backlinks_block = (
 )
 
 
+@frozen
+class ListItem:
+    prefix: ListItemPrefix
+    children: list[InlineText | InlineCode | QuoteTick | Backlink | EOL]
+
+
+list_item = seq(
+    prefix=list_item_prefix,
+    children=any_char.until(eol * 2 | eof),
+).combine_dict(ListItem)
+
+
 note = seq(
     title=title.optional(),
-    children=(backlinks_block | backlink | any_char).until(
+    children=(backlinks_block | backlink | list_item | any_char).until(
         (bear_id << eol.optional()) | eof
     ),
     bear_id=(bear_id << eol.optional()).optional(),

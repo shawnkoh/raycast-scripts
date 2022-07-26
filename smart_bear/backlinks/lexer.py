@@ -1,3 +1,4 @@
+from tokenize import StringPrefix
 from attrs import frozen
 from parsy import any_char, string, eof
 import parsy
@@ -64,10 +65,16 @@ class BearID:
         return f"<!-- {{BearID:{self.value}}} -->"
 
 
+@frozen
+class ListItemPrefix:
+    value: str
+
+
 backlink_prefix = string("[[").result(BacklinkPrefix())
 backlink_suffix = string("]]").result(BacklinkSuffix())
 quote_tick = string("`").result(QuoteTick())
 inline_code = string("```").result(InlineCode())
+list_item_prefix = (string("* ") | string("- ")).map(ListItemPrefix)
 
 
 @parsy.generate
@@ -90,6 +97,7 @@ inline_special = (
     | backlink_suffix
     | inline_code
     | quote_tick
+    | list_item_prefix
     | backlinks_heading
     | bear_id
 )
