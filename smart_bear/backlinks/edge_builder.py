@@ -1,5 +1,5 @@
 import parsy
-from functional import seq
+import functional
 from .parser import (
     eol,
     Backlink,
@@ -7,7 +7,8 @@ from .parser import (
     EOL,
     InlineText,
     Title,
-    list_item,
+    ListItem,
+    checkinstance,
 )
 from attrs import frozen
 
@@ -21,13 +22,13 @@ class Edge:
 
 def build(note: Note) -> list[Edge]:
     return (
-        seq([note.children])
+        functional.seq([note.children])
         .flat_map(split_into_paragraphs)
         .filter(lambda x: any(isinstance(ele, Backlink) for ele in x))
         .filter(lambda x: len(x) > 0)
         .flat_map(
             lambda paragraph: (
-                seq(paragraph)
+                functional.seq(paragraph)
                 .filter(lambda x: isinstance(x, Backlink))
                 .map(lambda backlink: Edge(note.title, backlink, paragraph))
             )
@@ -36,11 +37,38 @@ def build(note: Note) -> list[Edge]:
     )
 
 
+@parsy.generate
+def paragraphs():
+    list_item = checkinstance(ListItem)
+    result = []
+    current = []
+
+    def flush():
+        nonlocal current
+        if len(current) == 0:
+            return
+        result.append(current)
+        current = []
+
+    while True:
+        li = yield list_item.optional()
+        if li is not None:
+            flush()
+            result.append([li])
+
+        eols = yield (eol * 2).optional()
+        if eols is not None:
+            flush()
+            current = []
+
+        any = yield parsy.any_char.optional()
+        if any is not None:
+            current.append(any)
+        else:
+            flush()
+            result = list(filter(lambda x: len(x) > 0, result))
+            return result
+
+
 def split_into_paragraphs(ls):
-    return (
-        (
-            (parsy.any_char.until(eol * 2) << (eol * 2))
-            | (parsy.any_char.until(eol << list_item) << (eol << list_item))
-            | parsy.any_char.at_least(1)
-        ).many()
-    ).parse(ls)
+    return paragraphs.parse(ls)
