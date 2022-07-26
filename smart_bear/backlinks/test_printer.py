@@ -1,4 +1,3 @@
-import pytest
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
 from smart_bear.backlinks.parser import BacklinksBlock, Title, Note
 from .lexer import (
@@ -10,7 +9,6 @@ from .lexer import (
     InlineText,
     QuoteTick,
 )
-import parsy
 from smart_bear.backlinks import printer
 
 
@@ -126,4 +124,5 @@ def test_note_3():
         children=[],
         bear_id=None,
     )
-    assert printer.note.parse([n]) == given
+    # NB: uncertain about this rule but we're ensuring that they always have a new line.
+    assert printer.note.parse([n]) == given + "\n"
