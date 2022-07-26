@@ -115,19 +115,10 @@ def test_build_3():
             ],
         ),
         Edge(
-            from_node=Title("Something that links here"),
+            from_node=Title("Not Overthinking"),
             to_node=Backlink("Sample note"),
             children=[
-                InlineText("Another block in that same note which links to "),
-                Backlink("Sample note"),
-                EOL(),
-            ],
-        ),
-        Edge(
-            from_node=Title("A different note that links here"),
-            to_node=Backlink("Sample note"),
-            children=[
-                InlineText("This is a paragraph from another note which links to "),
+                InlineText("Ali Abdaal"),
                 Backlink("Sample note"),
                 EOL(),
             ],
@@ -149,14 +140,6 @@ def test_build_3():
                     InlineText(
                         "The block of text in the referencing note which contains the link to "
                     ),
-                ],
-            ),
-            Backlink("Sample note"),
-            EOL(),
-            ListItem(
-                prefix=ListItemPrefix("\t* "),
-                children=[
-                    InlineText("Another block in that same note which links to "),
                     Backlink("Sample note"),
                 ],
             ),
@@ -164,14 +147,14 @@ def test_build_3():
             ListItem(
                 prefix=ListItemPrefix("* "),
                 children=[
-                    Backlink("A different note that links here"),
+                    Backlink("Not Overthinking"),
                 ],
             ),
             EOL(),
             ListItem(
                 prefix=ListItemPrefix("\t* "),
                 children=[
-                    InlineText("This is a paragraph from another note which links to "),
+                    InlineText("Ali Abdaal"),
                     Backlink("Sample note"),
                 ],
             ),
