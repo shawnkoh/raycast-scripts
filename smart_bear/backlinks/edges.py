@@ -83,50 +83,19 @@ def printer(urls: list[str]):
 
         from rich.text import Text
 
-        diff = unified_diff(
-            file.raw.split("\n"),
-            printed.split("\n"),
-            fromfile="before",
-            tofile="after",
-        )
-
-        import parsy
-
-        any_chars = parsy.any_char.at_least(1).concat()
-        pp = (
-            (
-                parsy.peek(parsy.string("@@"))
-                >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
-            )
-            | (
-                parsy.string("-")
-                >> (
-                    any_chars.map(lambda x: Text(text=x, style="bold red"))
-                    | parsy.success(Text("  ", style="on red"))
-                )
-            )
-            | (
-                parsy.string("+")
-                >> (
-                    any_chars.map(lambda x: Text(text=x, style="bold green"))
-                    | parsy.success(Text("  ", style="on green"))
-                )
-            )
-            | (parsy.string(" ") >> parsy.any_char.at_least(1).concat().map(Text))
-            | (
-                parsy.string("?")
-                >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
-            )
-            | (any_chars.map(Text))
-        )
-
-        diffs = seq(diff).drop(2).map(pp.parse)
+        from . import diff
 
         console.print(
             Group(
                 Text(file.url, style="bold blue"),
                 Panel(
-                    Group(*diffs),
+                    Group(
+                        *diff.str_stream(
+                            # TODO: inefficient to re-split
+                            file.raw.split("\n"),
+                            printed.split("\n"),
+                        )
+                    ),
                 ),
             )
         )
