@@ -1,4 +1,3 @@
-from rich.pretty import pprint
 import parsy
 from functional import pseq, seq
 from .lexer import lexer
@@ -77,18 +76,30 @@ def printer(urls: list[str]):
         printed = printer.note.parse([note])
         if file.raw == printed:
             return
-        # from rich.console import Console
-        # from rich.markdown import Markdown
+        from ..console import console
+        from rich.markdown import Markdown
+        from rich.console import Group
+        from rich.panel import Panel
 
-        # Console().print(Markdown(printed))
-        # pprint(printed)
+        console.print(
+            Panel(
+                Group(
+                    Markdown(f"**{file.url}**"),
+                    Panel(
+                        Markdown(file.raw),
+                    ),
+                    Panel(
+                        Markdown(printed),
+                    ),
+                )
+            )
+        )
 
         # with open(file.url, "w") as f:
         # f.write(printed)
 
     (
         seq(files)
-        .peek(lambda file: print(file.url))
         .map(lambda x: (x, build_note(edges_to_node, x)))
         .for_each(lambda x: save_note(x[0], x[1]))
     )
