@@ -5,8 +5,10 @@ from .parser import (
     BacklinksBlock,
     EOL,
     InlineText,
+    checkinstance,
 )
 from .edge_builder import Edge
+import parsy
 
 
 def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
@@ -34,7 +36,7 @@ def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
         for edge in edges:
             result += [
                 InlineText("\t* "),
-                *edge.children,
+                *(dedup_star | parsy.any_char).many().parse(edge.children),
                 # EOL(),
             ]
 
@@ -42,3 +44,12 @@ def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
         return None
 
     return BacklinksBlock(result)
+
+
+@parsy.generate
+def dedup_star():
+    text: InlineText = yield checkinstance(InlineText)
+    if text.value[:2] == "* ":
+        return InlineText(text.value[2:])
+    else:
+        return text
