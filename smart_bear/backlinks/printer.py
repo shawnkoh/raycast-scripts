@@ -44,10 +44,13 @@ backlinks_block = (
     checkinstance(BacklinksBlock)
     .map(lambda x: x.children)
     .map(unwrap.many().concat().parse)
+    # TODO: Uncertain if this should append a newline
+    # or if we should just wrap the BacklinksHeading and EOL into BacklinksBlock
     .map(lambda x: f"## Backlinks\n{x}")
 )
 
 
+# TODO: Uncertain if the note printer should have
 @generate
 def note():
     note: Note = yield checkinstance(Note)
@@ -55,4 +58,4 @@ def note():
     ls = list(
         filter(lambda x: x is not None, [note.title, *note.children, note.bear_id])
     )
-    return _unwrap.parse(ls)
+    return f"{_unwrap.parse(ls)}\n"
