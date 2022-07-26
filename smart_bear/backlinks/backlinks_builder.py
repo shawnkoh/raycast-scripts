@@ -11,7 +11,7 @@ from .parser import (
     InlineText,
     Title,
 )
-from ..backlinks import parser
+from . import parser
 from attrs import frozen
 
 

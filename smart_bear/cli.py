@@ -116,7 +116,7 @@ def open_today():
 
 @app.command()
 def backlinks():
-    from .backlinks.edges import printer
+    from .backlinks.backlinks_builder import printer
 
     printer(get_urls())
 
