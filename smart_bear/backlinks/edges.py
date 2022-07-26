@@ -100,19 +100,23 @@ def printer(urls: list[str]):
             )
             | (
                 parsy.string("-")
-                >> any_chars.map(lambda x: Text(text=x, style="bold red"))
+                >> (
+                    any_chars.map(lambda x: Text(text=x, style="bold red"))
+                    | parsy.success(Text("  ", style="on red"))
+                )
             )
             | (
                 parsy.string("+")
-                >> any_chars.map(lambda x: Text(text=x, style="bold green"))
+                >> (
+                    any_chars.map(lambda x: Text(text=x, style="bold green"))
+                    | parsy.success(Text("  ", style="on green"))
+                )
             )
             | (parsy.string(" ") >> parsy.any_char.at_least(1).concat().map(Text))
             | (
                 parsy.string("?")
                 >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
             )
-            | parsy.string("+").result(Text("  ", style="on green"))
-            | parsy.string("-").result(Text("  ", style="on red"))
             | (any_chars.map(Text))
         )
 
