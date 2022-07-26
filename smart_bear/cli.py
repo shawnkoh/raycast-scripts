@@ -15,7 +15,7 @@ from rich.console import Console
 from rich.pretty import pprint
 from rich.traceback import install
 
-# install(show_locals=True)
+install(show_locals=True)
 from tqdm import tqdm
 
 from smart_bear.anki.anki import Anki
