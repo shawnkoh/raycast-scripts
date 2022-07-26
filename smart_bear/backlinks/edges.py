@@ -90,12 +90,6 @@ def printer(urls: list[str]):
             tofile="after",
         )
 
-        from more_itertools import peekable
-
-        diff = peekable(diff)
-        if not diff:
-            return
-
         import parsy
 
         any_chars = parsy.any_char.at_least(1).concat()
@@ -117,6 +111,8 @@ def printer(urls: list[str]):
                 parsy.string("?")
                 >> any_chars.map(lambda x: Text(text=x, style="bold magenta"))
             )
+            | parsy.string("+").result(Text("  ", style="on green"))
+            | parsy.string("-").result(Text("  ", style="on red"))
             | (any_chars.map(Text))
         )
 
