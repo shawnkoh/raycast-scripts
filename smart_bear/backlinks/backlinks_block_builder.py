@@ -1,11 +1,12 @@
 from typing import Optional
 from functional import seq
+
+from smart_bear.backlinks.lexer import ListItemPrefix
 from .parser import (
     Backlink,
     BacklinksBlock,
     EOL,
-    InlineText,
-    checkinstance,
+    ListItem,
 )
 from .edge_builder import Edge
 import parsy
@@ -17,27 +18,24 @@ def build(edges: list[Edge]) -> Optional[BacklinksBlock]:
 
     for from_node, edges in edges_by_from.items():
         result += [
-            InlineText("* "),
-            Backlink(from_node),
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    Backlink(from_node),
+                ],
+            ),
             EOL(),
         ]
         for edge in edges:
             result += [
-                InlineText("\t* "),
-                *(dedup_star | parsy.any_char).many().parse(edge.children),
-                # EOL(),
+                ListItem(
+                    prefix=ListItemPrefix("\t* "),
+                    children=parsy.any_char.many().parse(edge.children),
+                ),
+                EOL(),
             ]
 
     if len(result) == 0:
         return None
 
     return BacklinksBlock(result)
-
-
-@parsy.generate
-def dedup_star():
-    text: InlineText = yield checkinstance(InlineText)
-    if text.value[:2] == "* ":
-        return InlineText(text.value[2:])
-    else:
-        return text

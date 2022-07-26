@@ -1,5 +1,5 @@
-from smart_bear.backlinks.lexer import EOL, InlineText
-from smart_bear.backlinks.parser import Backlink, BacklinksBlock, Title
+from smart_bear.backlinks.lexer import EOL, InlineText, ListItemPrefix
+from smart_bear.backlinks.parser import Backlink, BacklinksBlock, Title, ListItem
 from . import backlinks_block_builder
 from .backlinks_block_builder import Edge
 
@@ -21,14 +21,22 @@ def test_build():
 
     expected = BacklinksBlock(
         [
-            InlineText("* "),
-            Backlink("Something that links here"),
-            EOL(),
-            InlineText("\t* "),
-            InlineText(
-                "The block of text in the referencing note which contains the link to "
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    Backlink("Something that links here"),
+                ],
             ),
-            Backlink("Sample note"),
+            EOL(),
+            ListItem(
+                prefix=ListItemPrefix("\t* "),
+                children=[
+                    InlineText(
+                        "The block of text in the referencing note which contains the link to "
+                    ),
+                    Backlink("Sample note"),
+                ],
+            ),
             EOL(),
         ]
     )
@@ -62,18 +70,30 @@ def test_build_2():
 
     expected = BacklinksBlock(
         [
-            InlineText("* "),
-            Backlink("Something that links here"),
-            EOL(),
-            InlineText("\t* "),
-            InlineText(
-                "The block of text in the referencing note which contains the link to "
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    Backlink("Something that links here"),
+                ],
             ),
-            Backlink("Sample note"),
             EOL(),
-            InlineText("\t* "),
-            InlineText("Another block in that same note which links to "),
-            Backlink("Sample note"),
+            ListItem(
+                prefix=ListItemPrefix("\t* "),
+                children=[
+                    InlineText(
+                        "The block of text in the referencing note which contains the link to "
+                    ),
+                    Backlink("Sample note"),
+                ],
+            ),
+            EOL(),
+            ListItem(
+                prefix=ListItemPrefix("\t* "),
+                children=[
+                    InlineText("Another block in that same note which links to "),
+                    Backlink("Sample note"),
+                ],
+            ),
             EOL(),
         ]
     )
@@ -116,25 +136,45 @@ def test_build_3():
 
     expected = BacklinksBlock(
         [
-            InlineText("* "),
-            Backlink("Something that links here"),
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    Backlink("Something that links here"),
+                ],
+            ),
             EOL(),
-            InlineText("\t* "),
-            InlineText(
-                "The block of text in the referencing note which contains the link to "
+            ListItem(
+                prefix=ListItemPrefix("\t* "),
+                children=[
+                    InlineText(
+                        "The block of text in the referencing note which contains the link to "
+                    ),
+                ],
             ),
             Backlink("Sample note"),
             EOL(),
-            InlineText("\t* "),
-            InlineText("Another block in that same note which links to "),
-            Backlink("Sample note"),
+            ListItem(
+                prefix=ListItemPrefix("\t* "),
+                children=[
+                    InlineText("Another block in that same note which links to "),
+                    Backlink("Sample note"),
+                ],
+            ),
             EOL(),
-            InlineText("* "),
-            Backlink("A different note that links here"),
+            ListItem(
+                prefix=ListItemPrefix("* "),
+                children=[
+                    Backlink("A different note that links here"),
+                ],
+            ),
             EOL(),
-            InlineText("\t* "),
-            InlineText("This is a paragraph from another note which links to "),
-            Backlink("Sample note"),
+            ListItem(
+                prefix=ListItemPrefix("\t* "),
+                children=[
+                    InlineText("This is a paragraph from another note which links to "),
+                    Backlink("Sample note"),
+                ],
+            ),
             EOL(),
         ]
     )

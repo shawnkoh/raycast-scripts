@@ -7,6 +7,7 @@ from .parser import (
     EOL,
     InlineText,
     Title,
+    list_item,
 )
 from attrs import frozen
 
@@ -38,9 +39,8 @@ def build(note: Note) -> list[Edge]:
 def split_into_paragraphs(ls):
     return (
         (
-            eol.optional() >> parsy.any_char.until(eol * 2) << (eol * 2)
-            | parsy.any_char.map(lambda x: [x])
-        )
-        .many()
-        .parse(ls)
-    )
+            (parsy.any_char.until(eol * 2) << (eol * 2))
+            | (parsy.any_char.until(eol << list_item) << (eol << list_item))
+            | parsy.any_char.at_least(1)
+        ).many()
+    ).parse(ls)

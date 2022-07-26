@@ -202,7 +202,9 @@ def test_list_item():
     ]
     expected = ListItem(
         prefix=ListItemPrefix("* "),
-        children=[InlineText("ali")],
+        children=[
+            InlineText("ali"),
+        ],
     )
     assert list_item.parse(given) == expected
 
@@ -219,10 +221,9 @@ def test_list_item_2():
         prefix=ListItemPrefix("* "),
         children=[
             InlineText("ali"),
-            EOL(),
         ],
     )
-    assert list_item.parse(given) == expected
+    assert list_item.parse_partial(given)[0] == expected
 
 
 def test_list_item_3():
@@ -231,15 +232,11 @@ def test_list_item_3():
     given = [
         ListItemPrefix("* "),
         InlineText("ali"),
-        EOL(),
-        InlineText("abdaal"),
     ]
     expected = ListItem(
         prefix=ListItemPrefix("* "),
         children=[
             InlineText("ali"),
-            EOL(),
-            InlineText("abdaal"),
         ],
     )
     assert list_item.parse(given) == expected

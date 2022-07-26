@@ -101,7 +101,7 @@ class ListItem:
 
 list_item = seq(
     prefix=list_item_prefix,
-    children=any_char.until(eol * 2 | eof),
+    children=any_char.until(eol | eof),
 ).combine_dict(ListItem)
 
 
