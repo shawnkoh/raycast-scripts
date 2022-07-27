@@ -11,13 +11,15 @@ def saved_note(saved_note: SavedNote):
     new_raw = printer.note.parse([saved_note.note])
     return Group(
         Text(saved_note.url, style="bold blue"),
-        Panel(
-            Group(
-                *diff.str_stream(
-                    # TODO: inefficient to re-split
-                    saved_note.raw.split("\n"),
-                    new_raw.split("\n"),
-                )
-            ),
-        ),
+        Panel(str_diff(saved_note.raw, new_raw)),
+    )
+
+
+def str_diff(before: str, after: str):
+    return Group(
+        *diff.str_stream(
+            # TODO: inefficient to re-split
+            before.split("\n"),
+            after.split("\n"),
+        )
     )
