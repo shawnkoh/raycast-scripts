@@ -84,20 +84,26 @@ def note():
     tags = (
         functional.seq(get_tags.parse(note.children))
         .filter(lambda x: x is not None)
-        .sorted(key=lambda x: x.value)
+        .map(lambda x: f"#{x.value}")
+        .sorted()
         .to_list()
     )
-    children = (floating_tag.optional() >> parsy.any_char).many().parse(
-        note.children
-    ) + tags
+    children = (floating_tag.optional() >> parsy.any_char).many().parse(note.children)
     result = note_children.parse(children).rstrip()
 
     if note.title is not None:
         parsed = title.parse([note.title])
         result = f"{parsed}{result}"
+
+    if len(tags) > 0:
+        result += "\n\n"
+        result += "\n".join(tags)
+
     if note.bear_id is not None:
         parsed = bear_id.parse([note.bear_id])
         result = f"{result}\n\n{parsed}"
+
     if result[-1:] != "\n":
         result += "\n"
+
     return result
