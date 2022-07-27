@@ -12,7 +12,7 @@ def process(urls):
     from .backlinks_remover import remove_backlinks
 
     saved_notes: list[SavedNote] = (
-        pseq(urls[:40])
+        pseq(urls)
         .map(read)
         .map(
             lambda saved_note: SavedNote(

@@ -126,3 +126,23 @@ def test_note_3():
     )
     # NB: uncertain about this rule but we're ensuring that they always have a new line.
     assert printer.note.parse([n]) == given + "\n"
+
+
+def test_list_item():
+    from .parser import ListItemPrefix, ListItem, InlineText
+    from .printer import list_item
+
+    given = [
+        ListItem(
+            prefix=ListItemPrefix(value="* "),
+            children=[
+                InlineText(value="Super lightweight "),
+                ListItemPrefix(value="- "),
+                InlineText(value="no need to deal with manual serialisation"),
+            ],
+        ),
+    ]
+
+    expected = "* Super lightweight - no need to deal with manual serialisation"
+
+    assert list_item.parse(given) == expected

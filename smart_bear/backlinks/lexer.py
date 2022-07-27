@@ -118,6 +118,7 @@ def _join(ls):
 
 
 # TODO: This can be made much more efficient for sure
+# TODO: we should first check for stuff that can only appear at the start of a line.
 line = (
     (
         inline_special.until(eol | eof, consume_other=True)

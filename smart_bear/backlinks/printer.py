@@ -1,3 +1,4 @@
+from smart_bear.backlinks.lexer import ListItemPrefix
 from .parser import (
     ListItem,
     Note,
@@ -14,9 +15,7 @@ from .parser import (
     BacklinksBlock,
     InlineCode,
 )
-from parsy import generate, eof, any_char
-from functional import seq
-import parsy
+from parsy import generate, eof
 
 
 inline_text = checkinstance(InlineText).map(lambda x: x.value)
@@ -29,6 +28,7 @@ backlink_prefix = checkinstance(BacklinkPrefix).result("[[")
 backlink_suffix = checkinstance(BacklinkSuffix).result("]]")
 bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->")
 title = checkinstance(Title).map(lambda x: f"# {x.value}")
+list_item_prefix = checkinstance(ListItemPrefix).map(lambda x: x.value)
 
 
 list_item = checkinstance(ListItem).map(
@@ -45,6 +45,7 @@ children_unwrapper = (
     | backlink_prefix
     | backlink_suffix
     | list_item
+    | list_item_prefix
 )
 
 backlinks_block = (
@@ -56,18 +57,17 @@ backlinks_block = (
     .map(lambda x: f"## Backlinks\n{x}")
 )
 
+note_children = (backlinks_block | children_unwrapper).until(
+    eol.many() << eof
+).concat() << (eol.many() << eof)
+
 
 # TODO: Uncertain if the note printer should have
 @generate
 def note():
     note: Note = yield checkinstance(Note)
 
-    result = (
-        (
-            (backlinks_block | children_unwrapper).until(eol.many() << eof).concat()
-            << (eol.many() << eof)
-        )
-    ).parse(note.children)
+    result = note_children.parse(note.children)
 
     if note.title is not None:
         parsed = title.parse([note.title])
