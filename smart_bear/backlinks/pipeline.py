@@ -59,8 +59,12 @@ def process(urls):
     (
         seq(saved_notes)
         .map(lambda saved_note: (saved_note, rebuild_note(saved_note.note)))
+        # TODO: this does not filter everything
+        # Quick hack on line 66
+        # with formater as a separate pipeline it should fix i think.
         .filter(lambda x: x[0].note != x[1])
         .map(lambda x: (x[0].url, x[0].raw, printer.note.parse([x[1]])))
+        .filter(lambda x: x[1] != x[2])
         .peek(lambda x: console.print(console_representation.saved_note(*x)))
         .for_each(lambda x: save(x[0], x[1], x[2]))
     )
