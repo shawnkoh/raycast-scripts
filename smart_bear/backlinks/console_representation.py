@@ -1,5 +1,3 @@
-from smart_bear.backlinks.saved_note_reader import SavedNote
-from smart_bear.backlinks import printer
 from rich.console import Group
 from rich.panel import Panel
 from rich.text import Text
@@ -7,11 +5,10 @@ from rich.text import Text
 from . import diff
 
 
-def saved_note(saved_note: SavedNote):
-    new_raw = printer.note.parse([saved_note.note])
+def saved_note(url, raw, new_raw):
     return Group(
-        Text(saved_note.url, style="bold blue"),
-        Panel(str_diff(saved_note.raw, new_raw)),
+        Text(url, style="bold blue"),
+        Panel(str_diff(raw, new_raw)),
     )
 
 

@@ -54,12 +54,18 @@ def process(urls):
         )
 
     from ..console import console
+    from . import printer
 
     (
         seq(saved_notes)
         .map(lambda saved_note: (saved_note, rebuild_note(saved_note.note)))
         .filter(lambda x: x[0].note != x[1])
-        .map(lambda x: SavedNote(x[0].url, x[0].raw, x[1]))
-        .map(console_representation.saved_note)
-        .for_each(console.print)
+        .map(lambda x: (x[0].url, x[0].raw, printer.note.parse([x[1]])))
+        .peek(lambda x: console.print(console_representation.saved_note(*x)))
+        .for_each(lambda x: save(x[0], x[1], x[2]))
     )
+
+
+def save(url, raw, new_raw):
+    with open(url, "w") as file:
+        file.write(new_raw)
