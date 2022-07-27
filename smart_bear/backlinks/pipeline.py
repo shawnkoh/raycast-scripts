@@ -1,6 +1,7 @@
 from functional import pseq, seq
 
 from smart_bear.backlinks.saved_note_reader import SavedNote
+from . import console_representation
 from .parser import (
     Note,
 )
@@ -53,39 +54,12 @@ def process(urls):
         )
 
     from ..console import console
-    from rich.text import Text
-    from rich.panel import Panel
-    from rich.console import Group
-
-    from . import printer
-
-    from . import diff
 
     (
         seq(saved_notes)
         .map(lambda saved_note: (saved_note, rebuild_note(saved_note.note)))
         .filter(lambda x: x[0].note != x[1])
         .map(lambda x: SavedNote(x[0].url, x[0].raw, x[1]))
-        .map(
-            lambda saved_note: (
-                saved_note.url,
-                saved_note.raw,
-                printer.note.parse([saved_note.note]),
-            )
-        )
-        .map(
-            lambda x: Group(
-                Text(x[0], style="bold blue"),
-                Panel(
-                    Group(
-                        *diff.str_stream(
-                            # TODO: inefficient to re-split
-                            x[1].split("\n"),
-                            x[2].split("\n"),
-                        )
-                    ),
-                ),
-            )
-        )
+        .map(console_representation.saved_note)
         .for_each(console.print)
     )
