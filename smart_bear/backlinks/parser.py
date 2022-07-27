@@ -11,6 +11,7 @@ from .lexer import (
     QuoteTick,
     BacklinkPrefix,
     BacklinkSuffix,
+    Tag,
 )
 from attrs import frozen
 from parsy import *
@@ -34,6 +35,7 @@ quote_tick = checkinstance(QuoteTick)
 inline_code = checkinstance(InlineCode)
 bear_id = checkinstance(BearID)
 list_item_prefix = checkinstance(ListItemPrefix)
+tag = checkinstance(Tag)
 
 
 # MARK: Final Output
@@ -107,7 +109,7 @@ list_item = seq(
 
 note = seq(
     title=title.optional(),
-    children=(backlinks_block | backlink | list_item | any_char).until(
+    children=(backlinks_block | backlink | list_item | tag | any_char).until(
         (bear_id << eol.optional()) | eof
     ),
     bear_id=(bear_id << eol.optional()).optional(),

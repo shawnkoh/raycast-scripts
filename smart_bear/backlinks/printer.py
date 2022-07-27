@@ -1,4 +1,5 @@
-from smart_bear.backlinks.lexer import ListItemPrefix
+from more_itertools import collapse
+from smart_bear.backlinks.lexer import ListItemPrefix, Tag
 from .parser import (
     ListItem,
     Note,
@@ -29,6 +30,7 @@ backlink_suffix = checkinstance(BacklinkSuffix).result("]]")
 bear_id = checkinstance(BearID).map(lambda x: f"<!-- {{BearID:{x.value}}} -->")
 title = checkinstance(Title).map(lambda x: f"# {x.value}")
 list_item_prefix = checkinstance(ListItemPrefix).map(lambda x: x.value)
+tag = checkinstance(Tag).map(lambda x: f"#{x.value}")
 
 
 list_item = checkinstance(ListItem).map(
@@ -46,6 +48,7 @@ children_unwrapper = (
     | backlink_suffix
     | list_item
     | list_item_prefix
+    | tag
 )
 
 backlinks_block = (
@@ -55,10 +58,10 @@ backlinks_block = (
     .map(children_unwrapper.many().concat().parse)
     # TODO: Uncertain if this should append a newline
     # or if we should just wrap the BacklinksHeading and EOL into BacklinksBlock
-    .map(lambda x: f"\n\n## Backlinks\n{x}")
+    .map(lambda x: f"## Backlinks\n{x}")
 )
 
-note_children = (backlinks_block | children_unwrapper).until(
+note_children = (backlinks_block.map(lambda x: f"\n\n{x}") | children_unwrapper).until(
     eol.many() << eof
 ).concat() << (eol.many() << eof)
 
@@ -67,9 +70,27 @@ note_children = (backlinks_block | children_unwrapper).until(
 # pritner should only be responsible for reversing parser. nothing more
 @generate
 def note():
+    import parsy
+    import functional
+
     note: Note = yield checkinstance(Note)
 
-    result = note_children.parse(note.children).rstrip()
+    floating_tag = (
+        (checkinstance(EOL) * 2) >> checkinstance(Tag) << (checkinstance(EOL) * 2)
+    )
+
+    get_tags = ((floating_tag << parsy.any_char) | parsy.any_char.result(None)).many()
+
+    tags = (
+        functional.seq(get_tags.parse(note.children))
+        .filter(lambda x: x is not None)
+        .sorted(key=lambda x: x.value)
+        .to_list()
+    )
+    children = (floating_tag.optional() >> parsy.any_char).many().parse(
+        note.children
+    ) + tags
+    result = note_children.parse(children).rstrip()
 
     if note.title is not None:
         parsed = title.parse([note.title])

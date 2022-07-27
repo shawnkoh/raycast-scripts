@@ -58,6 +58,11 @@ class BacklinksHeading:
 
 
 @frozen
+class Tag:
+    value: str
+
+
+@frozen
 class BearID:
     value: str
 
@@ -90,6 +95,12 @@ def bear_id():
 
 eol = string("\n").result(EOL())
 
+tag = (
+    string("#").times(min=1, max=1)
+    >> string(" ").should_fail("space")
+    >> any_char.until(parsy.whitespace).concat().map(Tag)
+)
+
 backlinks_heading = string("## Backlinks").result(BacklinksHeading())
 
 inline_special = (
@@ -99,6 +110,7 @@ inline_special = (
     | quote_tick
     | list_item_prefix
     | backlinks_heading
+    | tag
     | bear_id
 )
 
