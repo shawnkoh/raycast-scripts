@@ -49,12 +49,13 @@ children_unwrapper = (
 )
 
 backlinks_block = (
-    checkinstance(BacklinksBlock)
+    checkinstance(EOL).many()
+    >> checkinstance(BacklinksBlock)
     .map(lambda x: x.children)
     .map(children_unwrapper.many().concat().parse)
     # TODO: Uncertain if this should append a newline
     # or if we should just wrap the BacklinksHeading and EOL into BacklinksBlock
-    .map(lambda x: f"## Backlinks\n{x}")
+    .map(lambda x: f"\n\n## Backlinks\n{x}")
 )
 
 note_children = (backlinks_block | children_unwrapper).until(
@@ -62,12 +63,13 @@ note_children = (backlinks_block | children_unwrapper).until(
 ).concat() << (eol.many() << eof)
 
 
-# TODO: Uncertain if the note printer should have
+# TODO: printer needs a refactor to have a dedicated formatter pipeline
+# pritner should only be responsible for reversing parser. nothing more
 @generate
 def note():
     note: Note = yield checkinstance(Note)
 
-    result = note_children.parse(note.children)
+    result = note_children.parse(note.children).rstrip()
 
     if note.title is not None:
         parsed = title.parse([note.title])
