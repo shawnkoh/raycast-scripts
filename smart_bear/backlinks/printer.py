@@ -1,23 +1,24 @@
 from more_itertools import collapse
+from parsy import eof, generate
+
 from smart_bear.backlinks.lexer import ListItemPrefix, Tag
+
 from .parser import (
+    EOL,
+    Backlink,
+    BacklinkPrefix,
+    BacklinksBlock,
+    BacklinksHeading,
+    BacklinkSuffix,
+    BearID,
+    InlineCode,
+    InlineText,
     ListItem,
     Note,
-    InlineText,
-    EOL,
-    checkinstance,
-    Backlink,
     QuoteTick,
-    BacklinkSuffix,
-    BacklinkPrefix,
-    BacklinksHeading,
-    BearID,
     Title,
-    BacklinksBlock,
-    InlineCode,
+    checkinstance,
 )
-from parsy import generate, eof
-
 
 inline_text = checkinstance(InlineText).map(lambda x: x.value)
 eol = checkinstance(EOL).result("\n")
@@ -70,8 +71,8 @@ note_children = (backlinks_block.map(lambda x: f"\n\n{x}") | children_unwrapper)
 # pritner should only be responsible for reversing parser. nothing more
 @generate
 def note():
-    import parsy
     import functional
+    import parsy
 
     note: Note = yield checkinstance(Note)
 

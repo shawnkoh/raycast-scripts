@@ -1,5 +1,5 @@
 def test_backlinks_heading():
-    from .lexer import backlinks_heading, BacklinksHeading
+    from .lexer import BacklinksHeading, backlinks_heading
 
     given = "## Backlinks"
     expected = BacklinksHeading()
@@ -7,7 +7,7 @@ def test_backlinks_heading():
 
 
 def test_line():
-    from .lexer import InlineText, line, EOL
+    from .lexer import EOL, InlineText, line
 
     given = "# Title\n"
     expected = [
@@ -26,7 +26,7 @@ def test_line_2():
 
 
 def test_line_3():
-    from .lexer import InlineText, line, BacklinkPrefix, BacklinkSuffix
+    from .lexer import BacklinkPrefix, BacklinkSuffix, InlineText, line
 
     given = "Some [[Backlink]]"
     expected = [
@@ -39,13 +39,7 @@ def test_line_3():
 
 
 def test_lexer():
-    from .lexer import (
-        InlineText,
-        token_stream,
-        BacklinkPrefix,
-        BacklinkSuffix,
-        EOL,
-    )
+    from .lexer import EOL, BacklinkPrefix, BacklinkSuffix, InlineText, token_stream
 
     given = "# riley_gmi\nAdded to [[ninjacado]] on [[2022-07-19]]."
     expected = [
@@ -65,7 +59,7 @@ def test_lexer():
 
 
 def test_list_item_prefix():
-    from .lexer import list_item_prefix, ListItemPrefix
+    from .lexer import ListItemPrefix, list_item_prefix
 
     given = "- "
     expected = ListItemPrefix("- ")
@@ -74,7 +68,7 @@ def test_list_item_prefix():
 
 
 def test_list_item_prefix_2():
-    from .lexer import list_item_prefix, ListItemPrefix
+    from .lexer import ListItemPrefix, list_item_prefix
 
     given = "* "
     expected = ListItemPrefix("* ")

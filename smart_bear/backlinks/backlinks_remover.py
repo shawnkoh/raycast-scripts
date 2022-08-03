@@ -1,5 +1,6 @@
-from smart_bear.backlinks.parser import BacklinksBlock, Note
 from functional import seq
+
+from smart_bear.backlinks.parser import BacklinksBlock, Note
 
 
 def remove_backlinks(note: Note) -> Note:

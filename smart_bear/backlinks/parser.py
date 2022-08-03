@@ -1,20 +1,21 @@
 from typing import List, Optional
-from rich.pretty import pprint
 
 import more_itertools
+from attrs import frozen
+from parsy import *
+from rich.pretty import pprint
+
 from .lexer import (
     EOL,
+    BacklinkPrefix,
+    BacklinkSuffix,
     BearID,
     InlineCode,
     InlineText,
     ListItemPrefix,
     QuoteTick,
-    BacklinkPrefix,
-    BacklinkSuffix,
     Tag,
 )
-from attrs import frozen
-from parsy import *
 
 # MARK: Intermediaries
 

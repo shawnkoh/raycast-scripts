@@ -1,17 +1,19 @@
 from pprint import pprint
 
+import parsy
 import pytest
+
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
 from smart_bear.backlinks.parser import Title
 from smart_bear.intelligence.test_utilities import assert_that
+
 from .lexer import EOL, BearID, InlineText
 from .parser import note
-import parsy
 
 
 def test_title():
+    from .lexer import EOL, InlineText
     from .parser import title
-    from .lexer import InlineText, EOL
 
     # TODO: Investigate how not to wrap it in an array.
     # The problem is test_item relies on a stream, or at least, a streamable item
@@ -22,8 +24,8 @@ def test_title():
 
 
 def test_title_or_inline_text():
-    from .parser import title, inline_text
     from .lexer import InlineText
+    from .parser import inline_text, title
 
     given = [InlineText("abc")]
     expected = InlineText("abc")
@@ -31,8 +33,8 @@ def test_title_or_inline_text():
 
 
 def test_title_optional():
-    from .parser import title
     from .lexer import InlineText
+    from .parser import title
 
     given = [InlineText("abc")]
     assert title.optional().parse_partial(given)[0] is None
@@ -42,7 +44,7 @@ def test_title_optional():
 
 
 def test_backlink():
-    from .parser import backlink, Backlink, BacklinkPrefix, BacklinkSuffix
+    from .parser import Backlink, BacklinkPrefix, BacklinkSuffix, backlink
 
     given = [BacklinkPrefix(), InlineText("abc"), BacklinkSuffix()]
     assert_that(backlink.parse(given), Backlink("abc"))
@@ -110,7 +112,7 @@ def test_backlinks_block_3():
 
 
 def test_parser():
-    from .parser import Title, Note
+    from .parser import Note, Title
 
     given = [
         InlineText("# Title"),
@@ -128,7 +130,7 @@ def test_parser():
 
 
 def test_parser_1():
-    from .parser import Title, Note
+    from .parser import Note, Title
 
     given = [
         InlineText("# Title"),
@@ -152,7 +154,7 @@ def test_parser_1():
 
 
 def test_parser_2():
-    from .parser import Title, Note
+    from .parser import Note, Title
 
     given = [
         InlineText("# Title"),
@@ -194,7 +196,7 @@ def test_parser_3():
 
 
 def test_list_item():
-    from .parser import ListItem, list_item, ListItemPrefix
+    from .parser import ListItem, ListItemPrefix, list_item
 
     given = [
         ListItemPrefix("* "),
@@ -210,7 +212,7 @@ def test_list_item():
 
 
 def test_list_item_2():
-    from .parser import ListItem, list_item, ListItemPrefix
+    from .parser import ListItem, ListItemPrefix, list_item
 
     given = [
         ListItemPrefix("* "),
@@ -227,7 +229,7 @@ def test_list_item_2():
 
 
 def test_list_item_3():
-    from .parser import ListItem, list_item, ListItemPrefix
+    from .parser import ListItem, ListItemPrefix, list_item
 
     given = [
         ListItemPrefix("* "),

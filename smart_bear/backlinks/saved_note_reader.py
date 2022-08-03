@@ -1,9 +1,8 @@
-from .lexer import token_stream
-from .parser import (
-    Note,
-)
-from . import parser
 from attrs import frozen
+
+from . import parser
+from .lexer import token_stream
+from .parser import Note
 
 
 @frozen

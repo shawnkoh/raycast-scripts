@@ -1,6 +1,8 @@
 from regex import P
+
 from smart_bear.backlinks.lexer import EOL, InlineText
-from smart_bear.backlinks.parser import Backlink, Title, Note, ListItem, ListItemPrefix
+from smart_bear.backlinks.parser import Backlink, ListItem, ListItemPrefix, Note, Title
+
 from . import edge_builder
 from .backlinks_block_builder import Edge
 

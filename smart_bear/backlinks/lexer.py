@@ -1,8 +1,9 @@
 from tokenize import StringPrefix
-from attrs import frozen
-from parsy import any_char, string, eof
-import parsy
+
 import more_itertools
+import parsy
+from attrs import frozen
+from parsy import any_char, eof, string
 
 # Ignore backlinks
 # Backlink format

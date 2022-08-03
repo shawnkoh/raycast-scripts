@@ -1,16 +1,15 @@
+from attrs import frozen
 from functional import pseq, seq
 
 from smart_bear.backlinks.saved_note_reader import SavedNote
+
 from . import console_representation
-from .parser import (
-    Note,
-)
-from attrs import frozen
+from .parser import Note
 
 
 def process(urls):
-    from .saved_note_reader import read
     from .backlinks_remover import remove_backlinks
+    from .saved_note_reader import read
 
     saved_notes: list[SavedNote] = (
         pseq(urls)

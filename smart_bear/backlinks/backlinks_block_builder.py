@@ -1,16 +1,12 @@
 from typing import Optional
+
+import parsy
 from functional import seq
 
 from smart_bear.backlinks.lexer import ListItemPrefix
-from .parser import (
-    eol,
-    Backlink,
-    BacklinksBlock,
-    EOL,
-    ListItem,
-)
+
 from .edge_builder import Edge
-import parsy
+from .parser import EOL, Backlink, BacklinksBlock, ListItem, eol
 
 
 def build(edges: list[Edge]) -> Optional[BacklinksBlock]:

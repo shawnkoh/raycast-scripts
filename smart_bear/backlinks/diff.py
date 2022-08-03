@@ -1,11 +1,12 @@
-from rich.text import Text
 from functional.streams import Stream
+from rich.text import Text
 
 
 def str_stream(before: str, after: str) -> Stream:
-    from functional import seq
     from difflib import unified_diff
+
     import parsy
+    from functional import seq
 
     diff = unified_diff(
         before,

@@ -1,16 +1,8 @@
-import parsy
 import functional
-from .parser import (
-    eol,
-    Backlink,
-    Note,
-    EOL,
-    InlineText,
-    Title,
-    ListItem,
-    checkinstance,
-)
+import parsy
 from attrs import frozen
+
+from .parser import EOL, Backlink, InlineText, ListItem, Note, Title, checkinstance, eol
 
 
 @frozen

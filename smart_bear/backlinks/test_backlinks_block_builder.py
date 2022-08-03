@@ -1,5 +1,6 @@
 from smart_bear.backlinks.lexer import EOL, InlineText, ListItemPrefix
-from smart_bear.backlinks.parser import Backlink, BacklinksBlock, Title, ListItem
+from smart_bear.backlinks.parser import Backlink, BacklinksBlock, ListItem, Title
+
 from . import backlinks_block_builder
 from .backlinks_block_builder import Edge
 

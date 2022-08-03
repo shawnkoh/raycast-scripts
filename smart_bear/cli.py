@@ -2,15 +2,15 @@ import datetime
 import glob
 import os
 import webbrowser
-import pyperclip
 from pathlib import Path
 from timeit import timeit
-import typer
 from typing import Optional
 
 import arrow
 import click
-from functional import seq, pseq
+import pyperclip
+import typer
+from functional import pseq, seq
 from rich.console import Console
 from rich.pretty import pprint
 from rich.traceback import install
@@ -26,12 +26,12 @@ from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
 
 # Anki User Settings
-PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/Shawn")
+PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/GCR")
 COLLECTION_PATH = os.path.join(PROFILE_HOME, "collection.anki2")
 
-DECK_ID = 1631681814019
-BASIC_MODEL_ID = 1635365642288
-CLOZE_MODEL_ID = 1635539433589
+DECK_ID = 1
+BASIC_MODEL_ID = 1659511437904
+CLOZE_MODEL_ID = 1659511443353
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 

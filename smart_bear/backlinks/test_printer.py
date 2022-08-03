@@ -1,5 +1,7 @@
+from smart_bear.backlinks import printer
 from smart_bear.backlinks.lexer import EOL, BacklinksHeading, InlineText
-from smart_bear.backlinks.parser import BacklinksBlock, Title, Note
+from smart_bear.backlinks.parser import BacklinksBlock, Note, Title
+
 from .lexer import (
     EOL,
     BacklinkPrefix,
@@ -9,7 +11,6 @@ from .lexer import (
     InlineText,
     QuoteTick,
 )
-from smart_bear.backlinks import printer
 
 
 def test_title():
@@ -83,7 +84,7 @@ def test_backlinks_block():
 
 
 def test_list_item():
-    from .parser import ListItemPrefix, ListItem, InlineText
+    from .parser import InlineText, ListItem, ListItemPrefix
     from .printer import list_item
 
     given = [
