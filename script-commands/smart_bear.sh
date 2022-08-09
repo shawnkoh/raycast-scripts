@@ -19,20 +19,15 @@ cd ~/repos/notes ;
 git add -A && git commit -m "Commit unexpected changes" ;
 
 python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
-git add -A && git commit -m "Commit exported changes from Bear" ;
 
 cd ~/repos/smart-bear ;
 
-node ~/.config/yarn/global/node_modules/@andymatuschak/note-link-janitor/dist/index.js ~/repos/notes/bear ;
+smart-bear backlinks ;
 
 python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
 cd ~/repos/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
-
-cd ~/repos/smart-bear ;
-# poetry run python script-commands/detect-duplicate-titles.py ;
-poetry run smart-bear anki ;
-cd ~/repos/notes ;
-git add -A && git commit -m "Commit Smart Bear" ;
-
 git push ;
+
+smart-bear anki ;
+
