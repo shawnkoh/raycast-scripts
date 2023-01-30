@@ -30,8 +30,8 @@ PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/GiantAnte
 COLLECTION_PATH = os.path.join(PROFILE_HOME, "collection.anki2")
 
 DECK_ID = 1
-BASIC_MODEL_ID = 1659511437904
-CLOZE_MODEL_ID = 1659511443353
+BASIC_MODEL_ID = 1675055390655
+CLOZE_MODEL_ID = 1675057344411
 ANKI_DELETED_NOTES_EXPORT_PATH = f"/Users/shawnkoh/repos/notes/anki/deleted-notes/"
 MARKDOWN_PATH = "/Users/shawnkoh/repos/notes/bear/"
 
