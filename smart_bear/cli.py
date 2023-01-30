@@ -26,7 +26,7 @@ from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
 
 # Anki User Settings
-PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/GCR")
+PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/GiantAnteater")
 COLLECTION_PATH = os.path.join(PROFILE_HOME, "collection.anki2")
 
 DECK_ID = 1
