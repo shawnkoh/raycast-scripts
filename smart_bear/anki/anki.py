@@ -55,7 +55,7 @@ class Anki:
     ) -> None:
         if will_close_anki:
             close_anki_process()
-        self.collection = _Collection(collection_path, log=True)
+        self.collection = _Collection(collection_path)
         self.collection.decks.select(deck_id)
         self.deck = self.collection.decks.current()
         self.stats_created = 0
