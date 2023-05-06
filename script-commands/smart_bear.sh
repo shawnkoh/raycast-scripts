@@ -14,18 +14,18 @@
 # @raycast.author Shawn Koh
 # @raycast.authorURL https://github.com/shawnkoh
 
-cd ~/repos/notes ;
+cd ~/repos/shawnkoh/notes ;
 
 git add -A && git commit -m "Commit unexpected changes" ;
 
-python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
+python3 ~/repos/andymatuschak/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/shawnkoh/notes/bear --backup ~/repos/shawnkoh/notes/bear-backup ;
 
-cd ~/repos/smart-bear ;
+cd ~/repos/shawnkoh/smart-bear ;
 
 smart-bear backlinks ;
 
-python3 ~/repos/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/notes/bear --backup ~/repos/notes/bear-backup ;
-cd ~/repos/notes ;
+python3 ~/repos/andymatuschak/Bear-Markdown-Export/bear_export_sync.py --out ~/repos/shawnkoh/notes/bear --backup ~/repos/shawnkoh/notes/bear-backup ;
+cd ~/repos/shawnkoh/notes ;
 git add -A && git commit -m "Commit imported changes to Bear" ;
 git push ;
 
