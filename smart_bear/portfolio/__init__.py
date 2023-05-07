@@ -91,6 +91,6 @@ async def main(loop: uvloop.Loop):
     )
     await binance.load_markets()
     binance_usdt = await balance_in_usdt(binance)
-    pprint(binance_usdt)
+    pprint(f"Binance: {binance_usdt}")
     await binance.close()
     loop.stop()
