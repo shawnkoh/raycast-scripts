@@ -5,6 +5,8 @@ import webbrowser
 from pathlib import Path
 from timeit import timeit
 from typing import Optional
+import aiorun
+import uvloop
 
 import arrow
 import click
@@ -24,6 +26,7 @@ from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
+from smart_bear import portfolio
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/GiantAnteater")
@@ -45,6 +48,12 @@ def get_urls():
         *glob.glob(f"{MARKDOWN_PATH}/*.md"),
         # *glob.glob("/Users/shawnkoh/repos/windows/*.md"),
     ]
+
+
+@app.command()
+def port():
+    loop = uvloop.new_event_loop()
+    aiorun.run(portfolio.main(), loop=loop)
 
 
 @app.command()
