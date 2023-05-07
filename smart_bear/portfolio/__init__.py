@@ -41,7 +41,9 @@ async def balance_in_usdt(exchange: ccxt.Exchange):
     await concat_balance("funding")
     await concat_balance("spot")
 
-    tickers_query = ["BUSD/USDT"]
+    tickers_query = []
+    if exchange.id == "binance":
+        tickers_query = ["BUSD/USDT"]
 
     usdt_value = 0
     for symbol, amount in balance.items():
@@ -93,4 +95,15 @@ async def main(loop: uvloop.Loop):
     binance_usdt = await balance_in_usdt(binance)
     pprint(f"Binance: {binance_usdt}")
     await binance.close()
+
+    bitmex = ccxt.bitmex(
+        {
+            "apiKey": os.getenv("BITMEX_API_KEY"),
+            "secret": os.getenv("BITMEX_SECRET"),
+        }
+    )
+    await bitmex.load_markets()
+    bitmex_usdt = await balance_in_usdt(bitmex)
+    pprint(f"BITMEX: {bitmex_usdt}")
+    await bitmex.close()
     loop.stop()
