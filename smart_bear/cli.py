@@ -53,7 +53,7 @@ def get_urls():
 @app.command()
 def port():
     loop = uvloop.new_event_loop()
-    aiorun.run(portfolio.main(), loop=loop)
+    aiorun.run(portfolio.main(loop), loop=loop)
 
 
 @app.command()

@@ -668,6 +668,21 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "expression"
+version = "4.2.4"
+description = "Practical functional programming for Python 3.9+"
+category = "main"
+optional = false
+python-versions = ">=3.9,<4"
+files = [
+    {file = "expression-4.2.4-py3-none-any.whl", hash = "sha256:3830916c6030868a84b78944cd1a19f7e9afcb4699f82cc06d81f31acd603039"},
+    {file = "expression-4.2.4.tar.gz", hash = "sha256:1bfb44b4b63b133abf201a23eeb800791dee239901382209f36c6b7bb4a735ff"},
+]
+
+[package.dependencies]
+typing-extensions = ">=4.1.1,<5.0.0"
+
+[[package]]
 name = "flake8"
 version = "4.0.1"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -2312,7 +2327,7 @@ test = ["black (>=22.3.0,<23.0.0)", "coverage (>=5.2,<6.0)", "isort (>=5.0.6,<6.
 name = "typing-extensions"
 version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2559,4 +2574,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4.0"
-content-hash = "7ab8d15423b953e0b20afe563846ee1f53281153f1d09b890b477a0c63c152c0"
+content-hash = "0f3586500af8b467fd5ef8c27c32373bba56349dac948304a5caac8e9527e6db"
