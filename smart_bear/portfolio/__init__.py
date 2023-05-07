@@ -92,7 +92,7 @@ async def main(loop: uvloop.Loop):
         }
     )
     await binance.load_markets()
-    binance_usdt = await balance_in_usdt(binance)
+    binance_usdt = round(await balance_in_usdt(binance), 2)
     pprint(f"Binance: {binance_usdt}")
     await binance.close()
 
@@ -103,7 +103,7 @@ async def main(loop: uvloop.Loop):
         }
     )
     await bitmex.load_markets()
-    bitmex_usdt = await balance_in_usdt(bitmex)
+    bitmex_usdt = round(await balance_in_usdt(bitmex), 2)
     pprint(f"BITMEX: {bitmex_usdt}")
     await bitmex.close()
     loop.stop()
