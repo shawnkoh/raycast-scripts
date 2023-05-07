@@ -29,6 +29,7 @@ pyfunctional = {git = "https://github.com/EntilZha/PyFunctional", rev = "master"
 markdown2 = "^2.4.2"
 pyperclip = "^1.8.2"
 textualize = "^0.1"
+ccxt = "^3.0.96"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
