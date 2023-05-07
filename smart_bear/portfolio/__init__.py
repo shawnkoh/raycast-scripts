@@ -9,21 +9,37 @@ from expression.collections import seq, Seq, map, Map
 dotenv.load_dotenv()
 
 
-async def main(loop: uvloop.Loop):
-    exchange = ccxt.binance(
+async def fetch_balance(exchange: ccxt.Exchange, type: str):
+    balance = await exchange.fetch_balance(
         {
-            "apiKey": os.getenv("BINANCE_API_KEY"),
-            "secret": os.getenv("BINANCE_SECRET"),
+            "type": type,
         }
     )
-    await exchange.load_markets()
-    balance = await exchange.fetch_balance()
-    balance = pipe(
+    return pipe(
         balance["total"].items(),
         Map.of_seq,
         map.filter(lambda _, amount: amount > 0),
         dict,
     )
+
+
+async def balance_in_usdt(exchange: ccxt.Exchange):
+    await exchange.load_markets()
+    balance = dict()
+
+    async def concat_balance(type: str):
+        latter = await fetch_balance(exchange, type)
+        for symbol, amount in latter.items():
+            if symbol in balance:
+                balance[symbol] += amount
+            else:
+                balance[symbol] = amount
+
+    await concat_balance("future")
+    await concat_balance("delivery")
+    await concat_balance("savings")
+    await concat_balance("funding")
+    await concat_balance("spot")
 
     tickers_query = ["BUSD/USDT"]
 
@@ -63,6 +79,18 @@ async def main(loop: uvloop.Loop):
         else:
             raise Exception(symbol + " No usdt nor busd")
 
-    pprint(usdt_value)
-    await exchange.close()
+    return usdt_value
+
+
+async def main(loop: uvloop.Loop):
+    binance = ccxt.binance(
+        {
+            "apiKey": os.getenv("BINANCE_API_KEY"),
+            "secret": os.getenv("BINANCE_SECRET"),
+        }
+    )
+    await binance.load_markets()
+    binance_usdt = await balance_in_usdt(binance)
+    pprint(binance_usdt)
+    await binance.close()
     loop.stop()
