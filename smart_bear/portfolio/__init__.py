@@ -5,8 +5,43 @@ import os
 import uvloop
 from expression import pipe
 from expression.collections import seq, Seq, map, Map
+from dydx3 import Client
+from web3 import Web3
+from dydx3.constants import NETWORK_ID_MAINNET, API_HOST_MAINNET
 
 dotenv.load_dotenv()
+
+ETHEREUM_ADDRESS = os.getenv("DYDX_ADDRESS")
+
+# Ganache node.
+WEB_PROVIDER_URL = "https://mainnet.infura.io/v3/2452bd9413aa45b99cb27112e29a192d"
+
+
+async def get_dydx_balance():
+    client = Client(
+        network_id=NETWORK_ID_MAINNET,
+        host=API_HOST_MAINNET,
+        default_ethereum_address=ETHEREUM_ADDRESS,
+        web3=Web3(Web3.HTTPProvider(WEB_PROVIDER_URL)),
+        api_key_credentials={
+            "walletAddress": ETHEREUM_ADDRESS,
+            "secret": os.getenv("DYDX_API_SECRET"),
+            "key": os.getenv("DYDX_API_KEY"),
+            "passphrase": os.getenv("DYDX_API_PASSPHRASE"),
+            "legacySigning": False,
+            "walletType": "METAMASK",
+        },
+    )
+    client.stark_private_key = {
+        "walletAddress": ETHEREUM_ADDRESS,
+        "publicKey": os.getenv("DYDX_STARK_PUBLIC_KEY"),
+        "publicKeyYCoordinate": os.getenv("DYDX_STARK_PUBLIC_KEY_Y_COORDINATE"),
+        "privateKey": os.getenv("DYDX_STARK_PRIVATE_KEY"),
+        "legacySigning": False,
+        "walletType": "METAMASK",
+    }
+    account_response = client.private.get_account().data["account"]
+    return float(account_response["equity"])
 
 
 async def fetch_balance(exchange: ccxt.Exchange, type: str):
@@ -106,4 +141,6 @@ async def main(loop: uvloop.Loop):
     bitmex_usdt = round(await balance_in_usdt(bitmex), 2)
     pprint(f"BITMEX: {bitmex_usdt}")
     await bitmex.close()
+    dydx_usdc = round(await get_dydx_balance(), 2)
+    pprint(f"Dydx: {dydx_usdc}")
     loop.stop()
