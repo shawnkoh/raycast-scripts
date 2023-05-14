@@ -34,6 +34,7 @@ aiorun = "^2022.11.1"
 uvloop = "^0.17.0"
 expression = "^4.2.4"
 dydx-v3-python = "^2.0.1"
+dash = "^2.9.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
