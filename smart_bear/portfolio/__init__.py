@@ -8,7 +8,9 @@ from expression.collections import seq, Seq, map, Map
 from dydx3 import Client
 from web3 import Web3
 from dydx3.constants import NETWORK_ID_MAINNET, API_HOST_MAINNET
+from sqlite_utils import Database
 
+db = Database("binance.db")
 
 dotenv.load_dotenv()
 
@@ -16,6 +18,31 @@ ETHEREUM_ADDRESS = os.getenv("DYDX_ADDRESS")
 
 # Ganache node.
 WEB_PROVIDER_URL = "https://mainnet.infura.io/v3/2452bd9413aa45b99cb27112e29a192d"
+
+LIMIT = 1000
+TIMEFRAME = "6h"
+
+
+async def get_data(exchange: ccxt.Exchange):
+    earliest_timestamp = exchange.milliseconds()
+    timeframe_duration_in_seconds = exchange.parse_timeframe(TIMEFRAME)
+    timeframe_duration_in_ms = timeframe_duration_in_seconds * 1000
+    timedelta = LIMIT * timeframe_duration_in_ms
+    all_ohlcv = []
+
+    # for symbol in exchange.symbols:
+    # while True:
+    fetch_since = earliest_timestamp - timedelta
+    # TODO: Bear in mind that this returns the current candle even when it has not closed
+    response = await exchange.fetch_ohlcv(
+        symbol="BTC/USDT",
+        timeframe=TIMEFRAME,
+        since=fetch_since,
+        limit=LIMIT,
+    )
+    for ohlcv in response:
+        ohlcv[0] = exchange.iso8601(ohlcv[0])
+        pprint(ohlcv)
 
 
 async def get_dydx_balance():
@@ -130,6 +157,9 @@ async def main(loop: uvloop.Loop):
     await binance.load_markets()
     binance_usdt = round(await balance_in_usdt(binance), 2)
     pprint(f"Binance: {binance_usdt}")
+
+    await get_data(binance)
+
     await binance.close()
 
     bitmex = ccxt.bitmex(
