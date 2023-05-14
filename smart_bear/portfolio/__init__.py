@@ -9,6 +9,7 @@ from dydx3 import Client
 from web3 import Web3
 from dydx3.constants import NETWORK_ID_MAINNET, API_HOST_MAINNET
 
+
 dotenv.load_dotenv()
 
 ETHEREUM_ADDRESS = os.getenv("DYDX_ADDRESS")
