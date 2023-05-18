@@ -37,6 +37,7 @@ dydx-v3-python = "^2.0.1"
 dash = "^2.9.3"
 pandas = "^2.0.1"
 sqlite-utils = "^3.31"
+tweety = "^0.1.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
