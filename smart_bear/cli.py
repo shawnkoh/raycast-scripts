@@ -27,6 +27,8 @@ from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
 from smart_bear import portfolio
+from tweety.bot import Twitter
+
 
 # Anki User Settings
 PROFILE_HOME = os.path.expanduser("~/Library/Application Support/Anki2/GiantAnteater")
@@ -41,6 +43,14 @@ ANKI_DELETED_NOTES_EXPORT_PATH = (
 MARKDOWN_PATH = "/Users/shawnkoh/repos/shawnkoh/notes/bear/"
 
 app = typer.Typer()
+
+
+@app.command()
+def tweet():
+    twitter_app = Twitter()
+    tweets = twitter_app.get_tweets("shawnkohzq")
+    for tweet in tweets:
+        pprint(tweet)
 
 
 def get_urls():
