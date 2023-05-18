@@ -9,6 +9,7 @@ from dydx3 import Client
 from web3 import Web3
 from dydx3.constants import NETWORK_ID_MAINNET, API_HOST_MAINNET
 from sqlite_utils import Database
+import pandas as pd
 
 db = Database("binance.db")
 
@@ -28,21 +29,29 @@ async def get_data(exchange: ccxt.Exchange):
     timeframe_duration_in_seconds = exchange.parse_timeframe(TIMEFRAME)
     timeframe_duration_in_ms = timeframe_duration_in_seconds * 1000
     timedelta = LIMIT * timeframe_duration_in_ms
-    all_ohlcv = []
 
     # for symbol in exchange.symbols:
     # while True:
     fetch_since = earliest_timestamp - timedelta
     # TODO: Bear in mind that this returns the current candle even when it has not closed
-    response = await exchange.fetch_ohlcv(
-        symbol="BTC/USDT",
+    eth_response = await exchange.fetch_ohlcv(
+        symbol="ETH/USDT",
         timeframe=TIMEFRAME,
         since=fetch_since,
         limit=LIMIT,
     )
-    for ohlcv in response:
-        ohlcv[0] = exchange.iso8601(ohlcv[0])
-        pprint(ohlcv)
+    df = pd.DataFrame(
+        eth_response, columns=["Time", "Open", "High", "Low", "Close", "Volume"]
+    )
+    from datetime import datetime
+
+    df["Time"] = [datetime.fromtimestamp(float(time) / 1000) for time in df["Time"]]
+    df.set_index("Time", inplace=True)
+    pprint(df)
+    # beta = covariance / variance
+    # for ohlcv in eth_response:
+    # ohlcv[0] = exchange.iso8601(ohlcv[0])
+    # pprint(ohlcv)
 
 
 async def get_dydx_balance():
