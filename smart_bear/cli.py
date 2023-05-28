@@ -15,6 +15,7 @@ import typer
 from functional import pseq, seq
 from rich.console import Console
 from rich.pretty import pprint
+from rich import inspect
 from rich.traceback import install
 
 install(show_locals=True)
@@ -48,9 +49,9 @@ app = typer.Typer()
 @app.command()
 def tweet():
     twitter_app = Twitter()
-    tweets = twitter_app.get_tweets("shawnkohzq")
+    tweets = twitter_app.get_tweets("shawnkohzq", replies=True)
     for tweet in tweets:
-        pprint(tweet)
+        inspect(tweet)
 
 
 def get_urls():

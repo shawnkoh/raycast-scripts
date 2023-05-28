@@ -38,6 +38,7 @@ dash = "^2.9.3"
 pandas = "^2.0.1"
 sqlite-utils = "^3.31"
 tweety-ns = "^0.7.1"
+tardis-dev = "^2.0.0a13"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
