@@ -195,7 +195,6 @@ class Albion:
         try:
             row = self.db["craftable_items"].get(id)
             row["craftingrequirements"] = json.loads(row["craftingrequirements"])
-            pprint(row)
             return converter.structure(row, CraftableItem)
         except NotFoundError:
             return None
