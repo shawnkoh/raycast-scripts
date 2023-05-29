@@ -26,7 +26,6 @@ def is_craftable_item(item: dict) -> bool:
 
 
 def parse_dict(
-    # result: list[dict],
     subject: dict,
     functor: Callable[
         [list[dict], dict],
@@ -35,9 +34,6 @@ def parse_dict(
 ):
     if functor(subject):
         return
-    # if is_craftable_item(subject):
-    #     result.append(subject)
-    #     return
 
     for key, value in subject.items():
         if isinstance(value, dict):
@@ -59,7 +55,6 @@ def get_craftable_items(items: dict):
         result.append(item)
         return True
 
-    result = list[dict]()
     parse_dict(items, functor(result))
     return result
 
