@@ -45,14 +45,14 @@ def parse_dict(
 
 
 def get_craftable_items(items: dict):
-    result = dict()
+    result = list[dict]()
 
     @expression.curry(1)
-    def functor(result: dict, item: dict) -> bool:
+    def functor(result: list[dict], item: dict) -> bool:
         if not is_craftable_item(item):
             return False
 
-        result[item["@uniquename"]] = item
+        result.append(item)
         return True
 
     parse_dict(items, functor(result))
@@ -96,19 +96,17 @@ async def main(loop: uvloop.Loop):
         alter=True,
     )
 
-    for key, value in craftable_items.items():
-        pprint(value)
-        break
-
-    rows = db.query(
+    prices = db.query(
         """
     SELECT *
     FROM prices
     WHERE sell_price_min > 0
     """
     )
-    for row in rows:
-        pprint(row)
+    for price in prices:
+        pprint(price)
+        craftable_item = db["craftable_items"].get(price["item_id"])
+        pprint(craftable_item)
         break
 
     # for craftable_item in craftable_items:
