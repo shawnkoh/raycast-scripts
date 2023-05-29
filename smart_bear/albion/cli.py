@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 from sqlite_utils import Database
 import dotenv
 import json
@@ -28,7 +28,7 @@ def is_craftable_item(item: dict) -> bool:
 def parse_dict(
     subject: dict,
     functor: Callable[
-        [list[dict], dict],
+        [Any, dict],
         bool,
     ],
 ):
@@ -60,7 +60,17 @@ def get_craftable_items(items: dict):
 
 
 def get_unique_names(items: dict):
-    result = list[str]()
+    result = set[str]()
+
+    @expression.curry(1)
+    def functor(result: set[str], item: dict) -> bool:
+        if "@uniquename" not in item:
+            return False
+
+        result.add(item["@uniquename"])
+        return True
+
+    parse_dict(items, functor(result))
     return result
 
 
@@ -73,12 +83,15 @@ async def main(loop: uvloop.Loop):
     items_file = open(ITEMS_PATH)
     items_json = json.load(items_file)
 
-    craftable_items = get_craftable_items(items_json)
-    pprint(craftable_items)
+    unique_names = get_unique_names(items_json)
+    pprint(unique_names)
 
-    craftable_items_uniquename = list()
-    for item in craftable_items:
-        craftable_items_uniquename.append(item["@uniquename"])
+    # craftable_items = get_craftable_items(items_json)
+    # pprint(craftable_items)
+
+    # craftable_items_uniquename = list()
+    # for item in craftable_items:
+    #     craftable_items_uniquename.append(item["@uniquename"])
 
     # prices = await api_client.get_prices(craftable_items_uniquename)
 
