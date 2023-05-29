@@ -89,6 +89,19 @@ async def main(loop: uvloop.Loop):
     craftable_items = get_craftable_items(items_json)
     print(f"craftable item {len(craftable_items)}")
 
+    def get_crafting_cost(item_id: str):
+        silver = 0
+        craftable_item = db["craftable_items"].get(price["item_id"])
+        crafting_requirements = json.loads(craftable_item["craftingrequirements"])
+        pprint(crafting_requirements)
+
+        for requirement in crafting_requirements:
+            if "@silver" in requirement:
+                silver += float(requirement["@silver"])
+
+        pprint(craftable_item)
+        return silver
+
     db["craftable_items"].insert_all(
         craftable_items,
         pk="@uniquename",
@@ -105,8 +118,7 @@ async def main(loop: uvloop.Loop):
     )
     for price in prices:
         pprint(price)
-        craftable_item = db["craftable_items"].get(price["item_id"])
-        pprint(craftable_item)
+        crafting_cost = get_crafting_cost(price["item_id"])
         break
 
     # for craftable_item in craftable_items:
