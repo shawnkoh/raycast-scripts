@@ -1,5 +1,5 @@
 from cattrs.gen import make_dict_structure_fn, override
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from sqlite_utils import Database
 import dotenv
 import json
@@ -27,9 +27,9 @@ class CraftResource:
 @attrs.frozen
 class CraftingRequirement:
     time: float
-    silver: float | None
-    crafting_focus: float
-    craft_resource: list[CraftResource]
+    silver: float | None = None
+    # crafting_focus: float | None
+    # craft_resource: list[CraftResource]
 
 
 @attrs.frozen
@@ -58,8 +58,8 @@ converter.register_structure_hook(
         converter,
         time=override(rename="@time"),
         silver=override(rename="@silver"),
-        craft_resource=override(rename="@craftresource"),
-        crafting_focus=override(rename="@craftingfocus"),
+        # craft_resource=override(rename="craftresource"),
+        # crafting_focus=override(rename="@craftingfocus"),
     ),
 )
 
