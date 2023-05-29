@@ -53,7 +53,7 @@ class ApiClient:
         for url_chunk in url_chunks:
             async with self.client.get(url_chunk) as response:
                 result_chunk = await response.json()
-                result.append(result_chunk)
+                result += result_chunk
 
         return result
 
@@ -98,6 +98,18 @@ async def main(loop: uvloop.Loop):
         craftable_items_uniquename.append(item["@uniquename"])
 
     prices = await api_client.get_prices(craftable_items_uniquename)
+
+    pprint(prices[0])
+
+    db["prices"].insert_all(
+        prices,
+        pk=("item_id", "city", "quality"),
+        replace=True,
+        alter=True,
+    )
+
+    # to compute craftable items
+    # first, i need to get the sell price of that item
 
     await session.close()
     loop.stop()
