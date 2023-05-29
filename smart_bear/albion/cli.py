@@ -1,6 +1,7 @@
 from cattrs.gen import make_dict_structure_fn, override
 from typing import Any, Callable, Optional
 from sqlite_utils import Database
+from sqlite_utils.db import NotFoundError
 import dotenv
 import json
 import attrs
@@ -186,9 +187,12 @@ class Albion:
         )
 
     def get_craftable_item(self, id: str):
-        row = self.db["craftable_items"].get(id)
-        row["craftingrequirements"] = json.loads(row["craftingrequirements"])
-        return converter.structure(row, CraftableItem)
+        try:
+            row = self.db["craftable_items"].get(id)
+            row["craftingrequirements"] = json.loads(row["craftingrequirements"])
+            return converter.structure(row, CraftableItem)
+        except NotFoundError:
+            return None
 
 
 async def main(loop: uvloop.Loop):
