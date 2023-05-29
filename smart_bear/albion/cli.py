@@ -94,9 +94,10 @@ async def main(loop: uvloop.Loop):
     def get_crafting_cost(item_id: str):
         total_silver = 0
         craftable_item = db["craftable_items"].get(price["item_id"])
+        pprint(craftable_item)
         crafting_requirements = json.loads(craftable_item["craftingrequirements"])
-        print("crafting_requirements")
-        pprint(crafting_requirements)
+        # print("crafting_requirements")
+        # pprint(crafting_requirements)
 
         for requirement in crafting_requirements:
             if "@silver" in requirement:
@@ -117,7 +118,7 @@ async def main(loop: uvloop.Loop):
             )
 
             if "@silver" in craft_resource:
-                total_silver += float(craft_resource["@silver"] * count)
+                total_silver += float(craft_resource["@silver"]) * count
 
         pprint(craftable_item)
         return total_silver
