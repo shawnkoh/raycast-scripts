@@ -22,18 +22,18 @@ def is_craftable_item(item: dict) -> bool:
     return "@uniquename" in item and "craftingrequirements" in item
 
 
-def parse_dict(craftable_items: list[dict], subject: dict):
+def parse_dict(result: list[dict], subject: dict):
     if is_craftable_item(subject):
-        craftable_items.append(subject)
+        result.append(subject)
         return
 
     for key, value in subject.items():
         if isinstance(value, dict):
-            parse_dict(craftable_items, value)
+            parse_dict(result, value)
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    parse_dict(craftable_items, item)
+                    parse_dict(result, item)
 
 
 def get_craftable_items(items: dict):
