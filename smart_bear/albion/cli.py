@@ -39,7 +39,7 @@ class ApiClient:
         url_chunk = ""
 
         for index, name in enumerate(name_list):
-            new_url_chunk = f"{url_chunk}{',' if url_chunk == '' else ''}{name}"
+            new_url_chunk = f"{url_chunk}{'' if url_chunk == '' else ','}{name}"
 
             if len(new_url_chunk) > max_url_length:
                 url_chunks.append(f"{url}{url_chunk}{format_suffix}")
@@ -51,8 +51,10 @@ class ApiClient:
                 url_chunks.append(f"{url}{url_chunk}{format_suffix}")
 
         for url_chunk in url_chunks:
+            pprint(url_chunk)
             async with self.client.get(url_chunk) as response:
                 result_chunk = await response.json()
+                pprint(result_chunk)
                 result.append(result_chunk)
 
         return result
@@ -97,8 +99,8 @@ async def main(loop: uvloop.Loop):
     for item in craftable_items:
         craftable_items_uniquename.append(item["@uniquename"])
 
-    # pprint(await api_client.get_prices(craftable_items_uniquename))
-    await api_client.get_prices(craftable_items_uniquename)
+    prices = await api_client.get_prices(craftable_items_uniquename)
+    # pprint(prices)
 
     await session.close()
     loop.stop()
