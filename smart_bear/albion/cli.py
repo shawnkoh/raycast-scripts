@@ -31,6 +31,12 @@ class CraftingRequirement:
     craft_resource: list[CraftResource]
 
 
+@attrs.frozen
+class CraftableItem:
+    id: str
+    crafting_requirements: list[CraftingRequirement]
+
+
 converter = cattrs.Converter()
 
 converter.register_structure_hook(
@@ -52,6 +58,16 @@ converter.register_structure_hook(
         time=override(rename="@time"),
         silver=override(rename="@silver"),
         craft_resource=override(rename="@craftresource"),
+    ),
+)
+
+converter.register_structure_hook(
+    CraftingRequirement,
+    make_dict_structure_fn(
+        CraftingRequirement,
+        converter,
+        id=override(rename="@uniquename"),
+        crafting_requirements=override(rename="craftingrequirements"),
     ),
 )
 
