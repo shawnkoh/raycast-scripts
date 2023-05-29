@@ -84,10 +84,10 @@ async def main(loop: uvloop.Loop):
     items_json = json.load(items_file)
 
     unique_names = get_unique_names(items_json)
-    pprint(unique_names)
+    print(f"unique name len {len(unique_names)}")
 
-    # craftable_items = get_craftable_items(items_json)
-    # pprint(craftable_items)
+    craftable_items = get_craftable_items(items_json)
+    print(f"craftable item {len(craftable_items)}")
 
     # craftable_items_uniquename = list()
     # for item in craftable_items:
