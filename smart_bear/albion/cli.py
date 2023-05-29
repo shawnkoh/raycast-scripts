@@ -51,10 +51,8 @@ class ApiClient:
                 url_chunks.append(f"{url}{url_chunk}{format_suffix}")
 
         for url_chunk in url_chunks:
-            pprint(url_chunk)
             async with self.client.get(url_chunk) as response:
                 result_chunk = await response.json()
-                pprint(result_chunk)
                 result.append(result_chunk)
 
         return result
@@ -100,7 +98,6 @@ async def main(loop: uvloop.Loop):
         craftable_items_uniquename.append(item["@uniquename"])
 
     prices = await api_client.get_prices(craftable_items_uniquename)
-    # pprint(prices)
 
     await session.close()
     loop.stop()
