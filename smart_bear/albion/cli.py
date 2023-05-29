@@ -84,10 +84,7 @@ async def main(loop: uvloop.Loop):
     items_json = json.load(items_file)
 
     unique_names = get_unique_names(items_json)
-    print(f"unique name len {len(unique_names)}")
-
     craftable_items = get_craftable_items(items_json)
-    print(f"craftable item {len(craftable_items)}")
 
     def craft_resource_crafting_cost(craft_resource: dict):
         total_silver = 0
@@ -113,6 +110,7 @@ async def main(loop: uvloop.Loop):
         craftable_item = db["craftable_items"].get(price["item_id"])
         crafting_requirements = json.loads(craftable_item["craftingrequirements"])
 
+        # NB: An item can have multiple crafting requirements
         for requirement in crafting_requirements:
             if "@silver" in requirement:
                 total_silver += float(requirement["@silver"])
