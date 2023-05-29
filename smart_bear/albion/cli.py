@@ -22,11 +22,6 @@ def is_craftable_item(item: dict) -> bool:
     return "@uniquename" in item and "craftingrequirements" in item
 
 
-def do_dict(subject: dict):
-    if not is_craftable_item(subject):
-        pass
-
-
 def parse_dict(craftable_items: list[dict], subject: dict):
     if is_craftable_item(subject):
         craftable_items.append(subject)
@@ -41,6 +36,17 @@ def parse_dict(craftable_items: list[dict], subject: dict):
                     parse_dict(craftable_items, item)
 
 
+def get_craftable_items(items: dict):
+    result = list[dict]()
+    parse_dict(result, items)
+    return result
+
+
+def get_unique_names(items: dict):
+    result = list[str]()
+    return result
+
+
 async def main(loop: uvloop.Loop):
     session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None))
     api_client = ApiClient(session)
@@ -50,16 +56,14 @@ async def main(loop: uvloop.Loop):
     items_file = open(ITEMS_PATH)
     items_json = json.load(items_file)
 
-    craftable_items = list[dict]()
-    parse_dict(craftable_items, items_json["items"])
+    craftable_items = get_craftable_items(items_json)
+    pprint(craftable_items)
 
     craftable_items_uniquename = list()
     for item in craftable_items:
         craftable_items_uniquename.append(item["@uniquename"])
 
     prices = await api_client.get_prices(craftable_items_uniquename)
-
-    pprint(prices[0])
 
     db["prices"].insert_all(
         prices,
