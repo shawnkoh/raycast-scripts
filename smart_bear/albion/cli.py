@@ -89,18 +89,20 @@ async def main(loop: uvloop.Loop):
     craftable_items = get_craftable_items(items_json)
     print(f"craftable item {len(craftable_items)}")
 
+    pprint(unique_names)
+
     # craftable_items_uniquename = list()
     # for item in craftable_items:
     #     craftable_items_uniquename.append(item["@uniquename"])
 
-    # prices = await api_client.get_prices(craftable_items_uniquename)
+    prices = await api_client.get_prices(unique_names)
 
-    # db["prices"].insert_all(
-    #     prices,
-    #     pk=("item_id", "city", "quality"),
-    #     replace=True,
-    #     alter=True,
-    # )
+    db["prices"].insert_all(
+        prices,
+        pk=("item_id", "city", "quality"),
+        replace=True,
+        alter=True,
+    )
 
     # to compute craftable items
     # first, i need to get the sell price of that item
