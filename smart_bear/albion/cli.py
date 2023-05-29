@@ -54,9 +54,9 @@ converter.register_structure_hook(
 
 converter.register_structure_hook(
     CraftResource | list[CraftResource],
-    lambda craft_resource, _: [craft_resource]
+    lambda craft_resource, _: [converter.structure(craft_resource, CraftResource)]
     if isinstance(craft_resource, dict)
-    else converter.structure(craft_resource),
+    else converter.structure(craft_resource, list[CraftResource]),
 )
 
 
@@ -74,9 +74,11 @@ converter.register_structure_hook(
 
 converter.register_structure_hook(
     CraftingRequirement | list[CraftingRequirement],
-    lambda crafting_requirement, _: [crafting_requirement]
+    lambda crafting_requirement, _: [
+        converter.structure(crafting_requirement, CraftingRequirement)
+    ]
     if isinstance(crafting_requirement, dict)
-    else converter.structure(crafting_requirement),
+    else converter.structure(crafting_requirement, list[CraftingRequirement]),
 )
 
 converter.register_structure_hook(
