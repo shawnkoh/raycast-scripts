@@ -89,8 +89,26 @@ async def main(loop: uvloop.Loop):
     craftable_items = get_craftable_items(items_json)
     print(f"craftable item {len(craftable_items)}")
 
+    db["craftable_items"].insert_all(
+        craftable_items,
+        pk="@uniquename",
+        replace=True,
+        alter=True,
+    )
+
     for key, value in craftable_items.items():
         pprint(value)
+        break
+
+    rows = db.query(
+        """
+    SELECT *
+    FROM prices
+    WHERE sell_price_min > 0
+    """
+    )
+    for row in rows:
+        pprint(row)
         break
 
     # for craftable_item in craftable_items:
