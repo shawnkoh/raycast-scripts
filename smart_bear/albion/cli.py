@@ -28,7 +28,7 @@ class CraftResource:
 @attrs.frozen
 class CraftingRequirement:
     time: float
-    craft_resource: CraftResource | list[CraftResource]
+    craft_resource: CraftResource | list[CraftResource] | None = None
     silver: float | None = None
     crafting_focus: float | None = None
 
@@ -53,10 +53,12 @@ converter.register_structure_hook(
 )
 
 converter.register_structure_hook(
-    CraftResource | list[CraftResource],
+    CraftResource | list[CraftResource] | None,
     lambda craft_resource, _: [converter.structure(craft_resource, CraftResource)]
     if isinstance(craft_resource, dict)
-    else converter.structure(craft_resource, list[CraftResource]),
+    else converter.structure(craft_resource, list[CraftResource])
+    if isinstance(craft_resource, list)
+    else None,
 )
 
 
@@ -193,6 +195,7 @@ class Albion:
         try:
             row = self.db["craftable_items"].get(id)
             row["craftingrequirements"] = json.loads(row["craftingrequirements"])
+            pprint(row)
             return converter.structure(row, CraftableItem)
         except NotFoundError:
             return None
