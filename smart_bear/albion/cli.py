@@ -17,14 +17,14 @@ import cattrs
 ITEMS_PATH = "/Users/shawnkoh/repos/ao-data/ao-bin-dumps/items.json"
 
 
-@attrs.frozen()
+@attrs.frozen
 class CraftResource:
     id: str
     count: int
     max_return_amount: int | None
 
 
-@attrs.frozen()
+@attrs.frozen
 class CraftingRequirement:
     time: float
     silver: float | None
@@ -173,8 +173,10 @@ class Albion:
 
     def get_craftable_item(self, id: str):
         row = self.db["craftable_items"].get(id)
+        # pprint(row)
+        row["craftingrequirements"] = json.loads(row["craftingrequirements"])
         pprint(row)
-        return converter.structure(CraftableItem, row)
+        return converter.structure(row, CraftableItem)
 
 
 async def main(loop: uvloop.Loop):
