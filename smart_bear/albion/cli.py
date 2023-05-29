@@ -89,11 +89,29 @@ async def main(loop: uvloop.Loop):
     craftable_items = get_craftable_items(items_json)
     print(f"craftable item {len(craftable_items)}")
 
-    pprint(unique_names)
+    pprint(craftable_items[0])
 
-    # craftable_items_uniquename = list()
-    # for item in craftable_items:
-    #     craftable_items_uniquename.append(item["@uniquename"])
+    # for craftable_item in craftable_items:
+    #     crafting_requirements = craftable_item["craftingrequirements"]
+    #     silver_cost = float(crafting_requirements["@silver"])
+    #     crafting_focus = (
+    #         float(crafting_requirements["@craftingfocus"])
+    #         if "@craftingfocus" in crafting_requirements
+    #         else None
+    #     )
+    #     if "craftresource" in crafting_requirements:
+    #         for craft_resource in crafting_requirements["craftresource"]:
+    #             "@uniquename"
+
+    #             if "@craftingfocus" in craft_resource:
+    #             "@count"
+    # some cannot have return eg artifacts
+    # "@maxreturnamount"
+
+    # sell price is literally the price the market is selling
+    # same for buying
+
+    pprint(unique_names)
 
     prices = await api_client.get_prices(unique_names)
 
@@ -103,6 +121,12 @@ async def main(loop: uvloop.Loop):
         replace=True,
         alter=True,
     )
+
+    # for every craftable item
+    # figure out how much is the cost of crafting
+    # ignore the item if its not sellable
+    # ignore the item if the ingredients are not purchasable
+    # maybe - for a start, restrict by city only to martlock
 
     # to compute craftable items
     # first, i need to get the sell price of that item
