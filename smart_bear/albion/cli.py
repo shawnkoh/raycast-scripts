@@ -1,7 +1,9 @@
+from cattrs.gen import make_dict_structure_fn, override
 from typing import Any, Callable
 from sqlite_utils import Database
 import dotenv
 import json
+import attrs
 import expression
 from rich.pretty import pprint
 from rich import inspect
@@ -10,6 +12,46 @@ import aiohttp
 import aiorun
 import uvloop
 from .api import ApiClient
+import cattrs
+
+
+@attrs.frozen()
+class CraftResource:
+    id: str
+    count: int
+    max_return_amount: int | None
+
+
+@attrs.frozen()
+class CraftingRequirement:
+    time: float
+    silver: float | None
+    craft_resource: list[CraftResource]
+
+
+converter = cattrs.Converter()
+
+converter.register_structure_hook(
+    CraftResource,
+    make_dict_structure_fn(
+        CraftResource,
+        converter,
+        id=override(rename="@uniquename"),
+        count=override(rename="@count"),
+        max_return_amount=override(rename="@maxreturnamount"),
+    ),
+)
+
+converter.register_structure_hook(
+    CraftingRequirement,
+    make_dict_structure_fn(
+        CraftingRequirement,
+        converter,
+        time=override(rename="@time"),
+        silver=override(rename="@silver"),
+        craft_resource=override(rename="@craftresource"),
+    ),
+)
 
 
 app = typer.Typer()
