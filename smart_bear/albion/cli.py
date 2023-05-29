@@ -21,15 +21,15 @@ ITEMS_PATH = "/Users/shawnkoh/repos/ao-data/ao-bin-dumps/items.json"
 class CraftResource:
     id: str
     count: int
-    max_return_amount: int | None
+    max_return_amount: int | None = None
 
 
 @attrs.frozen
 class CraftingRequirement:
     time: float
+    craft_resource: CraftResource
     silver: float | None = None
-    # crafting_focus: float | None
-    # craft_resource: list[CraftResource]
+    crafting_focus: float | None = None
 
 
 @attrs.frozen
@@ -58,8 +58,8 @@ converter.register_structure_hook(
         converter,
         time=override(rename="@time"),
         silver=override(rename="@silver"),
-        # craft_resource=override(rename="craftresource"),
-        # crafting_focus=override(rename="@craftingfocus"),
+        craft_resource=override(rename="craftresource"),
+        crafting_focus=override(rename="@craftingfocus"),
     ),
 )
 
