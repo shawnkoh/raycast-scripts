@@ -141,3 +141,6 @@ cython_debug/
 
 anki-export*.md
 report.txt
+
+# database
+*.db

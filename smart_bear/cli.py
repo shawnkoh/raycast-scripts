@@ -27,7 +27,7 @@ from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
-from smart_bear import portfolio
+from smart_bear import portfolio, albion
 from tweety.bot import Twitter
 
 
@@ -44,6 +44,7 @@ ANKI_DELETED_NOTES_EXPORT_PATH = (
 MARKDOWN_PATH = "/Users/shawnkoh/repos/shawnkoh/notes/bear/"
 
 app = typer.Typer()
+app.add_typer(albion.cli.app, name="albion")
 
 
 @app.command()
