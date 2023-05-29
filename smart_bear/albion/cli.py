@@ -64,9 +64,9 @@ converter.register_structure_hook(
 )
 
 converter.register_structure_hook(
-    CraftingRequirement,
+    CraftableItem,
     make_dict_structure_fn(
-        CraftingRequirement,
+        CraftableItem,
         converter,
         id=override(rename="@uniquename"),
         crafting_requirements=override(rename="craftingrequirements"),
