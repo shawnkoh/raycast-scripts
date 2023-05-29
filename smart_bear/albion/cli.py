@@ -187,9 +187,7 @@ class Albion:
 
     def get_craftable_item(self, id: str):
         row = self.db["craftable_items"].get(id)
-        # pprint(row)
         row["craftingrequirements"] = json.loads(row["craftingrequirements"])
-        pprint(row)
         return converter.structure(row, CraftableItem)
 
 
@@ -209,7 +207,6 @@ async def main(loop: uvloop.Loop):
     """
     )
     for price in prices:
-        pprint(price)
         craftable_item = albion.get_craftable_item(price["item_id"])
         pprint(craftable_item)
         #         print(
@@ -218,7 +215,7 @@ async def main(loop: uvloop.Loop):
         # crafting_cost = {crafting_cost}
         # """
         #         )
-        break
+        # break
 
     #     def craft_resource_crafting_cost(craft_resource: dict):
     #         total_silver = 0
