@@ -35,7 +35,7 @@ class CraftingRequirement:
 @attrs.frozen
 class CraftableItem:
     id: str
-    crafting_requirements: list[CraftingRequirement]
+    crafting_requirements: CraftingRequirement | list[CraftingRequirement]
 
 
 converter = cattrs.Converter()
@@ -68,6 +68,13 @@ converter.register_structure_hook(
         craft_resource=override(rename="craftresource"),
         crafting_focus=override(rename="@craftingfocus"),
     ),
+)
+
+converter.register_structure_hook(
+    CraftingRequirement | list[CraftingRequirement],
+    lambda crafting_requirement, _: [crafting_requirement]
+    if isinstance(crafting_requirement, dict)
+    else crafting_requirement,
 )
 
 converter.register_structure_hook(
