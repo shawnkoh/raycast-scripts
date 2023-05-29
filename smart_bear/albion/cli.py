@@ -89,6 +89,8 @@ async def main(loop: uvloop.Loop):
     craftable_items = get_craftable_items(items_json)
     print(f"craftable item {len(craftable_items)}")
 
+    # This assumes that you have the ingredients ready.
+    # It does not recurse.
     def get_crafting_cost(item_id: str):
         silver = 0
         craftable_item = db["craftable_items"].get(price["item_id"])
