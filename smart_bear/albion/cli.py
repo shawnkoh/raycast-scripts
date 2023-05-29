@@ -27,7 +27,7 @@ class CraftResource:
 @attrs.frozen
 class CraftingRequirement:
     time: float
-    craft_resource: CraftResource
+    craft_resource: CraftResource | list[CraftResource]
     silver: float | None = None
     crafting_focus: float | None = None
 
@@ -39,6 +39,13 @@ class CraftableItem:
 
 
 converter = cattrs.Converter()
+
+converter.register_structure_hook(
+    CraftResource | list[CraftResource],
+    lambda craft_resource, _: [craft_resource]
+    if isinstance(craft_resource, dict)
+    else craft_resource,
+)
 
 converter.register_structure_hook(
     CraftResource,
