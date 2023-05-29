@@ -14,6 +14,8 @@ import uvloop
 from .api import ApiClient
 import cattrs
 
+ITEMS_PATH = "/Users/shawnkoh/repos/ao-data/ao-bin-dumps/items.json"
+
 
 @attrs.frozen()
 class CraftResource:
@@ -116,17 +118,49 @@ def get_unique_names(items: dict):
     return result
 
 
+@attrs.define
+class Albion:
+    api_client: ApiClient
+    db: Database
+
+    @property
+    def items(self):
+        items_file = open(ITEMS_PATH)
+        return json.load(items_file)
+
+    @property
+    def unique_names(self):
+        return get_unique_names(self.items)
+
+    async def update_prices(self):
+        unique_names = get_unique_names(self.items)
+        prices = await self.api_client.get_prices(unique_names)
+
+        self.db["prices"].insert_all(
+            prices,
+            pk=("item_id", "city", "quality"),
+            replace=True,
+            alter=True,
+        )
+
+    def update_craftable_items(self):
+        craftable_items = get_craftable_items(self.items)
+
+        self.db["craftable_items"].insert_all(
+            craftable_items,
+            pk="@uniquename",
+            replace=True,
+            alter=True,
+        )
+
+
 async def main(loop: uvloop.Loop):
     session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None))
     api_client = ApiClient(session)
     db = Database("albion.db")
-    dotenv.load_dotenv()
-    ITEMS_PATH = "/Users/shawnkoh/repos/ao-data/ao-bin-dumps/items.json"
-    items_file = open(ITEMS_PATH)
-    items_json = json.load(items_file)
-
-    unique_names = get_unique_names(items_json)
-    craftable_items = get_craftable_items(items_json)
+    albion = Albion(api_client, db)
+    albion.update_craftable_items()
+    # await albion.update_prices()
 
     def craft_resource_crafting_cost(craft_resource: dict):
         total_silver = 0
@@ -168,13 +202,6 @@ async def main(loop: uvloop.Loop):
 
         return total_silver
 
-    db["craftable_items"].insert_all(
-        craftable_items,
-        pk="@uniquename",
-        replace=True,
-        alter=True,
-    )
-
     prices = db.query(
         """
     SELECT *
@@ -212,17 +239,6 @@ crafting_cost = {crafting_cost}
 
     # sell price is literally the price the market is selling
     # same for buying
-
-    # pprint(unique_names)
-
-    # prices = await api_client.get_prices(unique_names)
-
-    # db["prices"].insert_all(
-    #     prices,
-    #     pk=("item_id", "city", "quality"),
-    #     replace=True,
-    #     alter=True,
-    # )
 
     # for every craftable item
     # figure out how much is the cost of crafting
