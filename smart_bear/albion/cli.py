@@ -28,6 +28,7 @@ class CraftResource:
 class CraftingRequirement:
     time: float
     silver: float | None
+    crafting_focus: float
     craft_resource: list[CraftResource]
 
 
@@ -58,6 +59,7 @@ converter.register_structure_hook(
         time=override(rename="@time"),
         silver=override(rename="@silver"),
         craft_resource=override(rename="@craftresource"),
+        crafting_focus=override(rename="@craftingfocus"),
     ),
 )
 
