@@ -92,17 +92,35 @@ async def main(loop: uvloop.Loop):
     # This assumes that you have the ingredients ready.
     # It does not recurse.
     def get_crafting_cost(item_id: str):
-        silver = 0
+        total_silver = 0
         craftable_item = db["craftable_items"].get(price["item_id"])
         crafting_requirements = json.loads(craftable_item["craftingrequirements"])
+        print("crafting_requirements")
         pprint(crafting_requirements)
 
         for requirement in crafting_requirements:
             if "@silver" in requirement:
-                silver += float(requirement["@silver"])
+                total_silver += float(requirement["@silver"])
+
+            print("craftresource")
+
+            craft_resource = requirement["craftresource"]
+            pprint(craft_resource)
+            count = float(craft_resource["@count"])
+
+            # TODO: "@maxreturnamount"
+            # Note that this affects focus calculations
+            max_return_amount = (
+                float(craft_resource["@maxreturnamount"])
+                if "@maxreturnamount" in craft_resource
+                else None
+            )
+
+            if "@silver" in craft_resource:
+                total_silver += float(craft_resource["@silver"] * count)
 
         pprint(craftable_item)
-        return silver
+        return total_silver
 
     db["craftable_items"].insert_all(
         craftable_items,
@@ -121,6 +139,12 @@ async def main(loop: uvloop.Loop):
     for price in prices:
         pprint(price)
         crafting_cost = get_crafting_cost(price["item_id"])
+        print(
+            f"""
+item_id = {price["item_id"]}
+crafting_cost = {crafting_cost}
+"""
+        )
         break
 
     # for craftable_item in craftable_items:
