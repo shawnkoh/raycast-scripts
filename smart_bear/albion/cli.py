@@ -45,14 +45,14 @@ def parse_dict(
 
 
 def get_craftable_items(items: dict):
-    result = list[dict]()
+    result = dict()
 
     @expression.curry(1)
-    def functor(result: list[dict], item: dict) -> bool:
+    def functor(result: dict, item: dict) -> bool:
         if not is_craftable_item(item):
             return False
 
-        result.append(item)
+        result[item["@uniquename"]] = item
         return True
 
     parse_dict(items, functor(result))
@@ -89,7 +89,9 @@ async def main(loop: uvloop.Loop):
     craftable_items = get_craftable_items(items_json)
     print(f"craftable item {len(craftable_items)}")
 
-    pprint(craftable_items[0])
+    for key, value in craftable_items.items():
+        pprint(value)
+        break
 
     # for craftable_item in craftable_items:
     #     crafting_requirements = craftable_item["craftingrequirements"]
@@ -111,16 +113,16 @@ async def main(loop: uvloop.Loop):
     # sell price is literally the price the market is selling
     # same for buying
 
-    pprint(unique_names)
+    # pprint(unique_names)
 
-    prices = await api_client.get_prices(unique_names)
+    # prices = await api_client.get_prices(unique_names)
 
-    db["prices"].insert_all(
-        prices,
-        pk=("item_id", "city", "quality"),
-        replace=True,
-        alter=True,
-    )
+    # db["prices"].insert_all(
+    #     prices,
+    #     pk=("item_id", "city", "quality"),
+    #     replace=True,
+    #     alter=True,
+    # )
 
     # for every craftable item
     # figure out how much is the cost of crafting
