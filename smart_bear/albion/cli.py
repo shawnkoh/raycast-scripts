@@ -1,6 +1,8 @@
+from typing import Callable
 from sqlite_utils import Database
 import dotenv
 import json
+import expression
 from rich.pretty import pprint
 from rich import inspect
 import typer
@@ -8,6 +10,7 @@ import aiohttp
 import aiorun
 import uvloop
 from .api import ApiClient
+
 
 app = typer.Typer()
 
@@ -22,23 +25,42 @@ def is_craftable_item(item: dict) -> bool:
     return "@uniquename" in item and "craftingrequirements" in item
 
 
-def parse_dict(result: list[dict], subject: dict):
-    if is_craftable_item(subject):
-        result.append(subject)
+def parse_dict(
+    # result: list[dict],
+    subject: dict,
+    functor: Callable[
+        [list[dict], dict],
+        bool,
+    ],
+):
+    if functor(subject):
         return
+    # if is_craftable_item(subject):
+    #     result.append(subject)
+    #     return
 
     for key, value in subject.items():
         if isinstance(value, dict):
-            parse_dict(result, value)
+            parse_dict(value, functor)
         elif isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    parse_dict(result, item)
+                    parse_dict(item, functor)
 
 
 def get_craftable_items(items: dict):
     result = list[dict]()
-    parse_dict(result, items)
+
+    @expression.curry(1)
+    def functor(result: list[dict], item: dict) -> bool:
+        if not is_craftable_item(item):
+            return False
+
+        result.append(item)
+        return True
+
+    result = list[dict]()
+    parse_dict(items, functor(result))
     return result
 
 
@@ -63,14 +85,14 @@ async def main(loop: uvloop.Loop):
     for item in craftable_items:
         craftable_items_uniquename.append(item["@uniquename"])
 
-    prices = await api_client.get_prices(craftable_items_uniquename)
+    # prices = await api_client.get_prices(craftable_items_uniquename)
 
-    db["prices"].insert_all(
-        prices,
-        pk=("item_id", "city", "quality"),
-        replace=True,
-        alter=True,
-    )
+    # db["prices"].insert_all(
+    #     prices,
+    #     pk=("item_id", "city", "quality"),
+    #     replace=True,
+    #     alter=True,
+    # )
 
     # to compute craftable items
     # first, i need to get the sell price of that item
