@@ -42,13 +42,6 @@ class CraftableItem:
 converter = cattrs.Converter()
 
 converter.register_structure_hook(
-    CraftResource | list[CraftResource],
-    lambda craft_resource, _: [craft_resource]
-    if isinstance(craft_resource, dict)
-    else craft_resource,
-)
-
-converter.register_structure_hook(
     CraftResource,
     make_dict_structure_fn(
         CraftResource,
@@ -58,6 +51,14 @@ converter.register_structure_hook(
         max_return_amount=override(rename="@maxreturnamount"),
     ),
 )
+
+converter.register_structure_hook(
+    CraftResource | list[CraftResource],
+    lambda craft_resource, _: [craft_resource]
+    if isinstance(craft_resource, dict)
+    else converter.structure(craft_resource),
+)
+
 
 converter.register_structure_hook(
     CraftingRequirement,
@@ -75,7 +76,7 @@ converter.register_structure_hook(
     CraftingRequirement | list[CraftingRequirement],
     lambda crafting_requirement, _: [crafting_requirement]
     if isinstance(crafting_requirement, dict)
-    else crafting_requirement,
+    else converter.structure(crafting_requirement),
 )
 
 converter.register_structure_hook(
