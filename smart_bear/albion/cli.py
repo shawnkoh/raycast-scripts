@@ -158,12 +158,12 @@ class Albion:
             yield converter.structure(price, ItemPrice)
 
     def get_item_price(self, id: str, quality: int, city: str):
-        pk = (id, quality, city)
         try:
+            pk = (id, quality, city)
             row = self.db["prices"].get(pk)
-        except NotFoundError as ex:
-            raise ex
-        return converter.structure(row, ItemPrice)
+            return converter.structure(row, ItemPrice)
+        except NotFoundError:
+            return None
 
     def get_craft_resource_cost(
         self,
@@ -220,7 +220,7 @@ async def main(loop: uvloop.Loop):
     db = Database("albion.db")
     albion = Albion(api_client, db)
     albion.update_craftable_items()
-    await albion.update_prices()
+    # await albion.update_prices()
 
     prices = db.query(
         """
@@ -245,6 +245,7 @@ async def main(loop: uvloop.Loop):
             crafting_requirement_cost = albion.get_crafting_requirement_cost(
                 crafting_requirement, item_price.quality, item_price.city
             )
+            pprint(crafting_requirement_cost)
 
     # sell price is literally the price the market is selling
     # same for buying
