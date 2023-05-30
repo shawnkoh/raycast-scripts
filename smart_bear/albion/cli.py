@@ -97,6 +97,14 @@ class CraftableItemCost:
     city: str
     crafting_requirement_costs: list[CraftingRequirementCost]
 
+    @property
+    def can_buy_all_ingredients(self) -> bool:
+        for crafting_requirement_cost in self.crafting_requirement_costs:
+            for craft_resource_cost in crafting_requirement_cost.craft_resource_costs:
+                if craft_resource_cost.item_price is None:
+                    return False
+        return True
+
 
 @attrs.define
 class Albion:
