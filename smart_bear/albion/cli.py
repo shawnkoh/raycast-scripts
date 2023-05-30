@@ -250,6 +250,9 @@ async def main(loop: uvloop.Loop):
         item_price = converter.structure(price, ItemPrice)
         pprint(item_price)
         craftable_item = albion.get_craftable_item(item_price.id)
+        # TODO: Handle this
+        if craftable_item is None:
+            continue
         pprint(craftable_item)
         for crafting_requirement in craftable_item.crafting_requirements:
             crafting_requirement: CraftingRequirement
