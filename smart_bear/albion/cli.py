@@ -123,6 +123,7 @@ class Albion:
                 "quality",
                 "city",
             ),
+            column_order=("item_id", "quality", "city"),
             replace=True,
             alter=True,
         )
@@ -157,10 +158,12 @@ class Albion:
             yield converter.structure(price, ItemPrice)
 
     def get_item_price(self, id: str, quality: int, city: str):
+        pk = (id, quality, city)
+        pprint(pk)
         try:
-            row = self.db["prices"].get((id, quality, city))
+            row = self.db["prices"].get(pk)
+            print("ok")
         except Exception as ex:
-            pprint((id, quality, city))
             raise ex
         return converter.structure(row, ItemPrice)
 
