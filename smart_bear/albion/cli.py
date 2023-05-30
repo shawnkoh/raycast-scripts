@@ -1,3 +1,4 @@
+from pendulum.datetime import DateTime, Timezone
 from typing import Any, Callable, Optional
 from sqlite_utils import Database
 from sqlite_utils.db import NotFoundError
@@ -89,8 +90,15 @@ class CraftingRequirementCost:
     crafting_requirement: CraftingRequirement
     craft_resource_costs: list[CraftResourceCost]
 
+    @property
+    def can_market_buy_all_ingredients(self) -> bool:
+        for craft_resource_cost in self.craft_resource_costs:
+            if craft_resource_cost.item_price is None or is_genesis_date(
+                craft_resource_cost.item_price.sell_price_min_date
+            ):
+                return False
+        return True
 
-from pendulum.datetime import DateTime, Timezone
 
 GENESIS_DATE = DateTime(1, 1, 1, 0, 0, 0, tzinfo=Timezone("UTC"))
 
@@ -105,16 +113,6 @@ class CraftableItemCost:
     quality: int
     city: str
     crafting_requirement_costs: list[CraftingRequirementCost]
-
-    @property
-    def can_market_buy_all_ingredients(self) -> bool:
-        for crafting_requirement_cost in self.crafting_requirement_costs:
-            for craft_resource_cost in crafting_requirement_cost.craft_resource_costs:
-                if craft_resource_cost.item_price is None or is_genesis_date(
-                    craft_resource_cost.item_price.sell_price_min_date
-                ):
-                    return False
-        return True
 
 
 @attrs.define
@@ -265,11 +263,20 @@ async def main(loop: uvloop.Loop):
         # TODO: Handle this
         if craftable_item is None:
             continue
+
+        allowed = False
+
         craftable_item_cost = albion.get_craftable_item_cost(
             craftable_item, item_price.quality, item_price.city
         )
-        if not craftable_item_cost.can_market_buy_all_ingredients:
+        for crafting_requirement_cost in craftable_item_cost.crafting_requirement_costs:
+            if not crafting_requirement_cost.can_market_buy_all_ingredients:
+                continue
+            allowed = True
+
+        if not allowed:
             continue
+
         pprint(craftable_item_cost)
 
     # sell price is literally the price the market is selling
