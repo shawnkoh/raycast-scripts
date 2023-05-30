@@ -157,7 +157,11 @@ class Albion:
             yield converter.structure(price, ItemPrice)
 
     def get_item_price(self, id: str, quality: int, city: str):
-        row = self.db["prices"].get((id, quality, city))
+        try:
+            row = self.db["prices"].get((id, quality, city))
+        except Exception as ex:
+            pprint((id, quality, city))
+            raise ex
         return converter.structure(row, ItemPrice)
 
     def get_craft_resource_cost(
