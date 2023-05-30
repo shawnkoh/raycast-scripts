@@ -51,6 +51,35 @@ class CraftableItem:
     crafting_requirements: CraftingRequirement | list[CraftingRequirement]
 
 
+@attrs.frozen
+class CraftResourceCost:
+    craft_resource: CraftResource
+    item_price: ItemPrice
+
+
+@attrs.frozen
+class CraftingRequirementCost:
+    crafting_requirement: CraftingRequirement
+    craft_resource_costs: list[CraftResourceCost]
+
+    @property
+    def can_market_buy_all_ingredients(self) -> bool:
+        for craft_resource_cost in self.craft_resource_costs:
+            if craft_resource_cost.item_price is None or is_genesis_date(
+                craft_resource_cost.item_price.sell_price_min_date
+            ):
+                return False
+        return True
+
+
+@attrs.frozen
+class CraftableItemCost:
+    craftable_item: CraftableItem
+    quality: int
+    city: str
+    crafting_requirement_costs: list[CraftingRequirementCost]
+
+
 converter = cattrs.Converter()
 
 converter.register_unstructure_hook(DateTime, lambda dt: dt.timestamp())
