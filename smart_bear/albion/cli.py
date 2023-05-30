@@ -159,11 +159,9 @@ class Albion:
 
     def get_item_price(self, id: str, quality: int, city: str):
         pk = (id, quality, city)
-        pprint(pk)
         try:
             row = self.db["prices"].get(pk)
-            print("ok")
-        except Exception as ex:
+        except NotFoundError as ex:
             raise ex
         return converter.structure(row, ItemPrice)
 
