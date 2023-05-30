@@ -214,71 +214,6 @@ async def main(loop: uvloop.Loop):
             for resource in crafting_requirement.craft_resource:
                 resource: CraftResource
 
-        #         print(
-        #             f"""
-        # item_id = {price["item_id"]}
-        # crafting_cost = {crafting_cost}
-        # """
-        #         )
-        # break
-
-    #     def craft_resource_crafting_cost(craft_resource: dict):
-    #         total_silver = 0
-    #         count = float(craft_resource["@count"])
-
-    #         # TODO: "@maxreturnamount"
-    #         # Note that this affects focus calculations
-    #         max_return_amount = (
-    #             float(craft_resource["@maxreturnamount"])
-    #             if "@maxreturnamount" in craft_resource
-    #             else None
-    #         )
-
-    #         if "@silver" in craft_resource:
-    #             total_silver += float(craft_resource["@silver"]) * count
-
-    #         return total_silver
-
-    #     # This assumes that you have the ingredients ready.
-    #     # It does not recurse.
-    #     def get_crafting_cost(item_id: str):
-    #         total_silver = 0
-    #         craftable_item = db["craftable_items"].get(price["item_id"])
-    #         crafting_requirements = json.loads(craftable_item["craftingrequirements"])
-
-    #         # NB: An item can have multiple crafting requirements
-    #         for requirement in crafting_requirements:
-    #             if "@silver" in requirement:
-    #                 total_silver += float(requirement["@silver"])
-
-    #             craft_resource = requirement["craftresource"]
-    #             if isinstance(craft_resource, dict):
-    #                 total_silver += craft_resource_crafting_cost(craft_resource)
-    #             elif isinstance(craft_resource, list):
-    #                 for resource in craft_resource:
-    #                     total_silver += craft_resource_crafting_cost(resource)
-    #             else:
-    #                 raise Exception()
-
-    #         return total_silver
-
-    # for craftable_item in craftable_items:
-    #     crafting_requirements = craftable_item["craftingrequirements"]
-    #     silver_cost = float(crafting_requirements["@silver"])
-    #     crafting_focus = (
-    #         float(crafting_requirements["@craftingfocus"])
-    #         if "@craftingfocus" in crafting_requirements
-    #         else None
-    #     )
-    #     if "craftresource" in crafting_requirements:
-    #         for craft_resource in crafting_requirements["craftresource"]:
-    #             "@uniquename"
-
-    #             if "@craftingfocus" in craft_resource:
-    #             "@count"
-    # some cannot have return eg artifacts
-    # "@maxreturnamount"
-
     # sell price is literally the price the market is selling
     # same for buying
 
@@ -299,9 +234,3 @@ async def main(loop: uvloop.Loop):
 def init():
     loop = uvloop.new_event_loop()
     aiorun.run(main(loop), loop=loop)
-
-    # pprint(craftable_items)
-    # pprint(items_json["items"])
-
-
-# db["items"].insert()
