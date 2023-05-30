@@ -181,6 +181,21 @@ def get_unique_names(items: dict):
     return result
 
 
+@attrs.frozen
+class IngredientCost:
+    item_price: ItemPrice
+    count: int
+
+
+@attrs.define
+class ProductCraftingCost:
+    id: str
+    silver: float
+    time: float
+    crafting_focus: float
+    ingredient_costs: list[IngredientCost]
+
+
 @attrs.define
 class Albion:
     api_client: ApiClient
@@ -224,7 +239,7 @@ class Albion:
         except NotFoundError:
             return None
 
-    def get_prices(self):
+    def get_item_prices(self):
         prices = self.db.query(
             """
         SELECT *
@@ -235,6 +250,12 @@ class Albion:
         for price in prices:
             yield converter.structure(price, ItemPrice)
 
+    def get_item_price(self, id: str, city: str, quality: int):
+        row = self.db["prices"].get((id, city, quality))
+        return converter.structure(row, ItemPrice)
+
+    # NB: This assumes the ingredients are bought in the same city
+    # it should return an array of paths because there are multiple ways to craft
     def get_crafting_cost(self, item_price: ItemPrice):
         total_silver = 0
         craftable_item = self.get_craftable_item(item_price.id)
@@ -245,8 +266,13 @@ class Albion:
 
         for crafting_requirement in craftable_item.crafting_requirements:
             crafting_requirement: CraftingRequirement
+
+            if crafting_requirement.silver is not None:
+                total_silver += crafting_requirement.silver
+
             for craft_resource in crafting_requirement.craft_resource:
                 craft_resource: CraftResource
+                craft_resource.id
 
         return total_silver
 
