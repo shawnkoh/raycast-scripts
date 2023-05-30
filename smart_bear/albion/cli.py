@@ -176,6 +176,10 @@ class Albion:
         city: str,
     ) -> CraftingRequirementCost:
         craft_resource_costs = list[CraftResourceCost]()
+
+        if crafting_requirement.craft_resource is None:
+            return CraftingRequirementCost(crafting_requirement, craft_resource_costs)
+
         for craft_resource in crafting_requirement.craft_resource:
             craft_resource_cost = self.get_craft_resource_cost(
                 craft_resource, quality, city
@@ -204,12 +208,6 @@ class Albion:
 
         return crafting_requirement_costs
 
-        # for each city, check if there are any items that can be bought and crafted for a profit
-        # ignore crafting bonuses for now
-        # 1. get a list of every craftable item
-        # 2. query the api to get their prices
-        # 3. for every craftable item, check the profitabiliy of crafting within the city
-
 
 async def main(loop: uvloop.Loop):
     session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None))
@@ -217,7 +215,7 @@ async def main(loop: uvloop.Loop):
     db = Database("albion.db")
     albion = Albion(api_client, db)
     albion.update_craftable_items()
-    # await albion.update_prices()
+    await albion.update_prices()
 
     prices = db.query(
         """
