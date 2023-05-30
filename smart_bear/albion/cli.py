@@ -254,7 +254,7 @@ async def main(loop: uvloop.Loop):
     for price in prices:
         item_price = converter.structure(price, ItemPrice)
 
-        if is_genesis_date(item_price.buy_price_max_date):
+        if not item_price.can_market_buy:
             continue
 
         craftable_item = albion.get_craftable_item(item_price.id)

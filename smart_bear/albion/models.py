@@ -6,6 +6,7 @@ from pendulum.datetime import DateTime, Timezone
 
 GENESIS_DATE = DateTime(1, 1, 1, 0, 0, 0, tzinfo=Timezone("UTC"))
 
+
 def is_genesis_date(datetime: DateTime):
     return datetime == GENESIS_DATE
 
@@ -25,7 +26,8 @@ class ItemPrice:
     buy_price_max_date: DateTime
 
     @property
-    def can_market_buy():
+    def can_market_buy(self):
+        return not is_genesis_date(self.buy_price_max_date)
 
 
 @attrs.frozen
