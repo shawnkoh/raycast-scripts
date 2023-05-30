@@ -79,19 +79,23 @@ def get_unique_names(items: dict):
 
 
 @attrs.frozen
-class IngredientCost:
+class CraftResourceCost:
+    craft_resource: CraftResource
     item_price: ItemPrice
-    count: int
 
 
-@attrs.define
-class ProductCost:
-    id: str
+@attrs.frozen
+class CraftingRequirementCost:
+    crafting_requirement: CraftingRequirement
+    craft_resource_costs: list[CraftResourceCost]
+
+
+@attrs.frozen
+class CraftableItemCost:
+    craftable_item: CraftableItem
     quality: int
-    silver: float
-    time: float
-    crafting_focus: float
-    ingredient_costs: list[IngredientCost]
+    city: str
+    crafting_requirement_costs: list[CraftingRequirementCost]
 
 
 @attrs.define
@@ -156,60 +160,49 @@ class Albion:
         row = self.db["prices"].get((id, quality, city))
         return converter.structure(row, ItemPrice)
 
-    def get_ingredient_cost(
+    def get_craft_resource_cost(
         self,
         craft_resource: CraftResource,
         quality: int,
         city: str,
     ):
         item_price = self.get_item_price(craft_resource.id, quality, city)
-        return IngredientCost(item_price, craft_resource.count)
+        return CraftResourceCost(craft_resource, item_price)
 
-    def get_product_cost(
+    def get_crafting_requirement_cost(
         self,
-        id: str,
+        crafting_requirement: CraftingRequirement,
         quality: int,
         city: str,
-        crafting_requirement: CraftingRequirement,
-    ) -> ProductCost:
-        product_cost = ProductCost(
-            id,
-            quality,
-            crafting_requirement.silver
-            if crafting_requirement.silver is not None
-            else 0,
-            crafting_requirement.time if crafting_requirement.time is not None else 0,
-            crafting_requirement.crafting_focus
-            if crafting_requirement.crafting_focus is not None
-            else 0,
-            [],
-        )
-        return product_cost
+    ) -> CraftingRequirementCost:
+        craft_resource_costs = list[CraftResourceCost]()
+        for craft_resource in crafting_requirement.craft_resource:
+            craft_resource_cost = self.get_craft_resource_cost(
+                craft_resource, quality, city
+            )
+            craft_resource_costs.append(craft_resource_cost)
+
+        return CraftingRequirementCost(crafting_requirement, craft_resource_costs)
 
     # NB: This assumes the ingredients are bought in the same city
     # it should return an array of paths because there are multiple ways to craft
-    def get_product_costs(self, item_price: ItemPrice):
-        product_costs = list[ProductCost]()
-
-        craftable_item = self.get_craftable_item(item_price.id)
-
-        if craftable_item is None:
-            # TODO: Handle this
-            raise Exception()
+    def get_craftable_item_cost(
+        self,
+        craftable_item: CraftableItem,
+        quality: int,
+        city: str,
+    ):
+        crafting_requirement_costs = list[CraftingRequirementCost]()
 
         for crafting_requirement in craftable_item.crafting_requirements:
-            crafting_requirement: CraftingRequirement
+            crafting_requirement_cost = self.get_crafting_requirement_cost(
+                crafting_requirement,
+                quality,
+                city,
+            )
+            crafting_requirement_costs.append(crafting_requirement_cost)
 
-            product_cost = ProductCost(item_price.id, 0, 0, 0, [])
-
-            if crafting_requirement.silver is not None:
-                total_silver += crafting_requirement.silver
-
-            for craft_resource in crafting_requirement.craft_resource:
-                craft_resource: CraftResource
-                craft_resource.id
-
-        return product_costs
+        return crafting_requirement_costs
 
         # for each city, check if there are any items that can be bought and crafted for a profit
         # ignore crafting bonuses for now
