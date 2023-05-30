@@ -58,6 +58,11 @@ class CraftableItem:
 
 converter = cattrs.Converter()
 
+converter.register_unstructure_hook(DateTime, lambda dt: dt.timestamp())
+
+converter.register_structure_hook(DateTime, lambda ts, _: pendulum.parser.parse(ts))
+
+
 converter.register_structure_hook(
     ItemPrice,
     make_dict_structure_fn(
@@ -242,8 +247,9 @@ async def main(loop: uvloop.Loop):
     # 2. query the api to get their prices
     # 3. for every craftable item, check the profitabiliy of crafting within the city
     for price in prices:
-        pprint(price)
-        craftable_item = albion.get_craftable_item(price["item_id"])
+        item_price = converter.structure(price, ItemPrice)
+        pprint(item_price)
+        craftable_item = albion.get_craftable_item(item_price.id)
         pprint(craftable_item)
         for crafting_requirement in craftable_item.crafting_requirements:
             crafting_requirement: CraftingRequirement
