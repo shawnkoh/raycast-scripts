@@ -2,7 +2,12 @@ import pendulum
 from cattrs.gen import make_dict_structure_fn, override
 import attrs
 import cattrs
-from pendulum.datetime import DateTime
+from pendulum.datetime import DateTime, Timezone
+
+GENESIS_DATE = DateTime(1, 1, 1, 0, 0, 0, tzinfo=Timezone("UTC"))
+
+def is_genesis_date(datetime: DateTime):
+    return datetime == GENESIS_DATE
 
 
 @attrs.frozen
@@ -18,6 +23,9 @@ class ItemPrice:
     buy_price_min_date: DateTime
     buy_price_max: float
     buy_price_max_date: DateTime
+
+    @property
+    def can_market_buy():
 
 
 @attrs.frozen

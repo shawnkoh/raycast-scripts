@@ -18,6 +18,7 @@ from .models import (
     CraftResource,
     CraftingRequirement,
     converter,
+    is_genesis_date,
 )
 
 ITEMS_PATH = "/Users/shawnkoh/repos/ao-data/ao-bin-dumps/items.json"
@@ -98,13 +99,6 @@ class CraftingRequirementCost:
             ):
                 return False
         return True
-
-
-GENESIS_DATE = DateTime(1, 1, 1, 0, 0, 0, tzinfo=Timezone("UTC"))
-
-
-def is_genesis_date(datetime: DateTime):
-    return datetime == GENESIS_DATE
 
 
 @attrs.frozen
@@ -259,6 +253,10 @@ async def main(loop: uvloop.Loop):
     # 3. for every craftable item, check the profitabiliy of crafting within the city
     for price in prices:
         item_price = converter.structure(price, ItemPrice)
+
+        if is_genesis_date(item_price.buy_price_max_date):
+            continue
+
         craftable_item = albion.get_craftable_item(item_price.id)
         # TODO: Handle this
         if craftable_item is None:
