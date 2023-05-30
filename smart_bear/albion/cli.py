@@ -27,7 +27,7 @@ class CraftResource:
 
 @attrs.frozen
 class CraftingRequirement:
-    time: float
+    time: float | None = None
     craft_resource: CraftResource | list[CraftResource] | None = None
     silver: float | None = None
     crafting_focus: float | None = None
