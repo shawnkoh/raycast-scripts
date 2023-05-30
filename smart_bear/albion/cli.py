@@ -90,6 +90,15 @@ class CraftingRequirementCost:
     craft_resource_costs: list[CraftResourceCost]
 
 
+from pendulum.datetime import DateTime, Timezone
+
+GENESIS_DATE = DateTime(1, 1, 1, 0, 0, 0, tzinfo=Timezone("UTC"))
+
+
+def is_genesis_date(datetime: DateTime):
+    return datetime == GENESIS_DATE
+
+
 @attrs.frozen
 class CraftableItemCost:
     craftable_item: CraftableItem
@@ -98,10 +107,12 @@ class CraftableItemCost:
     crafting_requirement_costs: list[CraftingRequirementCost]
 
     @property
-    def can_buy_all_ingredients(self) -> bool:
+    def can_market_buy_all_ingredients(self) -> bool:
         for crafting_requirement_cost in self.crafting_requirement_costs:
             for craft_resource_cost in crafting_requirement_cost.craft_resource_costs:
-                if craft_resource_cost.item_price is None:
+                if craft_resource_cost.item_price is None or is_genesis_date(
+                    craft_resource_cost.item_price.sell_price_min_date
+                ):
                     return False
         return True
 
@@ -257,7 +268,7 @@ async def main(loop: uvloop.Loop):
         craftable_item_cost = albion.get_craftable_item_cost(
             craftable_item, item_price.quality, item_price.city
         )
-        if not craftable_item_cost.can_buy_all_ingredients:
+        if not craftable_item_cost.can_market_buy_all_ingredients:
             continue
         pprint(craftable_item_cost)
 
