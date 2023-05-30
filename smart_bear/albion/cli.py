@@ -224,6 +224,38 @@ class Albion:
         except NotFoundError:
             return None
 
+    def get_prices(self):
+        prices = self.db.query(
+            """
+        SELECT *
+        FROM prices
+        WHERE sell_price_min > 0
+        """
+        )
+        for price in prices:
+            yield converter.structure(price, ItemPrice)
+
+    def get_crafting_cost(self, item_price: ItemPrice):
+        total_silver = 0
+        craftable_item = self.get_craftable_item(item_price.id)
+
+        # TODO: Handle this
+        if craftable_item is None:
+            return total_silver
+
+        for crafting_requirement in craftable_item.crafting_requirements:
+            crafting_requirement: CraftingRequirement
+            for craft_resource in crafting_requirement.craft_resource:
+                craft_resource: CraftResource
+
+        return total_silver
+
+        # for each city, check if there are any items that can be bought and crafted for a profit
+        # ignore crafting bonuses for now
+        # 1. get a list of every craftable item
+        # 2. query the api to get their prices
+        # 3. for every craftable item, check the profitabiliy of crafting within the city
+
 
 async def main(loop: uvloop.Loop):
     session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None))
@@ -256,6 +288,8 @@ async def main(loop: uvloop.Loop):
         pprint(craftable_item)
         for crafting_requirement in craftable_item.crafting_requirements:
             crafting_requirement: CraftingRequirement
+            for resource in crafting_requirement.craft_resource:
+                resource: CraftResource
 
         #         print(
         #             f"""
