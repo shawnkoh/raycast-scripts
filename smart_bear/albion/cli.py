@@ -219,7 +219,12 @@ class Albion:
             )
             crafting_requirement_costs.append(crafting_requirement_cost)
 
-        return crafting_requirement_costs
+        return CraftableItemCost(
+            craftable_item,
+            quality,
+            city,
+            crafting_requirement_costs,
+        )
 
 
 async def main(loop: uvloop.Loop):
@@ -249,11 +254,12 @@ async def main(loop: uvloop.Loop):
         # TODO: Handle this
         if craftable_item is None:
             continue
-        for crafting_requirement in craftable_item.crafting_requirements:
-            crafting_requirement_cost = albion.get_crafting_requirement_cost(
-                crafting_requirement, item_price.quality, item_price.city
-            )
-            pprint(crafting_requirement_cost)
+        craftable_item_cost = albion.get_craftable_item_cost(
+            craftable_item, item_price.quality, item_price.city
+        )
+        if not craftable_item_cost.can_buy_all_ingredients:
+            continue
+        pprint(craftable_item_cost)
 
     # sell price is literally the price the market is selling
     # same for buying
