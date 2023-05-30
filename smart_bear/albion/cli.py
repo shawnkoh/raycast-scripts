@@ -1,3 +1,4 @@
+import pendulum
 from cattrs.gen import make_dict_structure_fn, override
 from typing import Any, Callable, Optional
 from sqlite_utils import Database
@@ -14,8 +15,24 @@ import aiorun
 import uvloop
 from .api import ApiClient
 import cattrs
+from pendulum.datetime import DateTime
 
 ITEMS_PATH = "/Users/shawnkoh/repos/ao-data/ao-bin-dumps/items.json"
+
+
+@attrs.frozen
+class ItemPrice:
+    id: str
+    city: str
+    quality: int
+    sell_price_min: float
+    sell_price_min_date: DateTime
+    sell_price_max: float
+    sell_price_max_date: DateTime
+    buy_price_min: float
+    buy_price_min_date: DateTime
+    buy_price_max: float
+    buy_price_max_date: DateTime
 
 
 @attrs.frozen
@@ -40,6 +57,15 @@ class CraftableItem:
 
 
 converter = cattrs.Converter()
+
+converter.register_structure_hook(
+    ItemPrice,
+    make_dict_structure_fn(
+        ItemPrice,
+        converter,
+        id=override(rename="item_id"),
+    ),
+)
 
 converter.register_structure_hook(
     CraftResource,
@@ -95,12 +121,6 @@ converter.register_structure_hook(
 
 
 app = typer.Typer()
-
-# for each city, check if there are any items that can be bought and crafted for a profit
-# ignore crafting bonuses for now
-# 1. get a list of every craftable item
-# 2. query the api to get their prices
-# 3. for every craftable item, check the profitabiliy of crafting within the city
 
 
 def is_craftable_item(item: dict) -> bool:
@@ -215,9 +235,19 @@ async def main(loop: uvloop.Loop):
     WHERE sell_price_min > 0
     """
     )
+
+    # for each city, check if there are any items that can be bought and crafted for a profit
+    # ignore crafting bonuses for now
+    # 1. get a list of every craftable item
+    # 2. query the api to get their prices
+    # 3. for every craftable item, check the profitabiliy of crafting within the city
     for price in prices:
+        pprint(price)
         craftable_item = albion.get_craftable_item(price["item_id"])
         pprint(craftable_item)
+        for crafting_requirement in craftable_item.crafting_requirements:
+            crafting_requirement: CraftingRequirement
+
         #         print(
         #             f"""
         # item_id = {price["item_id"]}
