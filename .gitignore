@@ -144,3 +144,5 @@ report.txt
 
 # database
 *.db
+
+*.ipynb

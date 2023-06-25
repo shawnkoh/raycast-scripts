@@ -139,10 +139,6 @@ async def get_data(exchange: ccxt.Exchange):
         beta = float(reg.coef_)
 
         plt.figure()
-        # plt.suptitle(
-        #     f"Monthly Performance: {earliest_timestamp} - {fetch_since}",
-        #     fontsize=14,
-        # )
         plt.scatter(eth_returns_array, returns_array, color="blue", alpha=0.3)
         plt.plot(
             eth_returns_array.reshape(-1, 1),
@@ -177,7 +173,7 @@ Beta: {beta:.3f}
         plt.grid(True, which="both")
         plt.axhline(y=0, color="black", linestyle=":")
         plt.axvline(x=0, color="black", linestyle=":")
-        plt.legend(loc="upper right", fontsize="large")
+        plt.legend(loc="lower right", fontsize="large")
 
 
 async def get_dydx_balance():
