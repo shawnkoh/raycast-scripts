@@ -27,7 +27,8 @@ from smart_bear.markdown.lexer import lexer
 from smart_bear.markdown.nuke import uuid_if_sync_conflict
 from smart_bear.markdown.parser import Root, parser
 from smart_bear.visitor import extract_prompts
-from smart_bear import portfolio, albion
+from smart_bear import albion
+from smart_bear.portfolio import stuff
 from tweety.bot import Twitter
 
 
@@ -65,7 +66,7 @@ def get_urls():
 @app.command()
 def port():
     loop = uvloop.new_event_loop()
-    aiorun.run(portfolio.main(loop), loop=loop)
+    aiorun.run(stuff.main(loop), loop=loop)
 
 
 @app.command()
