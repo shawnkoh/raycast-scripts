@@ -138,7 +138,7 @@ async def get_data(exchange: ccxt.Exchange):
         # slope coefficient aka Beta
         beta = float(reg.coef_)
 
-        plt.figure(figsize=(18, 6))
+        plt.figure()
         # plt.suptitle(
         #     f"Monthly Performance: {earliest_timestamp} - {fetch_since}",
         #     fontsize=14,
@@ -171,9 +171,9 @@ Beta: {beta:.3f}
         )
         plt.ylabel("Percent Return of Token", {"fontsize": 16})
         plt.xlabel("Percent Return of ETH", {"fontsize": 16}, labelpad=10)
-        plt.xlim(-0.1, 0.1)
-        plt.ylim(-0.5, 0.5)
-        plt.yticks([-0.5, -0.25, 0, 0.25, 0.5])
+        # plt.xlim(-0.1, 0.1)
+        # plt.ylim(-0.5, 0.5)
+        # plt.yticks([-0.5, -0.25, 0, 0.25, 0.5])
         plt.grid(True, which="both")
         plt.axhline(y=0, color="black", linestyle=":")
         plt.axvline(x=0, color="black", linestyle=":")
