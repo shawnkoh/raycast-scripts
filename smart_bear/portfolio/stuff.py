@@ -2,6 +2,7 @@ import ccxt.pro as ccxt
 from rich.pretty import pprint
 import pendulum
 import dotenv
+import attrs
 from datetime import datetime
 import numpy as np
 from functools import partial
@@ -18,6 +19,14 @@ from web3 import Web3
 from dydx3.constants import NETWORK_ID_MAINNET, API_HOST_MAINNET
 from sqlite_utils import Database
 import pandas as pd
+
+
+@attrs.frozen
+class Result:
+    symbol: str
+    alpha: float
+    beta: float
+
 
 db = Database("binance.db")
 
@@ -109,10 +118,13 @@ async def get_data(exchange: ccxt.Exchange):
     eth_df = await get_df("ETH/USDT")
     eth_returns = eth_df.pct_change()[1:]
     eth_returns_array = np.array(eth_returns["Close"])
+    eth_returns_reshaped = eth_returns_array.reshape(-1, 1)
     eth_reg = LinearRegression().fit(
-        eth_returns_array.reshape(-1, 1),
-        eth_returns_array.reshape(-1, 1),
+        eth_returns_reshaped,
+        eth_returns_reshaped,
     )
+
+    results = dict[str, Result]()
 
     for symbol in symbols:
         df = await get_df(symbol)
@@ -130,7 +142,7 @@ async def get_data(exchange: ccxt.Exchange):
 
         returns_array = np.array(returns["Close"])
         reg = LinearRegression().fit(
-            eth_returns_array.reshape(-1, 1),
+            eth_returns_reshaped,
             returns_array.reshape(-1, 1),
         )
         # intercept coefficient aka Alpha
@@ -138,18 +150,20 @@ async def get_data(exchange: ccxt.Exchange):
         # slope coefficient aka Beta
         beta = float(reg.coef_)
 
+        results[symbol] = Result(symbol, alpha, beta)
+
         plt.figure()
         plt.scatter(eth_returns_array, returns_array, color="blue", alpha=0.3)
         plt.plot(
-            eth_returns_array.reshape(-1, 1),
-            eth_reg.predict(eth_returns_array.reshape(-1, 1)),
+            eth_returns_reshaped,
+            eth_reg.predict(eth_returns_reshaped),
             color="red",
             linewidth=2,
             label="ETH",
         )
         plt.plot(
-            eth_returns_array.reshape(-1, 1),
-            reg.predict(eth_returns_array.reshape(-1, 1)),
+            eth_returns_reshaped,
+            reg.predict(eth_returns_reshaped),
             color="blue",
             linewidth=2,
             label=f"{symbol}",
