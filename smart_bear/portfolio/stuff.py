@@ -216,6 +216,7 @@ Beta: {beta:.3f}
     position_df["notional_beta"] = position_df["notional"] * position_df["beta"]
 
     pprint(position_df)
+    pprint(position_df["notional_beta"].sum())
 
 
 async def get_dydx_balance():
