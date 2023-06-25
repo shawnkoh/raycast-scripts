@@ -1,5 +1,6 @@
 import ccxt.pro as ccxt
 from rich.pretty import pprint
+import pendulum
 import dotenv
 from datetime import datetime
 import numpy as np
@@ -103,7 +104,6 @@ async def get_data(exchange: ccxt.Exchange):
         )
     )
 
-    # pprint(positions)
     symbols = set(map(lambda pos: pos["symbol"], positions))
 
     eth_df = await get_df("ETH/USDT")
@@ -117,7 +117,6 @@ async def get_data(exchange: ccxt.Exchange):
     for symbol in symbols:
         df = await get_df(symbol)
         returns = df.pct_change()[1:]
-        pprint(symbol)
 
         # Check for linearity
         plt.figure()
@@ -138,29 +137,21 @@ async def get_data(exchange: ccxt.Exchange):
         alpha = float(eth_reg.intercept_)
         # slope coefficient aka Beta
         beta = float(reg.coef_)
-        pprint(
-            f"""
-{symbol}
-Alpha: {alpha}
-Beta: {beta}
-"""
-        )
 
-        fig = plt.figure(figsize=(18, 6))
-        fig.suptitle(
-            f"Monthly Performance: {earliest_timestamp} - {fetch_since}",
-            fontsize=22,
-        )
-        ax1 = fig.add_subplot(121)
-        ax1.scatter(eth_returns_array, returns_array, color="blue", alpha=0.3)
-        ax1.plot(
+        plt.figure(figsize=(18, 6))
+        # plt.suptitle(
+        #     f"Monthly Performance: {earliest_timestamp} - {fetch_since}",
+        #     fontsize=14,
+        # )
+        plt.scatter(eth_returns_array, returns_array, color="blue", alpha=0.3)
+        plt.plot(
             eth_returns_array.reshape(-1, 1),
             eth_reg.predict(eth_returns_array.reshape(-1, 1)),
             color="red",
             linewidth=2,
             label="ETH",
         )
-        ax1.plot(
+        plt.plot(
             eth_returns_array.reshape(-1, 1),
             reg.predict(eth_returns_array.reshape(-1, 1)),
             color="blue",
@@ -168,16 +159,25 @@ Beta: {beta}
             label=f"{symbol}",
         )
 
-        ax1.set_title(f"Beta: {beta}", {"fontsize": 16})
-        ax1.set_ylabel("Percent Return of Token", {"fontsize": 16})
-        ax1.set_xlabel("Percent Return of ETH", {"fontsize": 16}, labelpad=10)
-        ax1.set_xlim(-0.1, 0.1)
-        ax1.set_ylim(-0.5, 0.5)
-        ax1.set_yticks([-0.5, -0.25, 0, 0.25, 0.5])
-        ax1.grid(True, which="both")
-        ax1.axhline(y=0, color="black", linestyle=":")
-        ax1.axvline(x=0, color="black", linestyle=":")
-        ax1.legend(loc="upper right", fontsize="large")
+        plt.title(
+            f"""
+{symbol}
+{pendulum.from_timestamp(fetch_since / 1000).to_datetime_string()} - {pendulum.from_timestamp(earliest_timestamp / 1000).to_datetime_string()}
+Timeframe: {TIMEFRAME}
+Alpha:{alpha:.3f}
+Beta: {beta:.3f}
+""",
+            {"fontsize": 16},
+        )
+        plt.ylabel("Percent Return of Token", {"fontsize": 16})
+        plt.xlabel("Percent Return of ETH", {"fontsize": 16}, labelpad=10)
+        plt.xlim(-0.1, 0.1)
+        plt.ylim(-0.5, 0.5)
+        plt.yticks([-0.5, -0.25, 0, 0.25, 0.5])
+        plt.grid(True, which="both")
+        plt.axhline(y=0, color="black", linestyle=":")
+        plt.axvline(x=0, color="black", linestyle=":")
+        plt.legend(loc="upper right", fontsize="large")
 
 
 async def get_dydx_balance():
