@@ -165,8 +165,8 @@ Beta: {beta:.3f}
 """,
             {"fontsize": 16},
         )
-        plt.ylabel("Percent Return of Token", {"fontsize": 16})
-        plt.xlabel("Percent Return of ETH", {"fontsize": 16}, labelpad=10)
+        plt.ylabel(f"{symbol} % Return", {"fontsize": 16})
+        plt.xlabel("ETH % Return", {"fontsize": 16}, labelpad=10)
         # plt.xlim(-0.1, 0.1)
         # plt.ylim(-0.5, 0.5)
         # plt.yticks([-0.5, -0.25, 0, 0.25, 0.5])
