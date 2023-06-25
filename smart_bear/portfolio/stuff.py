@@ -159,7 +159,7 @@ async def get_data(exchange: ccxt.Exchange):
             f"""
 {symbol}
 {pendulum.from_timestamp(fetch_since / 1000).to_datetime_string()} - {pendulum.from_timestamp(earliest_timestamp / 1000).to_datetime_string()}
-Timeframe: {LIMIT}x {TIMEFRAME}
+Timeframe: {LIMIT} x {TIMEFRAME}
 Alpha:{alpha:.3f}
 Beta: {beta:.3f}
 """,
