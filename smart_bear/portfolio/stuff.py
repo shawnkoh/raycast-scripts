@@ -28,8 +28,8 @@ ETHEREUM_ADDRESS = os.getenv("DYDX_ADDRESS")
 # Ganache node.
 WEB_PROVIDER_URL = "https://mainnet.infura.io/v3/2452bd9413aa45b99cb27112e29a192d"
 
-LIMIT = 1000
-TIMEFRAME = "1h"
+LIMIT = 256
+TIMEFRAME = "4h"
 
 
 async def fetch_balance(exchange: ccxt.Exchange, type: str):
