@@ -1,6 +1,8 @@
 import ccxt.pro as ccxt
 from rich.pretty import pprint
+from IPython.display import display
 import pendulum
+import tabulate
 import dotenv
 import attrs
 from datetime import datetime
@@ -186,6 +188,21 @@ Beta: {beta:.3f}
         plt.axhline(y=0, color="black", linestyle=":")
         plt.axvline(x=0, color="black", linestyle=":")
         plt.legend(loc="lower right", fontsize="large")
+
+    table = dict()
+    table["Symbol"] = map(lambda pos: pos["symbol"], positions)
+    table["Notional"] = map(lambda pos: pos["notional"], positions)
+    table["Notional β"] = map(
+        lambda pos: pos["notional"] * results[pos["symbol"]].beta,
+        positions,
+    )
+
+    display(tabulate.tabulate(table, tablefmt="html"))
+    # print(tabulate.tabulate(table, tablefmt="html"))
+    # for position in positions:
+    #     result = results[position["symbol"]]
+    #     notional_adjusted = position["notional"] * result.beta
+    #     table["Symbol"] = result.symbol
 
 
 async def get_dydx_balance():
