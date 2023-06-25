@@ -197,12 +197,25 @@ Beta: {beta:.3f}
         positions,
     )
 
-    display(tabulate.tabulate(table, tablefmt="html"))
-    # print(tabulate.tabulate(table, tablefmt="html"))
-    # for position in positions:
-    #     result = results[position["symbol"]]
-    #     notional_adjusted = position["notional"] * result.beta
-    #     table["Symbol"] = result.symbol
+    # pprint(positions)
+    # display(tabulate.tabulate(table, tablefmt="html"))
+
+    position_df = pd.DataFrame(positions, columns=["symbol", "notional", "side"])
+    position_df["notional"] = position_df.apply(
+        lambda row: row["notional"] * (-1 if row["side"] == "short" else 1),
+        axis=1,
+    )
+    position_df["alpha"] = position_df.apply(
+        lambda row: results[row["symbol"]].alpha,
+        axis=1,
+    )
+    position_df["beta"] = position_df.apply(
+        lambda row: results[row["symbol"]].beta,
+        axis=1,
+    )
+    position_df["notional_beta"] = position_df["notional"] * position_df["beta"]
+
+    pprint(position_df)
 
 
 async def get_dydx_balance():
