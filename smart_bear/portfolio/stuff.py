@@ -106,9 +106,7 @@ async def get_data(exchange: ccxt.Exchange):
 
     positions = list(
         filter(
-            lambda pos: pos["contracts"] > 0
-            and pos["symbol"] != "USDC/USDT:USDT"
-            and pos["symbol"] != "ETH/USDT:USDT",
+            lambda pos: pos["contracts"] > 0 and pos["symbol"] != "USDC/USDT:USDT",
             positions,
         )
     )
@@ -146,7 +144,7 @@ async def get_data(exchange: ccxt.Exchange):
             returns_array.reshape(-1, 1),
         )
         # intercept coefficient aka Alpha
-        alpha = float(eth_reg.intercept_)
+        alpha = float(reg.intercept_)
         # slope coefficient aka Beta
         beta = float(reg.coef_)
 
